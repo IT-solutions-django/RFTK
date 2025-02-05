@@ -90,7 +90,9 @@ def add_organization(request):
         bank_form = BankDetailsOrganizationForm(request.POST, prefix='bank')
 
         if org_form.is_valid() and bank_form.is_valid():
-            organization = org_form.save()
+            organization = org_form.save(commit=False)
+            organization.user = request.user
+            organization.save()
 
             bank_details = bank_form.save(commit=False)
             bank_details.organization = organization
@@ -115,7 +117,9 @@ def add_counterparty(request):
         counterparty_bank_form = BankCounterpartyForm(request.POST, prefix='counterparty_bank')
 
         if counterparty_form.is_valid() and counterparty_bank_form.is_valid():
-            counterparty = counterparty_form.save()
+            counterparty = counterparty_form.save(commit=False)
+            counterparty.user = request.user
+            counterparty.save()
 
             counterparty_bank = counterparty_bank_form.save(commit=False)
             counterparty_bank.organization = counterparty

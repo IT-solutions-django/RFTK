@@ -167,11 +167,41 @@
                     <form id="organizationForm" method="post" action="{% url 'add_organization' %}">
                         {% csrf_token %}
                         <h5>Информация о организации</h5>
-                        {{ org_form.as_p }}
+                        {% for field in org_form %}
+                            {% if field.name == 'inn'%}
+                            <label class="form-label" for="{{ org_form.inn.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ field }}
+                                <button type="button" class="btn btn-primary" id="findByINN">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% endif %}
+                        {% endfor %}
                         <hr>
                         <h5>Банковские реквизиты</h5>
-                        {{ bank_form.as_p }}
-                        <button type="submit" class="btn btn-success">Сохранить</button>
+                        {% for field in bank_form %}
+                            {% if field.name == 'bic'%}
+                            <label class="form-label" for="{{ bank_form.bic.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ field }}
+                                <button type="button" class="btn btn-primary" id="findByBIK">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="text-left mt-3">
+                            <button type="submit" class="btn btn-success">Сохранить</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -190,11 +220,41 @@
                     <form id="counterpartyForm" method="post" action="{% url 'add_counterparty' %}">
                         {% csrf_token %}
                         <h5>Информация о контрагенте</h5>
-                        {{ counterparty_form.as_p }}
+                        {% for field in counterparty_form %}
+                            {% if field.name == 'inn'%}
+                            <label class="form-label" for="{{ counterparty_form.inn.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ field }}
+                                <button type="button" class="btn btn-primary" id="findByINNCounterparty">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% endif %}
+                        {% endfor %}
                         <hr>
                         <h5>Банковские реквизиты</h5>
-                        {{ counterparty_bank_form.as_p }}
-                        <button type="submit" class="btn btn-success">Сохранить</button>
+                        {% for field in counterparty_bank_form %}
+                            {% if field.name == 'bic'%}
+                            <label class="form-label" for="{{ counterparty_bank_form.bic.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ field }}
+                                <button type="button" class="btn btn-primary" id="findByBIKCounterparty">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="text-left mt-3">
+                            <button type="submit" class="btn btn-success">Сохранить</button>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -104,11 +104,16 @@ class OrganizationForm(forms.ModelForm):
 
         widgets = {
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название организации'}),
-            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ИНН'}),
-            'kpp': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите КПП'}),
-            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН'}),
+            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ИНН', 'pattern': '[0-9]+',
+                                          'title': 'ИНН может содержать только цифры'}),
+            'kpp': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите КПП', 'pattern': '[0-9]+',
+                                          'title': 'КПП может содержать только цифры'}),
+            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН', 'pattern': '[0-9]+',
+                                           'title': 'ОГРН может содержать только цифры'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона'}),
+            'phone': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'pattern': r'^\+7\d{10}$',
+                       'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
             'fax': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер факса'}),
             'position_at_work': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите должность'}),
             'supervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя руководителя'}),
@@ -140,13 +145,17 @@ class BankDetailsOrganizationForm(forms.ModelForm):
         exclude = ['organization']
 
         widgets = {
-            'bic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка'}),
+            'bic': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
+                       'title': 'БИК может содержать только цифры'}),
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
             'correspondent_account': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
+                       'title': 'Кор.счет может содержать только цифры'}),
             'current_account': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет', 'pattern': '[0-9]+',
+                       'title': 'Расчетный счет может содержать только цифры'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -164,11 +173,16 @@ class CounterpartyForm(forms.ModelForm):
 
         widgets = {
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название организации'}),
-            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ИНН'}),
-            'kpp': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите КПП'}),
-            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН'}),
+            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ИНН', 'pattern': '[0-9]+',
+                                          'title': 'ИНН может содержать только цифры'}),
+            'kpp': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите КПП', 'pattern': '[0-9]+',
+                                          'title': 'КПП может содержать только цифры'}),
+            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН', 'pattern': '[0-9]+',
+                                           'title': 'ОГРН может содержать только цифры'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите телефон'}),
+            'phone': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'pattern': r'^\+7\d{10}$',
+                       'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
             'code_company': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите условное наимнование организации'}),
         }
@@ -187,13 +201,17 @@ class BankCounterpartyForm(forms.ModelForm):
         exclude = ['organization']
 
         widgets = {
-            'bic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка'}),
+            'bic': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
+                       'title': 'БИК может содержать только цифры'}),
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
             'correspondent_account': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
+                       'title': 'Кор.счет может содержать только цифры'}),
             'current_account': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет', 'pattern': '[0-9]+',
+                       'title': 'Расчетный счет может содержать только цифры'}),
         }
 
     def __init__(self, *args, **kwargs):

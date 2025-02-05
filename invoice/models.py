@@ -20,9 +20,9 @@ def validate_ogrn(value):
 
 
 def validate_phone(value):
-    pattern = r'^\+7\s?\d{3}\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}$'
+    pattern = r'^\+7\d{10}$'
     if not re.fullmatch(pattern, value):
-        raise ValidationError('Введите корректный номер в формате +7 999 123-45-67 или +79991234567.')
+        raise ValidationError('Введите корректный номер в формате +7XXXXXXXXXX.')
 
 
 def validate_bic(value):

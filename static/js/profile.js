@@ -79,19 +79,6 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    $("#id_organization-phone").on("input", function () {
-        let phone = $(this).val();
-        let phonePattern = /^\+7\s?\d{3}\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}$/;
-
-        if (!phonePattern.test(phone)) {
-            $(this).addClass("is-invalid");
-        } else {
-            $(this).removeClass("is-invalid");
-        }
-    });
-});
-
-$(document).ready(function () {
     $("#id_bank-bic").on("input", function () {
         if (/[a-zA-Zа-яА-Я]/.test($(this).val())) {
             $(this).addClass("is-invalid");

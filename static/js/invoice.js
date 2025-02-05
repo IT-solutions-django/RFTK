@@ -61,7 +61,22 @@ document.getElementById('counterpartyForm').addEventListener('submit', function 
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelector('.add-row').addEventListener('click', function () {
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-row')) {
+            var rowCount = document.querySelectorAll('#formset-body tr').length;
+            if (rowCount > 1) {
+                var row = event.target.closest('tr');
+                row.remove();
+                updateManagementForm();
+            }
+        }
+
+        if (event.target.classList.contains('add-row')) {
+            addNewRow();
+        }
+    });
+
+    function addNewRow() {
         var formsetBody = document.getElementById('formset-body');
         var firstRow = formsetBody.querySelector('tr');
         var newRow = firstRow.cloneNode(true);
@@ -73,18 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         formsetBody.appendChild(newRow);
         updateManagementForm();
-    });
-
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-row')) {
-            var rowCount = document.querySelectorAll('#formset-body tr').length;
-            if (rowCount > 1) {
-                var row = event.target.closest('tr');
-                row.remove();
-                updateManagementForm();
-            }
-        }
-    });
+    }
 
     function updateManagementForm() {
         var totalForms = document.getElementById('id_form-TOTAL_FORMS');
@@ -101,9 +105,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     input.name = updatedName;
                 }
             });
+
+            // Убедимся, что у каждой строки есть кнопка "Добавить строку"
+            var addButton = row.querySelector('.add-row');
+            if (!addButton) {
+                var newAddButton = document.createElement('button');
+                newAddButton.textContent = 'Добавить строку';
+                newAddButton.classList.add('add-row');
+                row.appendChild(newAddButton);
+            }
         });
     }
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const formsetBody = document.getElementById("formset-body");
@@ -233,4 +247,102 @@ $(document).ready(function () {
             });
         }
     });
+});
+
+document.getElementById("findByINN").addEventListener("click", function() {
+    let innInput = document.getElementById("id_organization-inn");
+    let inn = innInput.value.trim();
+
+    if (!inn) {
+        alert("Введите ИНН");
+        return;
+    }
+
+    fetch(`/find-company/?inn=${inn}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_organization-naming").value = data.name;
+                document.getElementById("id_organization-kpp").value = data.kpp;
+                document.getElementById("id_organization-ogrn").value = data.ogrn;
+                document.getElementById("id_organization-address").value = data.address;
+                document.getElementById("id_organization-position_at_work").value = data.position_at_work;
+                document.getElementById("id_organization-supervisor").value = data.supervisor;
+
+            } else {
+                alert("Организация не найдена");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
+});
+
+document.getElementById("findByBIK").addEventListener("click", function() {
+    let bikInput = document.getElementById("id_bank-bic");
+    let bik = bikInput.value.trim();
+
+    if (!bik) {
+        alert("Введите БИК");
+        return;
+    }
+
+    fetch(`/find-bank/?bik=${bik}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_bank-naming").value = data.bank_name;
+                document.getElementById("id_bank-location").value = data.address;
+                document.getElementById("id_bank-correspondent_account").value = data.correspondent_account;
+            } else {
+                alert("Банк не найден");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
+});
+
+document.getElementById("findByINNCounterparty").addEventListener("click", function() {
+    let innInput = document.getElementById("id_counterparty-inn");
+    let inn = innInput.value.trim();
+
+    if (!inn) {
+        alert("Введите ИНН");
+        return;
+    }
+
+    fetch(`/find-company/?inn=${inn}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_counterparty-naming").value = data.name;
+                document.getElementById("id_counterparty-kpp").value = data.kpp;
+                document.getElementById("id_counterparty-ogrn").value = data.ogrn;
+                document.getElementById("id_counterparty-ogrn").value = data.address;
+
+            } else {
+                alert("Организация не найдена");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
+});
+
+document.getElementById("findByBIKCounterparty").addEventListener("click", function() {
+    let bikInput = document.getElementById("id_counterparty_bank-bic");
+    let bik = bikInput.value.trim();
+
+    if (!bik) {
+        alert("Введите БИК");
+        return;
+    }
+
+    fetch(`/find-bank/?bik=${bik}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_counterparty_bank-naming").value = data.bank_name;
+                document.getElementById("id_counterparty_bank-location").value = data.address;
+                document.getElementById("id_counterparty_bank-correspondent_account").value = data.correspondent_account;
+            } else {
+                alert("Банк не найден");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
 });

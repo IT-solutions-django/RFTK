@@ -93,7 +93,7 @@ def create_power_attorney_excel(data, formset_data):
         'A26'] = f'{data["organization"].naming}, ИНН {data["organization"].inn} КПП {data["organization"].kpp}, {data["organization"].address}'
 
     sheet[
-        'A29'] = f'Счет № {data["bank_organization"].current_account} в {data["bank_organization"].naming}, {data["bank_organization"].address}, БИК {data["bank_organization"].bic}, корр.сч. {data["bank_organization"].correspondent_account}'
+        'A29'] = f'Счет № {data["bank_organization"].current_account} в {data["bank_organization"].naming}, {data["bank_organization"].location}, БИК {data["bank_organization"].bic}, корр.сч. {data["bank_organization"].correspondent_account}'
 
     sheet['A31'] = f'Доверенность выдана: {data["person_power"]}'
     sheet['A33'] = f'Паспорт: {data["passport_series"]} {data["passport_number"]}'
