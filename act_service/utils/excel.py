@@ -67,61 +67,64 @@ def excel_to_html():
 
 
 def create_act_service_excel(data, formset_data):
-    excel_to_html()
-    change_html(len(formset_data))
-    html_to_excel()
+    try:
+        excel_to_html()
+        change_html(len(formset_data))
+        html_to_excel()
 
-    file_path = 'act_service/utils/output.xlsx'
+        file_path = 'act_service/utils/output.xlsx'
 
-    workbook = openpyxl.load_workbook(file_path)
+        workbook = openpyxl.load_workbook(file_path)
 
-    sheet = workbook["Акт оказания услуг"]
+        sheet = workbook["Акт оказания услуг"]
 
-    sheet['A2'] = f'Акт № {data["name"]} от {data["date"]}'
-    sheet['A4'] = f'выполненных работ / оказанных услуг по договору {data["agreement"]}'
-    sheet['A5'] = f'за {data["payment_for"]}'
-    sheet[
-        'Q7'] = f'{data["organization"].naming}, ИНН {data["organization"].inn}, КПП {data["organization"].kpp}, {data["organization"].address}'
-    sheet[
-        'Q9'] = f'{data["counterparty"].naming}, ИНН {data["counterparty"].inn}, КПП {data["counterparty"].kpp}, {data["counterparty"].address}'
+        sheet['A2'] = f'Акт № {data["name"]} от {data["date"]}'
+        sheet['A4'] = f'выполненных работ / оказанных услуг по договору {data["agreement"]}'
+        sheet['A5'] = f'за {data["payment_for"]}'
+        sheet[
+            'Q7'] = f'{data["organization"].naming}, ИНН {data["organization"].inn}, КПП {data["organization"].kpp}, {data["organization"].address}'
+        sheet[
+            'Q9'] = f'{data["counterparty"].naming}, ИНН {data["counterparty"].inn}, КПП {data["counterparty"].kpp}, {data["counterparty"].address}'
 
-    start_table_row = 11
-    total_sum = 0
+        start_table_row = 11
+        total_sum = 0
 
-    for idx, table_data in enumerate(formset_data, 1):
-        total_sum += table_data['amount']
+        for idx, table_data in enumerate(formset_data, 1):
+            total_sum += table_data['amount']
 
-        sheet[f'A{start_table_row + idx}'] = f'{idx}'
-        sheet[f'E{start_table_row + idx}'] = table_data['name']
-        sheet[f'BB{start_table_row + idx}'] = table_data['quantity']
-        sheet[f'BM{start_table_row + idx}'] = table_data['unit_of_measurement']
-        sheet[f'BW{start_table_row + idx}'] = f"{table_data['price']}"
-        sheet[f'CN{start_table_row + idx}'] = table_data['amount']
+            sheet[f'A{start_table_row + idx}'] = f'{idx}'
+            sheet[f'E{start_table_row + idx}'] = table_data['name']
+            sheet[f'BB{start_table_row + idx}'] = table_data['quantity']
+            sheet[f'BM{start_table_row + idx}'] = table_data['unit_of_measurement']
+            sheet[f'BW{start_table_row + idx}'] = f"{table_data['price']}"
+            sheet[f'CN{start_table_row + idx}'] = table_data['amount']
 
-    sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
+        sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
 
-    sheet[
-        f'A{start_table_row + len(formset_data) + 4}'] = f'Всего оказано услуг {len(formset_data)} на сумму {total_sum} руб.'
-    sheet[
-        f'A{start_table_row + len(formset_data) + 6}'] = ''
+        sheet[
+            f'A{start_table_row + len(formset_data) + 4}'] = f'Всего оказано услуг {len(formset_data)} на сумму {total_sum} руб.'
+        sheet[
+            f'A{start_table_row + len(formset_data) + 6}'] = ''
 
-    sheet[f'A{start_table_row + len(formset_data) + 11}'] = f'{data["organization"].position_at_work}'
-    sheet[f'Q{start_table_row + len(formset_data) + 14}'] = f'{data["organization"].supervisor}'
+        sheet[f'A{start_table_row + len(formset_data) + 11}'] = f'{data["organization"].position_at_work}'
+        sheet[f'Q{start_table_row + len(formset_data) + 14}'] = f'{data["organization"].supervisor}'
 
-    sheet[f'BT{start_table_row + len(formset_data) + 14}'] = f'{data["counterparty"].naming}'
+        sheet[f'BT{start_table_row + len(formset_data) + 14}'] = f'{data["counterparty"].naming}'
 
-    if data['organization'].stamp:
-        image_file = data['organization'].stamp
-        img = Image(BytesIO(image_file.read()))
+        if data['organization'].stamp:
+            image_file = data['organization'].stamp
+            img = Image(BytesIO(image_file.read()))
 
-        img.width = 50
-        img.height = 50
+            img.width = 50
+            img.height = 50
 
-        sheet.add_image(img, f"R{start_table_row + len(formset_data) + 17}")
+            sheet.add_image(img, f"R{start_table_row + len(formset_data) + 17}")
 
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
-    workbook.save(response)
-    return response
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
+        workbook.save(response)
+        return response
+    except Exception as e:
+        print(e)
