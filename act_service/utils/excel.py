@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
 from io import BytesIO
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 def html_to_excel():
@@ -127,4 +129,4 @@ def create_act_service_excel(data, formset_data):
         workbook.save(response)
         return response
     except Exception as e:
-        print(e)
+        logging.error(f"Ошибка в create_invoice_excel: {e}")
