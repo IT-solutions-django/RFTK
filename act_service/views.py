@@ -5,7 +5,7 @@ from .forms import ActServiceDocumentForm
 from commercial_offer.forms import CommercialOfferDocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
-from commercial_offer.utils.excel import create_commercial_offer_excel
+from act_service.utils.excel import create_act_service_excel
 
 
 class ActServiceDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -60,6 +60,6 @@ class ActServiceDocumentCreateView(LoginRequiredMixin, CreateView):
 
             form_data = form.cleaned_data
 
-            response = create_commercial_offer_excel(form_data, formset_data)
+            response = create_act_service_excel(form_data, formset_data)
 
             return response

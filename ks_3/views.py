@@ -4,7 +4,7 @@ from invoice.models import Ks3Document, Ks3DocumentTable
 from .forms import Ks3DocumentForm, Ks3DocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
-from commercial_offer.utils.excel import create_commercial_offer_excel
+from ks_3.utils.excel import create_ks3_excel
 
 
 class Ks3DocumentCreateView(LoginRequiredMixin, CreateView):
@@ -61,6 +61,6 @@ class Ks3DocumentCreateView(LoginRequiredMixin, CreateView):
 
             form_data = form.cleaned_data
 
-            response = create_commercial_offer_excel(form_data, formset_data)
+            response = create_ks3_excel(form_data, formset_data)
 
             return response

@@ -4,7 +4,7 @@ from invoice.models import PowerAttorneyDocument, PowerAttorneyDocumentTable
 from .forms import PowerAttorneyDocumentForm, PowerAttorneyDocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
-from packing_list.utils.excel import create_packing_list_excel
+from power_attorney.utils.excel import create_power_attorney_excel
 
 
 class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -57,6 +57,6 @@ class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
 
             form_data = form.cleaned_data
 
-            response = create_packing_list_excel(form_data, formset_data)
+            response = create_power_attorney_excel(form_data, formset_data)
 
             return response

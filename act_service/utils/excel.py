@@ -66,7 +66,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_ks2_excel(data, formset_data):
+def create_act_service_excel(data, formset_data):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
