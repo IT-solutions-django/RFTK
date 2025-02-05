@@ -77,15 +77,15 @@ def create_packing_list_excel(data, formset_data):
 
     sheet = workbook["Товарная накладная"]
 
-    sheet['A4'] = f'{data['shipper'].naming}, ИНН: {data['shipper'].inn}, {data['shipper'].address}'
+    sheet['A4'] = f'{data["shipper"].naming}, ИНН: {data["shipper"].inn}, {data["shipper"].address}'
     sheet['EW4'] = ''
     sheet['A6'] = data['structural_division']
-    sheet['Q9'] = f'{data['consignee'].naming}, ИНН: {data['consignee'].inn}, {data['consignee'].address}'
+    sheet['Q9'] = f'{data["consignee"].naming}, ИНН: {data["consignee"].inn}, {data["consignee"].address}'
     sheet[
-        'Q10'] = f'{data['organization'].naming}, ИНН: {data['organization'].inn}, КПП: {data['organization'].kpp}, {data['organization'].address}, {data['bank_organization'].naming}, {data['bank_organization'].location}, БИК {data['bank_organization'].bic}, к/с {data['bank_organization'].correspondent_account}, р/с {data['bank_organization'].current_account}'
+        'Q10'] = f'{data["organization"].naming}, ИНН: {data["organization"].inn}, КПП: {data["organization"].kpp}, {data["organization"].address}, {data["bank_organization"].naming}, {data["bank_organization"].location}, БИК {data["bank_organization"].bic}, к/с {data["bank_organization"].correspondent_account}, р/с {data["bank_organization"].current_account}'
     sheet['EW10'] = ''
     sheet[
-        'Q11'] = f'{data['counterparty'].naming}, ИНН {data['counterparty'].inn}, {data['organization'].address}, {data['bank_counterparty'].naming}, {data['bank_counterparty'].location}, БИК {data['bank_counterparty'].bic}, к/с {data['bank_counterparty'].correspondent_account}'
+        'Q11'] = f'{data["counterparty"].naming}, ИНН {data["counterparty"].inn}, {data["organization"].address}, {data["bank_counterparty"].naming}, {data["bank_counterparty"].location}, БИК {data["bank_counterparty"].bic}, к/с {data["bank_counterparty"].correspondent_account}'
     sheet['Q12'] = data['base']
     sheet['EW12'] = data['number_base']
     sheet['EW13'] = data['date_base']
@@ -113,9 +113,9 @@ def create_packing_list_excel(data, formset_data):
         sheet[f'BO{start_table_row + idx}'] = table_data['unit_of_measurement']
         sheet[f'BU{start_table_row + idx}'] = table_data['type_of_packaging']
         sheet[f'CD{start_table_row + idx}'] = table_data['quantity']
-        sheet[f'CK{start_table_row + idx}'] = f'{table_data['quantity']}'
-        sheet[f'CQ{start_table_row + idx}'] = f'{table_data['gross_weight']}'
-        sheet[f'CX{start_table_row + idx}'] = f'{table_data['net_weight']}'
+        sheet[f'CK{start_table_row + idx}'] = f'{table_data["quantity"]}'
+        sheet[f'CQ{start_table_row + idx}'] = f'{table_data["gross_weight"]}'
+        sheet[f'CX{start_table_row + idx}'] = f'{table_data["net_weight"]}'
         sheet[f'DH{start_table_row + idx}'] = table_data['price']
         sheet[f'DR{start_table_row + idx}'] = table_data['amount']
         sheet[f'EW{start_table_row + idx}'] = table_data['amount']

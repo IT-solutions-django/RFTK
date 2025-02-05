@@ -77,13 +77,13 @@ def create_outlay_excel(data, formset_data):
 
     sheet = workbook["Смета"]
 
-    sheet['BT1'] = f'Приложение № {data['number_outlay']}'
-    sheet['BT2'] = f'от {data['date']}'
+    sheet['BT1'] = f'Приложение № {data["number_outlay"]}'
+    sheet['BT2'] = f'от {data["date"]}'
     sheet['BT3'] = data['base']
     sheet['A5'] = data['name']
     sheet['A7'] = data['name_construction']
-    sheet['A8'] = f'по адресу {data['address']}'
-    sheet['A10'] = f'Срок выполнения работ: {data['work_time']}'
+    sheet['A8'] = f'по адресу {data["address"]}'
+    sheet['A10'] = f'Срок выполнения работ: {data["work_time"]}'
 
     start_table_row = 12
     total_sum = 0
@@ -103,13 +103,13 @@ def create_outlay_excel(data, formset_data):
     sheet[f'A{start_table_row + len(formset_data) + 5}'] = f'Итого: {total_sum}'
 
     sheet[
-        f'BE{start_table_row + len(formset_data) + 9}'] = f"{data['organization'].naming}, ИНН/КПП {data['organization'].inn}/{data['organization'].kpp}"
-    sheet[f'BE{start_table_row + len(formset_data) + 10}'] = f"{data['organization'].position_at_work}"
-    sheet[f'BS{start_table_row + len(formset_data) + 11}'] = f"{data['organization'].supervisor}"
+        f'BE{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].naming}, ИНН/КПП {data["organization"].inn}/{data["organization"].kpp}'
+    sheet[f'BE{start_table_row + len(formset_data) + 10}'] = f'{data["organization"].position_at_work}'
+    sheet[f'BS{start_table_row + len(formset_data) + 11}'] = f'{data["organization"].supervisor}'
 
     sheet[
-        f'B{start_table_row + len(formset_data) + 9}'] = f"{data['counterparty'].naming}, ИНН/КПП {data['counterparty'].inn}/{data['counterparty'].kpp}"
-    sheet[f'Q{start_table_row + len(formset_data) + 11}'] = f"{data['counterparty'].naming}"
+        f'B{start_table_row + len(formset_data) + 9}'] = f'{data["counterparty"].naming}, ИНН/КПП {data["counterparty"].inn}/{data["counterparty"].kpp}'
+    sheet[f'Q{start_table_row + len(formset_data) + 11}'] = f'{data["counterparty"].naming}'
 
     if data['organization'].stamp:
         image_file = data['organization'].stamp

@@ -85,11 +85,11 @@ def create_invoice_excel(data, organization_data, formset_data):
 
     sheet['A10'] = organization_data['name']
     sheet[
-        'A11'] = f"{organization_data['address']}\nИНН/КПП {organization_data['kpp']}/{organization_data['kpp']}\nОГРН {organization_data['ogrn']}\n{data["bank_organization"].naming}, {data["bank_organization"].location}\nКор. счет {data["bank_organization"].correspondent_account}\nБИК {data["bank_organization"].bic}"
+        'A11'] = f"{organization_data['address']}\nИНН/КПП {organization_data['kpp']}/{organization_data['kpp']}\nОГРН {organization_data['ogrn']}\n{data['bank_organization'].naming}, {data['bank_organization'].location}\nКор. счет {data['bank_organization'].correspondent_account}\nБИК {data['bank_organization'].bic}"
 
-    sheet['AY10'] = f"{data["counterparty"].naming}"
+    sheet['AY10'] = f"{data['counterparty'].naming}"
     sheet[
-        'AY11'] = f"{data["counterparty"].address}\nИНН {data["counterparty"].inn}\nОГРН {data["counterparty"].ogrn}\n{data["bank_counterparty"].naming}, {data["bank_counterparty"].location}\nКор. счет {data["bank_counterparty"].correspondent_account}\nБИК {data["bank_counterparty"].bic}"
+        'AY11'] = f"{data['counterparty'].address}\nИНН {data['counterparty'].inn}\nОГРН {data['counterparty'].ogrn}\n{data['bank_counterparty'].naming}, {data['bank_counterparty'].location}\nКор. счет {data['bank_counterparty'].correspondent_account}\nБИК {data['bank_counterparty'].bic}"
 
     sheet['A13'] = f"{data['name']} от {data['date']}"
 

@@ -82,15 +82,15 @@ def create_utd_excel(data, formset_data):
     sheet['BK2'] = data['date']
     sheet['AP6'] = data['organization'].naming
     sheet['AP7'] = data['organization'].address
-    sheet['AP8'] = f"{data['organization'].inn} / {data['organization'].kpp}"
-    sheet['AP9'] = f"{data['shipper'].naming}, {data['shipper'].address}"
-    sheet['AP10'] = f"{data['consignee'].naming}, {data['consignee'].address}"
+    sheet['AP8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
+    sheet['AP9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
+    sheet['AP10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
     sheet['AT11'] = data['payment_document']
     sheet['AX12'] = data['shipping_document']
 
     sheet['DL6'] = f'{data["counterparty"].naming}'
     sheet['DL7'] = f'{data["counterparty"].address}'
-    sheet['DL8'] = f"{data['counterparty'].inn} / {data['counterparty'].kpp}"
+    sheet['DL8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
     sheet['EE10'] = data['state_ID_contract']
 
     start_table_row = 21
@@ -137,7 +137,7 @@ def create_utd_excel(data, formset_data):
     sheet[f'AZ{start_table_row + len(formset_data) + 21}'] = data['organization'].supervisor
 
     sheet[
-        f'A{start_table_row + len(formset_data) + 24}'] = f"{data['organization'].naming} ИНН/КПП {data['organization'].inn} / {data['organization'].kpp}"
+        f'A{start_table_row + len(formset_data) + 24}'] = f'{data["organization"].naming} ИНН/КПП {data["organization"].inn} / {data["organization"].kpp}'
 
     sheet[f'EE{start_table_row + len(formset_data) + 14}'] = data["counterparty"].naming
 
@@ -151,7 +151,7 @@ def create_utd_excel(data, formset_data):
     sheet[f'EE{start_table_row + len(formset_data) + 21}'] = data["counterparty"].naming
 
     sheet[
-        f'CF{start_table_row + len(formset_data) + 24}'] = f"{data['counterparty'].naming} ИНН/КПП {data['counterparty'].inn} / {data['counterparty'].kpp}"
+        f'CF{start_table_row + len(formset_data) + 24}'] = f'{data["counterparty"].naming} ИНН/КПП {data["counterparty"].inn} / {data["counterparty"].kpp}'
 
     if data['organization'].stamp:
         image_file = data['organization'].stamp

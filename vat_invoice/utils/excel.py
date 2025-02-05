@@ -81,15 +81,15 @@ def create_vat_invoice_excel(data, formset_data):
     sheet['BF2'] = data['date']
     sheet['AF6'] = data['organization'].naming
     sheet['AF7'] = data['organization'].address
-    sheet['AF8'] = f"{data['organization'].inn} / {data['organization'].kpp}"
-    sheet['AF9'] = f"{data['shipper'].naming}, {data['shipper'].address}"
-    sheet['AF10'] = f"{data['consignee'].naming}, {data['consignee'].address}"
+    sheet['AF8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
+    sheet['AF9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
+    sheet['AF10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
     sheet['AF11'] = data['payment_document']
     sheet['AJ12'] = data['shipping_document']
 
     sheet['DG6'] = f'{data["counterparty"].naming}'
     sheet['DG7'] = f'{data["counterparty"].address}'
-    sheet['DG8'] = f"{data['counterparty'].inn} / {data['counterparty'].kpp}"
+    sheet['DG8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
     sheet['DV10'] = data['state_ID_contract']
 
     start_table_row = 25
