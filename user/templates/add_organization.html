@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить организацию</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/invoice.css' %}">
+    <script src="{% static 'js/profile.js' %}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <button class="btn btn-outline-primary me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+            ☰ Меню
+        </button>
+        <a class="navbar-brand" href="#">RFTK</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">Личный кабинет</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item d-flex align-items-center">
+                        <img src="{% static 'img/icons8-тестовый-аккаунт-48.png' %}" alt="User Icon" class="me-1" style="width: 24px; height: 24px;">
+                        <span class="nav-link m-0">{{ user.username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link logout" href="{% url 'logout' %}">Выйти</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarLabel">Меню</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="/">Счет</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'utd' %}">УПД</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'vat-invoice' %}">Счет-фактура</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'packing-list' %}">Товарная накладная</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'commercial-offer' %}">Коммерческое предложение</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'outlay' %}">Смета</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'ks-2' %}">КС-2</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Добавить организацию</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Информация об организации -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Информация об организации</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for field in org_form %}
+                        <div class="col-md-6 mb-3">
+                            {% if field.name == 'inn'%}
+                            <label class="form-label" for="{{ org_form.inn.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ org_form.inn }}
+                                <button type="button" class="btn btn-primary" id="findByINN">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {% for error in field.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Банковские реквизиты -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Банковские реквизиты</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for field in bank_form %}
+                        <div class="col-md-6 mb-3">
+                            {% if field.name == 'bic'%}
+                            <label class="form-label" for="{{ org_form.bic.id_for_label }}"></label>
+                            <div class="input-group">
+                                {{ bank_form.bic }}
+                                <button type="button" class="btn btn-primary" id="findByBIK">Найти</button>
+                            </div>
+                            {% else %}
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {% for error in field.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success btn-lg">Добавить</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

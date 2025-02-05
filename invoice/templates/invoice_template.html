@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Счет на оплату</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .page {
+            width: 210mm;
+            height: 297mm;
+            padding: 20mm;
+            box-sizing: border-box;
+            page-break-after: always;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+
+        .details-table td {
+            border: 1px solid #000;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        .details-table td:first-child {
+            font-weight: bold;
+            width: 50%;
+        }
+
+        .details-table td .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-table, .invoice-table th, .invoice-table td {
+            border: 1px solid #000;
+        }
+
+        .invoice-table th, .invoice-table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .footer {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .signatures {
+            margin-top: 40px;
+        }
+
+        .signatures div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .signatures div span {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            text-align: center;
+            width: 45%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        <div class="header">
+            СЧЕТ НА ОПЛАТУ № 123 от 20 января 2025 г.
+        </div>
+
+        <table class="details-table">
+            <tr>
+                <td>
+                    <div class="title">Продавец:</div>
+                    ООО "Примерная компания"<br>
+                    ИНН: 1234567890<br>
+                    КПП: 987654321<br>
+                    Адрес: г. Москва, ул. Примерная, д. 1<br>
+                    Банк: Примерный банк<br>
+                    Расчетный счет: 12345678901234567890<br>
+                    Корреспондентский счет: 09876543210987654321<br>
+                    БИК: 044525225
+                </td>
+                <td>
+                    <div class="title">Покупатель:</div>
+                    ИП Иванов И.И.<br>
+                    ИНН: 1122334455<br>
+                    КПП: —<br>
+                    Адрес: г. Санкт-Петербург, ул. Примерная, д. 5<br>
+                    Банк: Банк Покупателя<br>
+                    Расчетный счет: 98765432109876543210<br>
+                    Корреспондентский счет: 12345678901234567890<br>
+                    БИК: 040404040
+                </td>
+            </tr>
+        </table>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Наименование товара/услуги</th>
+                    <th>Ед. изм.</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Товар 1</td>
+                    <td>шт.</td>
+                    <td>2</td>
+                    <td>10 000 руб.</td>
+                    <td>20 000 руб.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Товар 2</td>
+                    <td>шт.</td>
+                    <td>1</td>
+                    <td>30 000 руб.</td>
+                    <td>30 000 руб.</td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align: right; font-weight: bold;">Итого:</td>
+                    <td>50 000 руб.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Сумма прописью: Пятьдесят тысяч рублей 00 копеек.
+        </div>
+
+        <div class="signatures">
+            <div>
+                <span>Руководитель (подпись)</span>
+                <span>Главный бухгалтер (подпись)</span>
+            </div>
+            <div>
+                <span>М.П. (печать)</span>
+                <span>Подпись покупателя</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
