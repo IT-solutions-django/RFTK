@@ -47,7 +47,9 @@ INSTALLED_APPS = [
     'ks_3',
     'act_service',
     'power_attorney',
-    'sales_receipt'
+    'sales_receipt',
+    'pko',
+    'rko'
 ]
 
 MIDDLEWARE = [

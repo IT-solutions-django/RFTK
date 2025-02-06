@@ -68,6 +68,10 @@ class InformationOrganization(models.Model):
     signature = models.ImageField(upload_to='signatures', blank=True, null=True, verbose_name='Подпись',
                                   help_text='Добавьте подпись')
 
+    class Meta:
+        verbose_name = "Информация об организации"
+        verbose_name_plural = "Информация об организации"
+
     def __str__(self):
         return self.naming
 
@@ -84,6 +88,10 @@ class BankDetailsOrganization(models.Model):
     current_account = models.CharField(max_length=100, verbose_name='Расчетный счёт',
                                        help_text='Введите № расчетного счёта банка',
                                        validators=[validate_current_account], null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Банк организации"
+        verbose_name_plural = "Банк организации"
 
     def __str__(self):
         return f'Банк: {self.naming}. Организация: {self.organization.naming}'
@@ -106,6 +114,10 @@ class Buyer(models.Model):
     code_company = models.CharField(max_length=50, verbose_name='Условное наименование организации покупателя',
                                     help_text='Пример: Клиент, Заказчик, Покупатель', null=True, blank=True)
 
+    class Meta:
+        verbose_name = "Контрагент"
+        verbose_name_plural = "Контрагент"
+
     def __str__(self):
         return self.naming
 
@@ -123,6 +135,10 @@ class BankDetailsBuyer(models.Model):
                                        help_text='Введите № расчетного счёта банка',
                                        validators=[validate_current_account], null=True, blank=True)
 
+    class Meta:
+        verbose_name = "Банк контрагента"
+        verbose_name_plural = "Банк контрагента"
+
     def __str__(self):
         return f'Банк: {self.naming}. Организация покупателя: {self.organization.naming}'
 
@@ -137,6 +153,10 @@ class InvoiceDocumentTable(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
     discount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Скидка',
                                    help_text='Введите скидку на товар')
+
+    class Meta:
+        verbose_name = "Таблица для документа счет"
+        verbose_name_plural = "Таблица для документа счет"
 
     def __str__(self):
         return self.name
@@ -156,6 +176,10 @@ class UtdDocumentTable(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
     country = models.CharField(max_length=50, verbose_name='Страна', help_text='Введите страну')
     number_GTD = models.TextField(verbose_name='№ ГТД', help_text='Введите № ГТД')
+
+    class Meta:
+        verbose_name = "Таблица для документа упд"
+        verbose_name_plural = "Таблица для документа упд"
 
     def __str__(self):
         return self.name
@@ -179,6 +203,10 @@ class InvoiceDocument(models.Model):
     payment_for = models.CharField(max_length=150, verbose_name='Оплата за')
     agreement = models.CharField(max_length=150, verbose_name='Договор')
     table_product = models.ManyToManyField(InvoiceDocumentTable, verbose_name='Таблица товаров', blank=True)
+
+    class Meta:
+        verbose_name = "Счет"
+        verbose_name_plural = "Счет"
 
     def __str__(self):
         return f'{self.name} от {self.date}'
@@ -205,6 +233,10 @@ class UtdDocument(models.Model):
     shipment_date = models.DateField(verbose_name='Дата отгрузки')
     date_of_receipt = models.DateField(verbose_name='Дата получения')
 
+    class Meta:
+        verbose_name = "Упд"
+        verbose_name_plural = "Упд"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -226,6 +258,10 @@ class VatInvoiceDocument(models.Model):
     state_ID_contract = models.CharField(max_length=150, verbose_name='Идентификатор гос. контракта')
     table_product = models.ManyToManyField(UtdDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Счет-фактура"
+        verbose_name_plural = "Счет-фактура"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -242,6 +278,10 @@ class PackingListDocumentTable(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
+
+    class Meta:
+        verbose_name = "Таблица для документа товарная накладная"
+        verbose_name_plural = "Таблица для документа товарная накладная"
 
     def __str__(self):
         return self.name
@@ -273,6 +313,10 @@ class PackingListDocument(models.Model):
     date_of_receipt = models.DateField(verbose_name='Дата получения')
     table_product = models.ManyToManyField(PackingListDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Товарная накладная"
+        verbose_name_plural = "Товарная накладная"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -285,6 +329,10 @@ class CommercialOfferDocumentTable(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
+
+    class Meta:
+        verbose_name = "Таблица для документа коммерческое предложение"
+        verbose_name_plural = "Таблица для документа коммерческое предложение"
 
     def __str__(self):
         return self.name
@@ -302,6 +350,10 @@ class CommercialOfferDocument(models.Model):
                               help_text='Пример: на установку системы кондиционирования на 2 этаже')
     address = models.CharField(max_length=150, verbose_name='Адрес')
     table_product = models.ManyToManyField(CommercialOfferDocumentTable, verbose_name='Таблица товаров')
+
+    class Meta:
+        verbose_name = "Коммерческое предложение"
+        verbose_name_plural = "Коммерческое предложение"
 
     def __str__(self):
         return f'{self.name} от {self.date}'
@@ -325,6 +377,10 @@ class OutlayDocument(models.Model):
     address = models.CharField(max_length=150, verbose_name='Адрес')
     table_product = models.ManyToManyField(CommercialOfferDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Смета"
+        verbose_name_plural = "Смета"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -339,6 +395,10 @@ class Ks2DocumentTable(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
+
+    class Meta:
+        verbose_name = "Таблица для документа КС-2"
+        verbose_name_plural = "Таблица для документа КС-2"
 
     def __str__(self):
         return self.name
@@ -365,6 +425,10 @@ class Ks2Document(models.Model):
     period_by = models.DateField(verbose_name='Отчетный период по')
     table_product = models.ManyToManyField(Ks2DocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "КС-2"
+        verbose_name_plural = "КС-2"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -382,6 +446,10 @@ class Ks3DocumentTable(models.Model):
                                           verbose_name='Стоимость с начала года',
                                           help_text='Введите стоимость')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
+
+    class Meta:
+        verbose_name = "Таблица для документа КС-3"
+        verbose_name_plural = "Таблица для документа КС-3"
 
     def __str__(self):
         return self.name
@@ -405,6 +473,10 @@ class Ks3Document(models.Model):
     period_by = models.DateField(verbose_name='Отчетный период по')
     table_product = models.ManyToManyField(Ks3DocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "КС-3"
+        verbose_name_plural = "КС-3"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -421,6 +493,10 @@ class ActServiceDocument(models.Model):
     agreement = models.CharField(max_length=150, verbose_name='Договор')
     table_product = models.ManyToManyField(CommercialOfferDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Акт оказания услуг"
+        verbose_name_plural = "Акт оказания услуг"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -430,6 +506,10 @@ class PowerAttorneyDocumentTable(models.Model):
     unit_of_measurement = models.CharField(max_length=10, verbose_name='Единица измерения',
                                            help_text='Введите единицу измерения')
     quantity = models.IntegerField(verbose_name='Количество', help_text='Введите количество товара')
+
+    class Meta:
+        verbose_name = "Таблица для документа доверенность"
+        verbose_name_plural = "Таблица для документа доверенность"
 
     def __str__(self):
         return self.name
@@ -454,6 +534,10 @@ class PowerAttorneyDocument(models.Model):
                                           verbose_name='Банк организации')
     table_product = models.ManyToManyField(PowerAttorneyDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Доверенность"
+        verbose_name_plural = "Доверенность"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
 
@@ -468,6 +552,10 @@ class SalesReceiptDocumentTable(models.Model):
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
 
+    class Meta:
+        verbose_name = "Таблица для документа товарный чек"
+        verbose_name_plural = "Таблица для документа товарный чек"
+
     def __str__(self):
         return self.name
 
@@ -480,5 +568,48 @@ class SalesReceiptDocument(models.Model):
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
     table_product = models.ManyToManyField(SalesReceiptDocumentTable, verbose_name='Таблица товаров')
 
+    class Meta:
+        verbose_name = "Товарный чек"
+        verbose_name_plural = "Товарный чек"
+
     def __str__(self):
         return f'{self.name} от {self.date}'
+
+
+class PkoDocument(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             help_text='Выберите пользователя')
+    name = models.CharField(max_length=150, verbose_name='Приходный кассовый ордер №')
+    date = models.DateField(verbose_name='Дата создания')
+    payer = models.CharField(max_length=250, verbose_name='Информация о плательщике')
+    organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
+    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету')
+    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту')
+    summa = models.CharField(max_length=150, verbose_name='Сумма')
+    base = models.CharField(max_length=250, verbose_name='Основание',
+                            help_text='Например: Расходная накладная № 123 от 17.12.2016')
+    annex = models.CharField(max_length=250, verbose_name='Приложение')
+
+    class Meta:
+        verbose_name = "ПКО"
+        verbose_name_plural = "ПКО"
+
+
+class RkoDocument(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             help_text='Выберите пользователя')
+    name = models.CharField(max_length=150, verbose_name='Приходный кассовый ордер №')
+    date = models.DateField(verbose_name='Дата создания')
+    payer = models.CharField(max_length=250, verbose_name='Информация о получателе')
+    passport = models.CharField(max_length=250, verbose_name='Документ, удостоверяющий личность получателя')
+    organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
+    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету')
+    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту')
+    summa = models.CharField(max_length=150, verbose_name='Сумма')
+    base = models.CharField(max_length=250, verbose_name='Основание',
+                            help_text='Например: Расходная накладная № 123 от 17.12.2016')
+    annex = models.CharField(max_length=250, verbose_name='Приложение')
+
+    class Meta:
+        verbose_name = "РКО"
+        verbose_name_plural = "РКО"

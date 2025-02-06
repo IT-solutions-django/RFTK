@@ -29,6 +29,8 @@ from ks_3.views import Ks3DocumentCreateView
 from act_service.views import ActServiceDocumentCreateView
 from power_attorney.views import PowerAttorneyDocumentCreateView
 from sales_receipt.views import SalesReceiptDocumentCreateView
+from pko.views import PkoDocumentCreateView
+from rko.views import RkoDocumentCreateView
 from user.views import find_company_by_inn, find_bank_by_bik
 from django.conf import settings
 from django.conf.urls.static import static
@@ -46,6 +48,8 @@ urlpatterns = [
     path('act-service/', ActServiceDocumentCreateView.as_view(), name='act-service'),
     path('power-attorney/', PowerAttorneyDocumentCreateView.as_view(), name='power-attorney'),
     path('sales-receipt/', SalesReceiptDocumentCreateView.as_view(), name='sales-receipt'),
+    path('pko/', PkoDocumentCreateView.as_view(), name='pko'),
+    path('rko/', RkoDocumentCreateView.as_view(), name='rko'),
     path('add-organization/', add_organization, name='add_organization'),
     path('add-counterparty/', add_counterparty, name='add_counterparty'),
     path('pdf/', pdf, name='pdf'),
