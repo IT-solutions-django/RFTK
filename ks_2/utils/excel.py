@@ -77,6 +77,15 @@ def create_ks2_excel(data, formset_data):
 
     sheet = workbook["КС-2"]
 
+    for col in sheet.columns:
+        try:
+            sheet.column_dimensions[col[0].column_letter].width = 1.3
+        except:
+            continue
+
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 20
+
     sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
     sheet['Y7'] = f'{data["counterparty"].naming}, {data["counterparty"].address}'
     sheet['Y9'] = f'{data["organization"].naming}, {data["organization"].address}'

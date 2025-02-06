@@ -76,6 +76,13 @@ def create_invoice_excel(data, organization_data, formset_data):
 
     sheet = workbook["Счет на оплату"]
 
+    for row in sheet.iter_rows():
+        if row[0].row == 11:
+            sheet.row_dimensions[row[0].row].height = 77
+        else:
+            sheet.row_dimensions[row[0].row].height = 16
+
+
     sheet['A1'] = organization_data['name']
     sheet['A2'] = organization_data['address']
     sheet['A3'] = f"ИНН/КПП {organization_data['inn']} / {organization_data['kpp']}"

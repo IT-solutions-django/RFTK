@@ -76,6 +76,9 @@ def create_vat_invoice_excel(data, formset_data):
 
     sheet = workbook["Счет-фактура"]
 
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 22
+
     sheet['A2'] = 'Счет-фактура'
     sheet['AF2'] = data['name']
     sheet['BF2'] = data['date']

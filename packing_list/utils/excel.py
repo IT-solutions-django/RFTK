@@ -49,7 +49,7 @@ def change_html(count_rows):
 
                     parent_row.insert_after(new_row)
 
-            with open("/packing_list/utils/updated_file.html", "w",
+            with open("packing_list/utils/updated_file.html", "w",
                       encoding="utf-8") as file:
                 file.write(str(soup))
 
@@ -76,6 +76,12 @@ def create_packing_list_excel(data, formset_data):
     workbook = openpyxl.load_workbook(file_path)
 
     sheet = workbook["Товарная накладная"]
+
+    for col in sheet.columns:
+        sheet.column_dimensions[col[0].column_letter].width = 1
+
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 17
 
     sheet['A4'] = f'{data["shipper"].naming}, ИНН: {data["shipper"].inn}, {data["shipper"].address}'
     sheet['EW4'] = ''

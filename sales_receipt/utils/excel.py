@@ -77,6 +77,15 @@ def create_sales_receipt_excel(data, formset_data):
 
     sheet = workbook["Товарный чек"]
 
+    for col in sheet.columns:
+        try:
+            sheet.column_dimensions[col[0].column_letter].width = 1
+        except:
+            continue
+
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 15
+
     sheet['A1'] = f'{data["organization"].naming}, ИНН {data["organization"].inn}'
     sheet['A2'] = f'{data["organization"].address}'
     sheet['A4'] = f'Товарный чек № {data["name"]} от {data["date"]}'

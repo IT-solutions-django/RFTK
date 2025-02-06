@@ -77,6 +77,12 @@ def create_power_attorney_excel(data, formset_data):
 
     sheet = workbook["Доверенность"]
 
+    for col in sheet.columns:
+        try:
+            sheet.column_dimensions[col[0].column_letter].width = 1
+        except:
+            continue
+
     sheet['A3'] = f'{data["name"]}'
     sheet['O3'] = f'{data["date"]}'
     sheet['Z3'] = f'{data["validity_period"]}'

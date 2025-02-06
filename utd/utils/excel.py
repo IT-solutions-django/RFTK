@@ -77,6 +77,9 @@ def create_utd_excel(data, formset_data):
 
     sheet = workbook["УПД"]
 
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 22
+
     sheet['O2'] = 'УПД'
     sheet['AP2'] = data['name']
     sheet['BK2'] = data['date']

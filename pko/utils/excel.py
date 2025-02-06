@@ -17,6 +17,20 @@ def create_pko_excel(data, formset_data):
 
     sheet = workbook["Приходный кассовый ордер"]
 
+    for col in sheet.columns:
+        try:
+            sheet.column_dimensions[col[0].column_letter].width = 1.5
+        except:
+            continue
+
+    for row in sheet.iter_rows():
+        if row[0].row == 2:
+            sheet.row_dimensions[row[0].row].height = 22
+        elif row[0].row == 8:
+            sheet.row_dimensions[row[0].row].height = 22
+        else:
+            sheet.row_dimensions[row[0].row].height = 15
+
     sheet['A4'] = f'{data["organization"].naming}'
     sheet['AN9'] = f'{data["name"]}'
     sheet['BA9'] = f'{data["date"]}'

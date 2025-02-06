@@ -77,6 +77,12 @@ def create_commercial_offer_excel(data, formset_data):
 
     sheet = workbook["Коммерческое предложение"]
 
+    for col in sheet.columns:
+        sheet.column_dimensions[col[0].column_letter].width = 1
+
+    for row in sheet.iter_rows():
+        sheet.row_dimensions[row[0].row].height = 20
+
     sheet['A2'] = f'Коммерческое предложение № {data["name"]} от {data["date"]}'
     sheet['A4'] = data['naming']
     sheet['A5'] = data['address']

@@ -17,6 +17,18 @@ def create_rko_excel(data, formset_data):
 
     sheet = workbook["Расходный кассовый ордер"]
 
+    for col in sheet.columns:
+        try:
+            sheet.column_dimensions[col[0].column_letter].width = 1.3
+        except:
+            continue
+
+    for row in sheet.iter_rows():
+        if row[0].row == 2:
+            sheet.row_dimensions[row[0].row].height = 29
+        else:
+            sheet.row_dimensions[row[0].row].height = 16
+
     sheet['A4'] = f'{data["organization"].naming}'
     sheet['BX10'] = f'{data["name"]}'
     sheet['CO10'] = f'{data["date"]}'

@@ -80,6 +80,12 @@ def create_act_service_excel(data, formset_data):
 
         sheet = workbook["Акт оказания услуг"]
 
+        for col in sheet.columns:
+            sheet.column_dimensions[col[0].column_letter].width = 1.5
+
+        for row in sheet.iter_rows():
+            sheet.row_dimensions[row[0].row].height = 17
+
         sheet['A2'] = f'Акт № {data["name"]} от {data["date"]}'
         sheet['A4'] = f'выполненных работ / оказанных услуг по договору {data["agreement"]}'
         sheet['A5'] = f'за {data["payment_for"]}'
