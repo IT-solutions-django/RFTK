@@ -1,3 +1,4 @@
 from django.contrib import admin
+from invoice.models import RkoDocument
 
-# Register your models here.
+admin.site.register(RkoDocument)
