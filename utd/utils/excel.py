@@ -13,7 +13,7 @@ import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
-locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
 
 
 def html_to_excel():
