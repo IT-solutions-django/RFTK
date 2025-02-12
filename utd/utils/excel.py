@@ -13,8 +13,6 @@ import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
-locale.setlocale(locale.LC_TIME, 'ru_RU.utf8')
-
 
 def html_to_excel():
     html_file = "utd/utils/updated_file.html"
@@ -136,7 +134,8 @@ def create_utd_excel(data, formset_data, pdf=False):
             total_sum_nds += float(table_data["amount"]) * nds * 0.01
         else:
             sheet[f'DD{start_table_row + idx}'] = f'{0}'
-        sheet[f'DQ{start_table_row + idx}'] = f'{float(table_data["amount"]) + float(table_data["amount"]) * nds * 0.01}'
+        sheet[
+            f'DQ{start_table_row + idx}'] = f'{float(table_data["amount"]) + float(table_data["amount"]) * nds * 0.01}'
         sheet[f'ED{start_table_row + idx}'] = f'{table_data["country"]}'
         sheet[f'EJ{start_table_row + idx}'] = f'{table_data["country"]}'
         sheet[f'ET{start_table_row + idx}'] = f'{table_data["number_GTD"]}'
