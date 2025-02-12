@@ -5,13 +5,15 @@ from .forms import Ks2DocumentForm, Ks2DocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
 from ks_2.utils.excel import create_ks2_excel
+from django.shortcuts import redirect, render
+from django.core.paginator import Paginator
 
 
 class Ks2DocumentCreateView(LoginRequiredMixin, CreateView):
     model = Ks2Document
     form_class = Ks2DocumentForm
-    template_name = 'ks2_document_form.html'
-    success_url = reverse_lazy('ks2')
+    template_name = 'ks2_document_form_new.html'
+    success_url = reverse_lazy('ks_2_document')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -59,8 +61,29 @@ class Ks2DocumentCreateView(LoginRequiredMixin, CreateView):
 
             self.object.table_product.set(invoice_tables)
 
-            form_data = form.cleaned_data
+            if self.request.POST.get("download_excel") == "true":
+                form_data = form.cleaned_data
+                response = create_ks2_excel(form_data, formset_data)
+                return response
 
-            response = create_ks2_excel(form_data, formset_data)
+            if self.request.POST.get("download_pdf") == "true":
+                form_data = form.cleaned_data
+                response = create_ks2_excel(form_data, formset_data, True)
+                return response
 
-            return response
+        return super().form_valid(form)
+
+
+def ks_2_document(request):
+    documents = Ks2Document.objects.select_related('organization', 'counterparty').filter(user=request.user)
+    paginator = Paginator(documents, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST' and 'delete_document' in request.POST:
+        document_id = request.POST.get('document_id')
+        document = Ks2Document.objects.get(id=document_id, user=request.user)
+        document.delete()
+        return redirect('ks_2_document')
+
+    return render(request, 'ks2_document_new.html', {'page_obj': page_obj})

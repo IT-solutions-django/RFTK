@@ -5,13 +5,15 @@ from .forms import RkoDocumentForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
 from rko.utils.excel import create_rko_excel
+from django.shortcuts import redirect, render
+from django.core.paginator import Paginator
 
 
 class RkoDocumentCreateView(LoginRequiredMixin, CreateView):
     model = RkoDocument
     form_class = RkoDocumentForm
-    template_name = 'rko_document_form.html'
-    success_url = reverse_lazy('rko')
+    template_name = 'rko_document_form_new.html'
+    success_url = reverse_lazy('rko_document')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -33,8 +35,29 @@ class RkoDocumentCreateView(LoginRequiredMixin, CreateView):
         self.object.user = self.request.user
         self.object.save()
 
-        form_data = form.cleaned_data
+        if self.request.POST.get("download_excel") == "true":
+            form_data = form.cleaned_data
+            response = create_rko_excel(form_data, [])
+            return response
 
-        response = create_rko_excel(form_data, [])
+        if self.request.POST.get("download_pdf") == "true":
+            form_data = form.cleaned_data
+            response = create_rko_excel(form_data, [], True)
+            return response
 
-        return response
+        return super().form_valid(form)
+
+
+def rko_document(request):
+    documents = RkoDocument.objects.select_related('organization').filter(user=request.user)
+    paginator = Paginator(documents, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST' and 'delete_document' in request.POST:
+        document_id = request.POST.get('document_id')
+        document = RkoDocument.objects.get(id=document_id, user=request.user)
+        document.delete()
+        return redirect('rko_document')
+
+    return render(request, 'rko_document_new.html', {'page_obj': page_obj})

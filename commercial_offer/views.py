@@ -5,12 +5,14 @@ from .forms import CommercialOfferDocumentForm, CommercialOfferDocumentTableForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
 from commercial_offer.utils.excel import create_commercial_offer_excel
+from django.shortcuts import redirect, render
+from django.core.paginator import Paginator
 
 
 class CommercialOfferDocumentCreateView(LoginRequiredMixin, CreateView):
     model = CommercialOfferDocument
     form_class = CommercialOfferDocumentForm
-    template_name = 'commercial_offer_document_form.html'
+    template_name = 'commercial_offer_document_form_new.html'
     success_url = reverse_lazy('commercial-offer')
 
     def get_form_kwargs(self):
@@ -57,8 +59,29 @@ class CommercialOfferDocumentCreateView(LoginRequiredMixin, CreateView):
 
             self.object.table_product.set(invoice_tables)
 
-            form_data = form.cleaned_data
+            if self.request.POST.get("download_excel") == "true":
+                form_data = form.cleaned_data
+                response = create_commercial_offer_excel(form_data, formset_data)
+                return response
 
-            response = create_commercial_offer_excel(form_data, formset_data)
+            if self.request.POST.get("download_pdf") == "true":
+                form_data = form.cleaned_data
+                response = create_commercial_offer_excel(form_data, formset_data, True)
+                return response
 
-            return response
+        return super().form_valid(form)
+
+
+def commercial_offer_document(request):
+    documents = CommercialOfferDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+    paginator = Paginator(documents, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST' and 'delete_document' in request.POST:
+        document_id = request.POST.get('document_id')
+        document = CommercialOfferDocument.objects.get(id=document_id, user=request.user)
+        document.delete()
+        return redirect('commercial_offer_document')
+
+    return render(request, 'commercial_offer_document_new.html', {'page_obj': page_obj})

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,10 +6,33 @@ from .forms import CustomUserCreationForm, CustomAuthenticationForm
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm, \
     InvoiceDocumentForm, InvoiceDocumentTableFormSet
 from invoice.models import InformationOrganization, Buyer, InvoiceDocument, BankDetailsOrganization, BankDetailsBuyer, \
-    InvoiceDocumentTable, UtdDocument, VatInvoiceDocument
-from collections import defaultdict
+    InvoiceDocumentTable, UtdDocument, VatInvoiceDocument, CommercialOfferDocument, OutlayDocument, Ks2Document, \
+    Ks3Document, ActServiceDocument, PowerAttorneyDocument, SalesReceiptDocument, PkoDocument, RkoDocument
+from utd.forms import UtdDocumentForm, UtdDocumentTableFormSet
+from vat_invoice.forms import VatInvoiceDocumentForm
 import requests
 from django.http import JsonResponse
+from utd.utils.excel import create_utd_excel
+from invoice.utils.excel import create_invoice_excel
+from vat_invoice.utils.excel import create_vat_invoice_excel
+from commercial_offer.forms import CommercialOfferDocumentForm, CommercialOfferDocumentTableFormSet
+from commercial_offer.utils.excel import create_commercial_offer_excel
+from outlay.forms import OutlayDocumentForm
+from outlay.utils.excel import create_outlay_excel
+from ks_2.forms import Ks2DocumentForm, Ks2DocumentTableFormSet
+from ks_2.utils.excel import create_ks2_excel
+from ks_3.forms import Ks3DocumentForm, Ks3DocumentTableFormSet
+from ks_3.utils.excel import create_ks3_excel
+from act_service.forms import ActServiceDocumentForm
+from act_service.utils.excel import create_act_service_excel
+from power_attorney.forms import PowerAttorneyDocumentForm, PowerAttorneyDocumentTableFormSet
+from power_attorney.utils.excel import create_power_attorney_excel
+from sales_receipt.forms import SalesReceiptDocumentForm, SalesReceiptDocumentTableFormSet
+from sales_receipt.utils.excel import create_sales_receipt_excel
+from pko.forms import PkoDocumentForm
+from pko.utils.excel import create_pko_excel
+from rko.forms import RkoDocumentForm
+from rko.utils.excel import create_rko_excel
 
 
 def register_view(request):
@@ -65,7 +88,7 @@ def profile(request):
 
     counterparties = Buyer.objects.filter(user=request.user)
     organizations = InformationOrganization.objects.filter(user=request.user)
-    return render(request, 'profile.html',
+    return render(request, 'profile_new.html',
                   {
                       'organizations': organizations,
                       'counterparties': counterparties,
@@ -79,25 +102,34 @@ def add_organization_from_profile(request):
         org_form = OrganizationForm(request.POST, request.FILES, prefix='organization')
         bank_form = BankDetailsOrganizationForm(request.POST, prefix='bank')
 
-        if org_form.is_valid() and bank_form.is_valid():
+        if org_form.is_valid():
             organization = org_form.save(commit=False)
             organization.user = request.user
             organization.save()
 
-            bank_details = bank_form.save(commit=False)
-            bank_details.organization = organization
-            bank_details.save()
+            if any(bank_form.data.get('bank-' + field) for field in bank_form.fields):
+                for field in bank_form.fields.values():
+                    field.required = True
+                if bank_form.is_valid():
+                    bank_details = bank_form.save(commit=False)
+                    bank_details.organization = organization
+                    bank_details.save()
+                else:
+                    return render(request, 'add_organization_new.html', {
+                        'org_form': org_form,
+                        'bank_form': bank_form
+                    })
 
             return redirect('profile')
-        else:
-            return render(request, 'add_organization.html', {
-                'org_form': org_form,
-                'bank_form': bank_form
-            })
+
     else:
-        return render(request, 'add_organization.html',
-                      {'org_form': OrganizationForm(prefix='organization'),
-                       'bank_form': BankDetailsOrganizationForm(prefix='bank')})
+        org_form = OrganizationForm(prefix='organization')
+        bank_form = BankDetailsOrganizationForm(prefix='bank')
+
+    return render(request, 'add_organization_new.html', {
+        'org_form': org_form,
+        'bank_form': bank_form
+    })
 
 
 def add_counterparty_from_profile(request):
@@ -105,25 +137,33 @@ def add_counterparty_from_profile(request):
         counterparty_form = CounterpartyForm(request.POST, prefix='counterparty')
         counterparty_bank_form = BankCounterpartyForm(request.POST, prefix='counterparty_bank')
 
-        if counterparty_form.is_valid() and counterparty_bank_form.is_valid():
-            counterparty = counterparty_form.save(commit=False)
-            counterparty.user = request.user
-            counterparty.save()
+        if counterparty_form.is_valid():
+            organization = counterparty_form.save(commit=False)
+            organization.user = request.user
+            organization.save()
 
-            counterparty_bank = counterparty_bank_form.save(commit=False)
-            counterparty_bank.organization = counterparty
-            counterparty_bank.save()
+            if any(counterparty_bank_form.data.get('counterparty_bank-' + field) for field in
+                   counterparty_bank_form.fields):
+                for field in counterparty_bank_form.fields.values():
+                    field.required = True
+                if counterparty_bank_form.is_valid():
+                    bank_details = counterparty_bank_form.save(commit=False)
+                    bank_details.organization = organization
+                    bank_details.save()
+                else:
+                    return render(request, 'add_counterparty_new.html', {
+                        'counterparty_form': counterparty_form,
+                        'counterparty_bank_form': counterparty_bank_form
+                    })
 
             return redirect('profile')
-        else:
-            errors = counterparty_form.errors.as_json() + counterparty_bank_form.errors.as_json()
-            print(errors)
-
-            return 'Error'
     else:
-        return render(request, 'add_counterparty.html',
-                      {'counterparty_form': CounterpartyForm(prefix='counterparty'),
-                       'counterparty_bank_form': BankCounterpartyForm(prefix='counterparty_bank')})
+        counterparty_form = CounterpartyForm(prefix='counterparty')
+        counterparty_bank_form = BankCounterpartyForm(prefix='counterparty_bank')
+
+    return render(request, 'add_counterparty_new.html',
+                  {'counterparty_form': counterparty_form,
+                   'counterparty_bank_form': counterparty_bank_form})
 
 
 @login_required
@@ -135,9 +175,23 @@ def edit_organization(request, id_org):
         org_form = OrganizationForm(request.POST, request.FILES, instance=organization, prefix='organization')
         bank_form = BankDetailsOrganizationForm(request.POST, instance=bank_details, prefix='bank')
 
-        if org_form.is_valid() and bank_form.is_valid():
-            org_form.save()
-            bank_form.save()
+        if org_form.is_valid():
+            organization = org_form.save(commit=False)
+            organization.user = request.user
+            organization.save()
+
+            if any(bank_form.data.get('bank-' + field) for field in bank_form.fields):
+                for field in bank_form.fields.values():
+                    field.required = True
+                if bank_form.is_valid():
+                    bank_details_edit = bank_form.save(commit=False)
+                    bank_details_edit.organization = organization
+                    bank_details_edit.save()
+                else:
+                    return render(request, 'add_organization_new.html', {
+                        'org_form': org_form,
+                        'bank_form': bank_form
+                    })
 
             return redirect('profile')
 
@@ -145,7 +199,7 @@ def edit_organization(request, id_org):
         org_form = OrganizationForm(instance=organization, prefix='organization')
         bank_form = BankDetailsOrganizationForm(instance=bank_details, prefix='bank')
 
-    return render(request, 'add_organization.html', {
+    return render(request, 'add_organization_new.html', {
         'org_form': org_form,
         'bank_form': bank_form,
     })
@@ -157,55 +211,240 @@ def edit_counterparty(request, id_org):
     bank_details_counterparty = BankDetailsBuyer.objects.filter(organization=counterparty).first()
 
     if request.method == 'POST':
-        org_form = CounterpartyForm(request.POST, instance=counterparty, prefix='counterparty')
-        bank_form = BankCounterpartyForm(request.POST, instance=bank_details_counterparty, prefix='counterparty_bank')
+        counterparty_form = CounterpartyForm(request.POST, instance=counterparty, prefix='counterparty')
+        counterparty_bank_form = BankCounterpartyForm(request.POST, instance=bank_details_counterparty,
+                                                      prefix='counterparty_bank')
 
-        if org_form.is_valid() and bank_form.is_valid():
-            org_form.save()
-            bank_form.save()
+        if counterparty_form.is_valid():
+            organization = counterparty_form.save(commit=False)
+            organization.user = request.user
+            organization.save()
+
+            if any(counterparty_bank_form.data.get('counterparty_bank-' + field) for field in
+                   counterparty_bank_form.fields):
+                for field in counterparty_bank_form.fields.values():
+                    field.required = True
+                if counterparty_bank_form.is_valid():
+                    bank_details_edit = counterparty_bank_form.save(commit=False)
+                    bank_details_edit.organization = organization
+                    bank_details_edit.save()
+                else:
+                    return render(request, 'add_counterparty_new.html', {
+                        'counterparty_form': counterparty_form,
+                        'counterparty_bank_form': counterparty_bank_form
+                    })
 
             return redirect('profile')
 
     else:
-        org_form = CounterpartyForm(instance=counterparty, prefix='counterparty')
-        bank_form = BankCounterpartyForm(instance=bank_details_counterparty, prefix='counterparty_bank')
+        counterparty_form = CounterpartyForm(instance=counterparty, prefix='counterparty')
+        counterparty_bank_form = BankCounterpartyForm(instance=bank_details_counterparty, prefix='counterparty_bank')
 
-    return render(request, 'add_counterparty.html', {
-        'counterparty_form': org_form,
-        'counterparty_bank_form': bank_form,
+    return render(request, 'add_counterparty_new.html', {
+        'counterparty_form': counterparty_form,
+        'counterparty_bank_form': counterparty_bank_form,
     })
 
 
 @login_required
-def edit_document(request, id_doc):
-    document = InvoiceDocument.objects.get(id=id_doc)
-    form = InvoiceDocumentForm(request.POST or None, instance=document)
+def edit_document(request, id_doc, doc_type):
+    document_model = None
+    form_class = None
+    formset_class = None
+    template_name = ""
 
-    invoice_document_table_queryset = document.table_product.all()
-    formset = InvoiceDocumentTableFormSet(request.POST or None, queryset=invoice_document_table_queryset)
+    document_mapping = {
+        'invoice': {
+            'model': InvoiceDocument,
+            'form': InvoiceDocumentForm,
+            'formset': InvoiceDocumentTableFormSet,
+            'template': 'invoice_document_form_new.html',
+            'excel': create_invoice_excel,
+            'redirect': 'invoice_document'
+        },
+        'utd': {
+            'model': UtdDocument,
+            'form': UtdDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'template': 'utd_document_form_new.html',
+            'excel': create_utd_excel,
+            'redirect': 'utd_document'
+        },
+        'vat_invoice': {
+            'model': VatInvoiceDocument,
+            'form': VatInvoiceDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'template': 'vat_invoice_document_form_new.html',
+            'excel': create_vat_invoice_excel,
+            'redirect': 'vat_invoice_document'
+        },
+        'commercial_offer': {
+            'model': CommercialOfferDocument,
+            'form': CommercialOfferDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'template': 'commercial_offer_document_form_new.html',
+            'excel': create_commercial_offer_excel,
+            'redirect': 'commercial_offer_document'
+        },
+        'outlay': {
+            'model': OutlayDocument,
+            'form': OutlayDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'template': 'outlay_document_form_new.html',
+            'excel': create_outlay_excel,
+            'redirect': 'outlay_document'
+        },
+        'ks-2': {
+            'model': Ks2Document,
+            'form': Ks2DocumentForm,
+            'formset': Ks2DocumentTableFormSet,
+            'template': 'ks2_document_form_new.html',
+            'excel': create_ks2_excel,
+            'redirect': 'ks_2_document'
+        },
+        'ks-3': {
+            'model': Ks3Document,
+            'form': Ks3DocumentForm,
+            'formset': Ks3DocumentTableFormSet,
+            'template': 'ks3_document_form_new.html',
+            'excel': create_ks3_excel,
+            'redirect': 'ks_3_document'
+        },
+        'act_service': {
+            'model': ActServiceDocument,
+            'form': ActServiceDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'template': 'act_service_document_form_new.html',
+            'excel': create_act_service_excel,
+            'redirect': 'act_service_document'
+        },
+        'power_attorney': {
+            'model': PowerAttorneyDocument,
+            'form': PowerAttorneyDocumentForm,
+            'formset': PowerAttorneyDocumentTableFormSet,
+            'template': 'power_attorney_document_form_new.html',
+            'excel': create_power_attorney_excel,
+            'redirect': 'power_attorney_document'
+        },
+        'sales_receipt': {
+            'model': SalesReceiptDocument,
+            'form': SalesReceiptDocumentForm,
+            'formset': SalesReceiptDocumentTableFormSet,
+            'template': 'sales_receipt_document_form_new.html',
+            'excel': create_sales_receipt_excel,
+            'redirect': 'sales_receipt_document'
+        },
+        'pko': {
+            'model': PkoDocument,
+            'form': PkoDocumentForm,
+            'template': 'pko_document_form_new.html',
+            'excel': create_pko_excel,
+            'redirect': 'pko_document'
+        },
+        'rko': {
+            'model': RkoDocument,
+            'form': RkoDocumentForm,
+            'template': 'rko_document_form_new.html',
+            'excel': create_rko_excel,
+            'redirect': 'rko_document'
+        }
+    }
 
-    if request.method == 'POST' and form.is_valid() and formset.is_valid():
+    if doc_type not in document_mapping:
+        return redirect('error_page')
+
+    document_info = document_mapping[doc_type]
+    document_model = document_info['model']
+    form_class = document_info['form']
+    formset_class = document_info['formset'] if 'formset' in document_info else None
+    template_name = document_info['template']
+    excel = document_info['excel']
+
+    document = get_object_or_404(document_model, id=id_doc)
+
+    form = form_class(request.POST or None, instance=document, request=request)
+
+    if formset_class:
+        table_queryset = document.table_product.all()
+        formset = formset_class(request.POST or None, queryset=table_queryset)
+    else:
+        formset = None
+
+    if request.method == 'POST' and form.is_valid() and (not formset_class or formset.is_valid()):
         form.save()
 
-        invoice_tables = formset.save(commit=False)
+        formset_data = []
+        if formset_class:
+            for form_s in formset:
+                formset_data.append(form_s.cleaned_data)
 
-        for invoice_table in invoice_tables:
-            invoice_table.save()
+        if formset_class:
+            id_not_deleted = []
+            for form_s in formset:
+                if form_s.cleaned_data['id']:
+                    id_not_deleted.append(form_s.cleaned_data['id'].id)
 
-        document.table_product.add(*invoice_tables)
+            tables = document.table_product.all()
+            for table in tables:
+                if table.id in id_not_deleted:
+                    continue
+                else:
+                    table.delete()
 
-        return redirect('profile')
+            tables = formset.save(commit=False)
 
-    return render(request, 'invoice_document_form.html',
-                  {
-                      'form': form,
-                      'org_form': OrganizationForm(prefix='organization'),
-                      'bank_form': BankDetailsOrganizationForm(prefix='bank'),
-                      'counterparty_form': CounterpartyForm(prefix='counterparty'),
-                      'counterparty_bank_form': BankCounterpartyForm(prefix='counterparty_bank'),
-                      'formset': formset
+            for table in tables:
+                table.save()
+            document.table_product.add(*tables)
 
-                  })
+        if request.POST.get("download_excel") == "true":
+            if doc_type == 'invoice':
+                organization_data = {
+                    "name": form.cleaned_data['organization'].naming,
+                    "inn": form.cleaned_data['organization'].inn,
+                    "kpp": form.cleaned_data['organization'].kpp,
+                    "ogrn": form.cleaned_data['organization'].ogrn,
+                    "address": form.cleaned_data['organization'].address,
+                    "phone": form.cleaned_data['organization'].phone,
+                    "position_at_work": form.cleaned_data['organization'].position_at_work,
+                    "supervisor": form.cleaned_data['organization'].supervisor,
+                    "accountant": form.cleaned_data['organization'].accountant,
+                    "code_company": form.cleaned_data['organization'].code_company,
+                }
+                response = excel(form.cleaned_data, organization_data, formset_data)
+            else:
+                response = excel(form.cleaned_data, formset_data)
+            return response
+
+        if request.POST.get("download_pdf") == "true":
+            if doc_type == 'invoice':
+                organization_data = {
+                    "name": form.cleaned_data['organization'].naming,
+                    "inn": form.cleaned_data['organization'].inn,
+                    "kpp": form.cleaned_data['organization'].kpp,
+                    "ogrn": form.cleaned_data['organization'].ogrn,
+                    "address": form.cleaned_data['organization'].address,
+                    "phone": form.cleaned_data['organization'].phone,
+                    "position_at_work": form.cleaned_data['organization'].position_at_work,
+                    "supervisor": form.cleaned_data['organization'].supervisor,
+                    "accountant": form.cleaned_data['organization'].accountant,
+                    "code_company": form.cleaned_data['organization'].code_company,
+                }
+                response = excel(form.cleaned_data, organization_data, formset_data, True)
+            else:
+                response = excel(form.cleaned_data, formset_data, True)
+            return response
+
+        return redirect(document_info["redirect"])
+
+    return render(request, template_name, {
+        'form': form,
+        'formset': formset,
+        'org_form': OrganizationForm(prefix='organization'),
+        'bank_form': BankDetailsOrganizationForm(prefix='bank'),
+        'counterparty_form': CounterpartyForm(prefix='counterparty'),
+        'counterparty_bank_form': BankCounterpartyForm(prefix='counterparty_bank'),
+    })
 
 
 def find_company_by_inn(request):
@@ -219,18 +458,37 @@ def find_company_by_inn(request):
     if response.status_code == 200:
         data = response.json()
         if "items" in data:
-            company = data["items"][0]
-            return JsonResponse({
-                "success": True,
+            company_data = data["items"][0]
 
-                "name": company.get("ЮЛ", {}).get("НаимСокрЮЛ", ""),
-                "kpp": company.get("ЮЛ", {}).get("КПП", ""),
-                "ogrn": company.get("ЮЛ", {}).get("ОГРН", ""),
-                "address": company.get("ЮЛ", {}).get("Адрес", {}).get("АдресПолн", ""),
-                "position_at_work": company.get("ЮЛ", {}).get("Руководитель", {}).get("Должн", ""),
-                "supervisor": company.get("ЮЛ", {}).get("Руководитель", {}).get("ФИОПолн", ""),
-            })
-    return JsonResponse({"success": False, "error": "Компания не найдена"}, status=404)
+            if "ЮЛ" in company_data:
+                company = company_data["ЮЛ"]
+                return JsonResponse({
+                    "success": True,
+                    "type": "Юридическое лицо",
+                    "name": company.get("НаимСокрЮЛ", ""),
+                    "kpp": company.get("КПП", ""),
+                    "ogrn": company.get("ОГРН", ""),
+                    "address": company.get("Адрес", {}).get("АдресПолн", ""),
+                    "position_at_work": company.get("Руководитель", {}).get("Должн", ""),
+                    "supervisor": company.get("Руководитель", {}).get("ФИОПолн", ""),
+                })
+
+            elif "ИП" in company_data:
+                company = company_data["ИП"]
+                address = company.get("Адрес", "")
+                if address:
+                    address_all = address.get("АдресПолн", "")
+                else:
+                    address_all = address
+                return JsonResponse({
+                    "success": True,
+                    "type": "Индивидуальный предприниматель",
+                    "name": company.get("ФИОПолн", ""),
+                    "ogrn": company.get("ОГРНИП", ""),
+                    "address": address_all,
+                })
+
+    return JsonResponse({"success": False, "error": "Компания или ИП не найдены"}, status=404)
 
 
 DADATA_API_KEY = "bb47885575aa2239d036af551ba88f3da668d266"
@@ -270,3 +528,29 @@ def find_bank_by_bik(request):
 
     except requests.RequestException as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+def inn_autocomplete(request):
+    query = request.GET.get('query', '').strip()
+
+    if len(query) < 3:
+        return JsonResponse({"suggestions": []})
+
+    url = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party"
+    headers = {
+        "Authorization": f"Token {DADATA_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "query": query,
+        "count": 5,
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        results = response.json().get("suggestions", [])
+        suggestions = [{"value": item["value"], "inn": item["data"]["inn"]} for item in results]
+        return JsonResponse({"suggestions": suggestions})
+
+    return JsonResponse({"suggestions": []})

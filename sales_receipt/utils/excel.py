@@ -3,11 +3,14 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
 from io import BytesIO
+from datetime import datetime
+from PyPDF2 import PdfReader, PdfWriter
+import os
 
 
 def html_to_excel():
@@ -66,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_sales_receipt_excel(data, formset_data):
+def create_sales_receipt_excel(data, formset_data, pdf=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -74,6 +77,7 @@ def create_sales_receipt_excel(data, formset_data):
     file_path = 'sales_receipt/utils/output.xlsx'
 
     workbook = openpyxl.load_workbook(file_path)
+    workbook.remove(workbook["Evaluation Warning"])
 
     sheet = workbook["Товарный чек"]
 
@@ -83,12 +87,13 @@ def create_sales_receipt_excel(data, formset_data):
         except:
             continue
 
-    for row in sheet.iter_rows():
-        sheet.row_dimensions[row[0].row].height = 15
-
     sheet['A1'] = f'{data["organization"].naming}, ИНН {data["organization"].inn}'
     sheet['A2'] = f'{data["organization"].address}'
-    sheet['A4'] = f'Товарный чек № {data["name"]} от {data["date"]}'
+
+    date_str = str(data['date'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d-%m-%Y")
+    sheet['A4'] = f'Товарный чек № {data["name"]} от {formatted_date}'
 
     start_table_row = 6
     total_sum = 0
@@ -113,14 +118,58 @@ def create_sales_receipt_excel(data, formset_data):
     sheet[f'AI{start_table_row + len(formset_data) + 6}'] = data["organization"].position_at_work
     sheet[f'BO{start_table_row + len(formset_data) + 6}'] = data["organization"].supervisor
 
-    if data['organization'].stamp:
+    if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
         img = Image(BytesIO(image_file.read()))
 
-        img.width = 50
-        img.height = 50
+        img.width = 45 * 2.83
+        img.height = 45 * 2.83
 
-        sheet.add_image(img, f"BO{start_table_row + len(formset_data) + 8}")
+        sheet.add_image(img, f"BO{start_table_row + len(formset_data) + 5}")
+
+    if data['organization'].signature and data['is_stamp']:
+        image_file = data['organization'].signature
+
+        image_data = image_file.read()
+
+        img_stream = BytesIO(image_data)
+
+        img1 = Image(img_stream)
+        img1.width = 70
+        img1.height = 25
+        sheet.add_image(img1, f"J{start_table_row + len(formset_data) + 6}")
+
+    if pdf:
+        temp_excel_path = "sales_receipt/utils/invoice.xlsx"
+        temp_pdf_path = "sales_receipt/utils/invoice.pdf"
+        temp_modified_pdf_path = "sales_receipt/utils/invoice_modified.pdf"
+
+        workbook.save(temp_excel_path)
+
+        workbook_aspose = Workbook(temp_excel_path)
+        workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+
+        reader = PdfReader(temp_pdf_path)
+        writer = PdfWriter()
+
+        pages_to_remove = [i for i in range(1, 55)]
+
+        for i in range(len(reader.pages)):
+            if i not in pages_to_remove:
+                writer.add_page(reader.pages[i])
+
+        with open(temp_modified_pdf_path, "wb") as output_pdf:
+            writer.write(output_pdf)
+
+        with open(temp_modified_pdf_path, "rb") as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+
+        os.remove(temp_excel_path)
+        os.remove(temp_pdf_path)
+        os.remove(temp_modified_pdf_path)
+
+        return response
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -8,12 +8,13 @@ from .forms import InvoiceDocumentForm, OrganizationForm, BankDetailsOrganizatio
 from django.shortcuts import redirect, render
 from invoice.utils.excel import create_invoice_excel
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 
 
 class InvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
     model = InvoiceDocument
     form_class = InvoiceDocumentForm
-    template_name = 'invoice_document_form.html'
+    template_name = 'invoice_document_form_new.html'
     success_url = reverse_lazy('invoice')
 
     def get_form_kwargs(self):
@@ -74,14 +75,57 @@ class InvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
 
             self.object.table_product.set(invoice_tables)
 
-            form_data = form.cleaned_data
+            if self.request.POST.get("download_excel") == "true":
+                form_data = form.cleaned_data
+                response = create_invoice_excel(form_data, organization_data, formset_data)
+                return response
 
-            response = create_invoice_excel(form_data, organization_data, formset_data)
+            if self.request.POST.get("download_pdf") == "true":
+                form_data = form.cleaned_data
+                response = create_invoice_excel(form_data, organization_data, formset_data, True)
+                return response
 
-            return response
+        return super().form_valid(form)
+
+
+def add_organization_with_bank(request):
+    if request.method == 'POST':
+        org_form = OrganizationForm(request.POST, prefix='organization')
+
+        if org_form.is_valid():
+            organization = org_form.save(commit=False)
+            organization.user = request.user
+            organization.save()
+
+            return JsonResponse(
+                {
+                    'name': organization.naming,
+                    'id': organization.id,
+                }
+            )
         else:
-            print(formset.errors)
-            return redirect('/')
+            errors = org_form.errors.as_json()
+            return JsonResponse({'errors': errors})
+
+
+def add_counterparty_with_bank(request):
+    if request.method == 'POST':
+        counterparty_form = CounterpartyForm(request.POST, prefix='counterparty')
+
+        if counterparty_form.is_valid():
+            counterparty = counterparty_form.save(commit=False)
+            counterparty.user = request.user
+            counterparty.save()
+
+            return JsonResponse(
+                {
+                    'name': counterparty.naming,
+                    'id': counterparty.id,
+                }
+            )
+        else:
+            errors = counterparty_form.errors.as_json()
+            return JsonResponse({'errors': errors})
 
 
 def add_organization(request):
@@ -172,3 +216,18 @@ def generate_invoice_excel(request):
     else:
         print('Ошибка валидации формы:', form.errors)
         return redirect('/')
+
+
+def invoice_document(request):
+    documents = InvoiceDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+    paginator = Paginator(documents, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST' and 'delete_document' in request.POST:
+        document_id = request.POST.get('document_id')
+        document = InvoiceDocument.objects.get(id=document_id, user=request.user)
+        document.delete()
+        return redirect('invoice_document')
+
+    return render(request, 'invoice_document_new.html', {'page_obj': page_obj})

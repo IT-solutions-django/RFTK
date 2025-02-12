@@ -90,6 +90,24 @@
                                 {{ counterparty_form.inn }}
                                 <button type="button" class="btn btn-primary" id="findByINNCounterparty">Найти</button>
                             </div>
+                            <div id="innSuggestions" class="dropdown-menu"></div>
+                            {% elif field.name == 'ogrn' %}
+                                <label class="form-label">{{ field.label }}</label>
+                                <div class="d-flex align-items-center gap-1">
+                                    <div style="width:19%;">
+                                        <select name="type_selection" id="type_selection" class="form-select" style="width:100%; padding:10px;">
+                                            <option value="ogrn">ОГРН</option>
+                                            <option value="ogrnip">ОГРНИП</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            {% elif field.name == 'address' %}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            <datalist id="address_list"></datalist>
                             {% else %}
                             <label class="form-label">{{ field.label }}</label>
                             {{ field }}
@@ -122,6 +140,10 @@
                                 {{ counterparty_bank_form.bic }}
                                 <button type="button" class="btn btn-primary" id="findByBIKCounterparty">Найти</button>
                             </div>
+                            {% elif field.name == 'location' %}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            <datalist id="address_list_bank"></datalist>
                             {% else %}
                             <label class="form-label">{{ field.label }}</label>
                             {{ field }}

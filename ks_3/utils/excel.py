@@ -3,11 +3,14 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
 from io import BytesIO
+from datetime import datetime
+from PyPDF2 import PdfReader, PdfWriter
+import os
 
 
 def html_to_excel():
@@ -66,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_ks3_excel(data, formset_data):
+def create_ks3_excel(data, formset_data, pdf=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -74,17 +77,13 @@ def create_ks3_excel(data, formset_data):
     file_path = 'ks_3/utils/output.xlsx'
 
     workbook = openpyxl.load_workbook(file_path)
+    workbook.remove(workbook["Evaluation Warning"])
 
     sheet = workbook["КС-3"]
 
-    for col in sheet.columns:
-        try:
-            sheet.column_dimensions[col[0].column_letter].width = 1.3
-        except:
-            continue
-
     for row in sheet.iter_rows():
-        sheet.row_dimensions[row[0].row].height = 20
+        if row[0].row in [7, 9]:
+            sheet.row_dimensions[row[0].row].height = 22
 
     sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
     sheet['X7'] = f'{data["counterparty"].naming}, {data["counterparty"].address}'
@@ -92,43 +91,120 @@ def create_ks3_excel(data, formset_data):
     sheet['CQ8'] = ''
     sheet['J11'] = f'{data["name_construction"]}, {data["address_construction"]}'
     sheet['CQ14'] = f'{data["number_agreement"]}'
+
+    date_str = str(data['date_agreement'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d %m %Y").split(' ')
+    sheet['CQ15'] = f'{formatted_date[0]}'
+    sheet['CV15'] = f'{formatted_date[1]}'
+    sheet['DA15'] = f'{formatted_date[2]}'
+
     sheet['BB20'] = f'{data["name"]}'
-    sheet['BQ20'] = f'{data["date"]}'
-    sheet['CJ20'] = f'{data["period_from"]}'
-    sheet['CU20'] = f'{data["period_by"]}'
+
+    date_str = str(data['date'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d-%m-%Y")
+    sheet['BQ20'] = f'{formatted_date}'
+
+    date_str = str(data['period_from'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d-%m-%Y")
+    sheet['CJ20'] = f'{formatted_date}'
+
+    date_str = str(data['period_by'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d-%m-%Y")
+    sheet['CU20'] = f'{formatted_date}'
+
     sheet['BM28'] = ''
     sheet['CB28'] = ''
     sheet['CQ28'] = ''
 
     start_table_row = 29
     total_sum = 0
+    total_nds = 0
+    if data['nds'] > 0 and data['nds']:
+        nds = int(data['nds'])
+    else:
+        nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
-        total_sum += table_data['amount']
-
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
         sheet[f'G{start_table_row + idx}'] = table_data['name']
         sheet[f'BE{start_table_row + idx}'] = table_data['code']
         sheet[f'BM{start_table_row + idx}'] = table_data['price_from_construction']
         sheet[f'CB{start_table_row + idx}'] = f"{table_data['price_from_year']}"
-        sheet[f'CQ{start_table_row + idx}'] = table_data['amount']
+        if nds > 0:
+            sheet[f'CQ{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
+            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
+            total_nds += round((float(table_data["amount"]) * nds * 0.01), 2)
+        else:
+            sheet[f'CQ{start_table_row + idx}'] = table_data['amount']
+            total_sum += table_data['amount']
 
     sheet[f'CQ{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
-    sheet[f'CQ{start_table_row + len(formset_data) + 3}'] = f'{total_sum}'
+    sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = f'{total_nds}'
+    sheet[f'BM{start_table_row + len(formset_data) + 3}'] = ''
+    sheet[f'CQ{start_table_row + len(formset_data) + 3}'] = ''
 
     sheet[f'Z{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].position_at_work}'
     sheet[f'BX{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].supervisor}'
 
+    sheet[f'Z{start_table_row + len(formset_data) + 5}'] = ''
     sheet[f'BX{start_table_row + len(formset_data) + 5}'] = f'{data["counterparty"].naming}'
 
-    if data['organization'].stamp:
+    if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
         img = Image(BytesIO(image_file.read()))
 
-        img.width = 50
-        img.height = 50
+        img.width = 45 * 2.83
+        img.height = 45 * 2.83
 
-        sheet.add_image(img, f"J{start_table_row + len(formset_data) + 11}")
+        sheet.add_image(img, f"F{start_table_row + len(formset_data) + 7}")
+
+    if data['organization'].signature and data['is_stamp']:
+        image_file = data['organization'].signature
+
+        image_data = image_file.read()
+
+        img_stream = BytesIO(image_data)
+
+        img1 = Image(img_stream)
+        img1.width = 80
+        img1.height = 30
+        sheet.add_image(img1, f"BB{start_table_row + len(formset_data) + 9}")
+
+    if pdf:
+        temp_excel_path = "ks_3/utils/invoice.xlsx"
+        temp_pdf_path = "ks_3/utils/invoice.pdf"
+        temp_modified_pdf_path = "ks_3/utils/invoice_modified.pdf"
+
+        workbook.save(temp_excel_path)
+
+        workbook_aspose = Workbook(temp_excel_path)
+        workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+
+        reader = PdfReader(temp_pdf_path)
+        writer = PdfWriter()
+
+        pages_to_remove = [i for i in range(1, 55)]
+
+        for i in range(len(reader.pages)):
+            if i not in pages_to_remove:
+                writer.add_page(reader.pages[i])
+
+        with open(temp_modified_pdf_path, "wb") as output_pdf:
+            writer.write(output_pdf)
+
+        with open(temp_modified_pdf_path, "rb") as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+
+        os.remove(temp_excel_path)
+        os.remove(temp_pdf_path)
+        os.remove(temp_modified_pdf_path)
+
+        return response
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -3,6 +3,11 @@ from invoice.models import RkoDocument, InformationOrganization
 
 
 class RkoDocumentForm(forms.ModelForm):
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -25,7 +30,7 @@ class RkoDocumentForm(forms.ModelForm):
             'summa': forms.TextInput(attrs={'class': 'form-control'}),
             'base': forms.TextInput(attrs={'class': 'form-control'}),
             'annex': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -5,13 +5,15 @@ from .forms import PowerAttorneyDocumentForm, PowerAttorneyDocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
 from power_attorney.utils.excel import create_power_attorney_excel
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
 
 
 class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
     model = PowerAttorneyDocument
     form_class = PowerAttorneyDocumentForm
-    template_name = 'power_attorney_document_form.html'
-    success_url = reverse_lazy('power-attorney')
+    template_name = 'power_attorney_document_form_new.html'
+    success_url = reverse_lazy('power_attorney_document')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -55,8 +57,29 @@ class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
 
             self.object.table_product.set(invoice_tables)
 
-            form_data = form.cleaned_data
+            if self.request.POST.get("download_excel") == "true":
+                form_data = form.cleaned_data
+                response = create_power_attorney_excel(form_data, formset_data)
+                return response
 
-            response = create_power_attorney_excel(form_data, formset_data)
+            if self.request.POST.get("download_pdf") == "true":
+                form_data = form.cleaned_data
+                response = create_power_attorney_excel(form_data, formset_data, True)
+                return response
 
-            return response
+        return super().form_valid(form)
+
+
+def power_attorney_document(request):
+    documents = PowerAttorneyDocument.objects.select_related('organization').filter(user=request.user)
+    paginator = Paginator(documents, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST' and 'delete_document' in request.POST:
+        document_id = request.POST.get('document_id')
+        document = PowerAttorneyDocument.objects.get(id=document_id, user=request.user)
+        document.delete()
+        return redirect('power_attorney_document')
+
+    return render(request, 'power_attorney_document_new.html', {'page_obj': page_obj})

@@ -1,3 +1,48 @@
+$(document).ready(function () {
+    $("#id_organization-inn").on("input", function () {
+        let query = $(this).val();
+        if (query.length < 3) {
+            $("#innSuggestions").empty().hide();
+            return;
+        }
+
+        $.ajax({
+            url: "/inn_autocomplete",
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                let suggestions = data.suggestions;
+                let dropdown = $("#innSuggestions");
+                dropdown.empty();
+
+                if (suggestions.length) {
+                    suggestions.forEach(function (item) {
+                        dropdown.append(
+                            `<div class="dropdown-item" data-inn="${item.inn}">${item.value}</div>`
+                        );
+                    });
+
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            },
+        });
+    });
+
+    $(document).on("click", ".dropdown-item", function () {
+        let inn = $(this).data("inn");
+        $("#id_organization-inn").val(inn);
+        $("#innSuggestions").hide();
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#innSuggestions, #id_organization-inn").length) {
+            $("#innSuggestions").hide();
+        }
+    });
+});
+
 document.getElementById("findByINN").addEventListener("click", function() {
     let innInput = document.getElementById("id_organization-inn");
     let inn = innInput.value.trim();
@@ -10,13 +55,28 @@ document.getElementById("findByINN").addEventListener("click", function() {
     fetch(`/find-company/?inn=${inn}`)
         .then(response => response.json())
         .then(data => {
+            document.getElementById("id_organization-naming").value = "";
+            document.getElementById("id_organization-kpp").value = "";
+            document.getElementById("id_organization-ogrn").value = "";
+            document.getElementById("id_organization-address").value = "";
+            document.getElementById("id_organization-position_at_work").value = "";
+            document.getElementById("id_organization-supervisor").value = "";
             if (data.success) {
-                document.getElementById("id_organization-naming").value = data.name;
-                document.getElementById("id_organization-kpp").value = data.kpp;
-                document.getElementById("id_organization-ogrn").value = data.ogrn;
-                document.getElementById("id_organization-address").value = data.address;
-                document.getElementById("id_organization-position_at_work").value = data.position_at_work;
-                document.getElementById("id_organization-supervisor").value = data.supervisor;
+                if (data.type == 'Юридическое лицо') {
+                    document.getElementById("id_organization-naming").value = data.name;
+                    document.getElementById("id_organization-kpp").value = data.kpp;
+                    document.getElementById("id_organization-ogrn").value = data.ogrn;
+                    document.getElementById("id_organization-address").value = data.address;
+                    document.getElementById("id_organization-position_at_work").value = data.position_at_work;
+                    document.getElementById("id_organization-supervisor").value = data.supervisor;
+                    document.getElementById("type_selection").value = "ogrn";
+                }
+                else {
+                    document.getElementById("id_organization-naming").value = data.name;
+                    document.getElementById("id_organization-ogrn").value = data.ogrn;
+                    document.getElementById("id_organization-address").value = data.address;
+                    document.getElementById("type_selection").value = "ogrnip";
+                }
 
             } else {
                 alert("Организация не найдена");
@@ -46,16 +106,6 @@ document.getElementById("findByBIK").addEventListener("click", function() {
             }
         })
         .catch(error => console.error("Ошибка при запросе данных:", error));
-});
-
-$(document).ready(function () {
-    $("#id_organization-inn").on("input", function () {
-        if (/[a-zA-Zа-яА-Я]/.test($(this).val())) {
-            $(this).addClass("is-invalid");
-        } else {
-            $(this).removeClass("is-invalid");
-        }
-    });
 });
 
 $(document).ready(function () {
@@ -104,6 +154,54 @@ $(document).ready(function () {
             $(this).addClass("is-invalid");
         } else {
             $(this).removeClass("is-invalid");
+        }
+    });
+});
+
+$(document).ready(function () {
+    $("#id_organization-address").on("input", function () {
+        let query = $(this).val();
+        if (query.length > 2) {
+            $.ajax({
+                url: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Token bb47885575aa2239d036af551ba88f3da668d266"
+                },
+                data: JSON.stringify({ query: query }),
+                success: function (data) {
+                    let suggestions = data.suggestions.map(item => item.value);
+                    $("#address_list").empty();
+                    suggestions.forEach(addr => {
+                        $("#address_list").append(`<option value="${addr}">`);
+                    });
+                }
+            });
+        }
+    });
+});
+
+$(document).ready(function () {
+    $("#id_bank-location").on("input", function () {
+        let query = $(this).val();
+        if (query.length > 2) {
+            $.ajax({
+                url: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Token bb47885575aa2239d036af551ba88f3da668d266"
+                },
+                data: JSON.stringify({ query: query }),
+                success: function (data) {
+                    let suggestions = data.suggestions.map(item => item.value);
+                    $("#address_list_bank").empty();
+                    suggestions.forEach(addr => {
+                        $("#address_list_bank").append(`<option value="${addr}">`);
+                    });
+                }
+            });
         }
     });
 });

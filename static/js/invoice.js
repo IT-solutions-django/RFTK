@@ -1,3 +1,93 @@
+$(document).ready(function () {
+    $("#id_organization-inn").on("input", function () {
+        let query = $(this).val();
+        if (query.length < 3) {
+            $("#innSuggestions").empty().hide();
+            return;
+        }
+
+        $.ajax({
+            url: "/inn_autocomplete",
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                let suggestions = data.suggestions;
+                let dropdown = $("#innSuggestions");
+                dropdown.empty();
+
+                if (suggestions.length) {
+                    suggestions.forEach(function (item) {
+                        dropdown.append(
+                            `<div class="dropdown-item" data-inn="${item.inn}">${item.value}</div>`
+                        );
+                    });
+
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            },
+        });
+    });
+
+    $(document).on("click", ".dropdown-item", function () {
+        let inn = $(this).data("inn");
+        $("#id_organization-inn").val(inn);
+        $("#innSuggestions").hide();
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#innSuggestions, #id_organization-inn").length) {
+            $("#innSuggestions").hide();
+        }
+    });
+});
+
+$(document).ready(function () {
+    $("#id_counterparty-inn").on("input", function () {
+        let query = $(this).val();
+        if (query.length < 3) {
+            $("#innSuggestionsCounterparty").empty().hide();
+            return;
+        }
+
+        $.ajax({
+            url: "/inn_autocomplete",
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                let suggestions = data.suggestions;
+                let dropdown = $("#innSuggestionsCounterparty");
+                dropdown.empty();
+
+                if (suggestions.length) {
+                    suggestions.forEach(function (item) {
+                        dropdown.append(
+                            `<div class="dropdown-item" data-inn="${item.inn}">${item.value}</div>`
+                        );
+                    });
+
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            },
+        });
+    });
+
+    $(document).on("click", ".dropdown-item", function () {
+        let inn = $(this).data("inn");
+        $("#id_counterparty-inn").val(inn);
+        $("#innSuggestionsCounterparty").hide();
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#innSuggestionsCounterparty, #id_counterparty-inn").length) {
+            $("#innSuggestionsCounterparty").hide();
+        }
+    });
+});
+
 document.getElementById('organizationForm').addEventListener('submit', function (e) {
     e.preventDefault();
     const formData = new FormData(this);
@@ -276,27 +366,38 @@ document.getElementById("findByINN").addEventListener("click", function() {
         .catch(error => console.error("Ошибка при запросе данных:", error));
 });
 
-document.getElementById("findByBIK").addEventListener("click", function() {
-    let bikInput = document.getElementById("id_bank-bic");
-    let bik = bikInput.value.trim();
+document.addEventListener("DOMContentLoaded", function () {
+    let findByBIKButton = document.getElementById("findByBIK");
 
-    if (!bik) {
-        alert("Введите БИК");
-        return;
-    }
+    if (findByBIKButton) {
+        findByBIKButton.addEventListener("click", function () {
+            let bikInput = document.getElementById("id_bank-bic");
+            if (!bikInput) return;
 
-    fetch(`/find-bank/?bik=${bik}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById("id_bank-naming").value = data.bank_name;
-                document.getElementById("id_bank-location").value = data.address;
-                document.getElementById("id_bank-correspondent_account").value = data.correspondent_account;
-            } else {
-                alert("Банк не найден");
+            let bik = bikInput.value.trim();
+            if (!bik) {
+                alert("Введите БИК");
+                return;
             }
-        })
-        .catch(error => console.error("Ошибка при запросе данных:", error));
+
+            fetch(`/find-bank/?bik=${bik}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let bankName = document.getElementById("id_bank-naming");
+                        let bankLocation = document.getElementById("id_bank-location");
+                        let correspondentAccount = document.getElementById("id_bank-correspondent_account");
+
+                        if (bankName) bankName.value = data.bank_name;
+                        if (bankLocation) bankLocation.value = data.address;
+                        if (correspondentAccount) correspondentAccount.value = data.correspondent_account;
+                    } else {
+                        alert("Банк не найден");
+                    }
+                })
+                .catch(error => console.error("Ошибка при запросе данных:", error));
+        });
+    }
 });
 
 document.getElementById("findByINNCounterparty").addEventListener("click", function() {
@@ -324,25 +425,36 @@ document.getElementById("findByINNCounterparty").addEventListener("click", funct
         .catch(error => console.error("Ошибка при запросе данных:", error));
 });
 
-document.getElementById("findByBIKCounterparty").addEventListener("click", function() {
-    let bikInput = document.getElementById("id_counterparty_bank-bic");
-    let bik = bikInput.value.trim();
+document.addEventListener("DOMContentLoaded", function () {
+    let findByBIKButton = document.getElementById("findByBIKCounterparty");
 
-    if (!bik) {
-        alert("Введите БИК");
-        return;
-    }
+    if (findByBIKButton) {
+        findByBIKButton.addEventListener("click", function () {
+            let bikInput = document.getElementById("id_counterparty_bank-bic");
+            if (!bikInput) return;
 
-    fetch(`/find-bank/?bik=${bik}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById("id_counterparty_bank-naming").value = data.bank_name;
-                document.getElementById("id_counterparty_bank-location").value = data.address;
-                document.getElementById("id_counterparty_bank-correspondent_account").value = data.correspondent_account;
-            } else {
-                alert("Банк не найден");
+            let bik = bikInput.value.trim();
+            if (!bik) {
+                alert("Введите БИК");
+                return;
             }
-        })
-        .catch(error => console.error("Ошибка при запросе данных:", error));
+
+            fetch(`/find-bank/?bik=${bik}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let bankName = document.getElementById("id_counterparty_bank-naming");
+                        let bankLocation = document.getElementById("id_counterparty_bank-location");
+                        let correspondentAccount = document.getElementById("id_counterparty_bank-correspondent_account");
+
+                        if (bankName) bankName.value = data.bank_name;
+                        if (bankLocation) bankLocation.value = data.address;
+                        if (correspondentAccount) correspondentAccount.value = data.correspondent_account;
+                    } else {
+                        alert("Банк не найден");
+                    }
+                })
+                .catch(error => console.error("Ошибка при запросе данных:", error));
+        });
+    }
 });

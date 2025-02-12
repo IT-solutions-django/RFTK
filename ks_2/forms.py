@@ -4,6 +4,11 @@ from django.forms import modelformset_factory
 
 
 class Ks2DocumentForm(forms.ModelForm):
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -34,15 +39,17 @@ class Ks2DocumentForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'name_construction': forms.TextInput(attrs={'class': 'form-control'}),
-            'address_construction': forms.TextInput(attrs={'class': 'form-control'}),
+            'address_construction': forms.TextInput(
+                attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
             'name_object': forms.TextInput(attrs={'class': 'form-control'}),
             'view_okdp': forms.TextInput(attrs={'class': 'form-control'}),
             'number_agreement': forms.TextInput(attrs={'class': 'form-control'}),
             'price_outlay': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'period_by': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'period_from': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_agreement': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date_agreement': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
 
         }
 

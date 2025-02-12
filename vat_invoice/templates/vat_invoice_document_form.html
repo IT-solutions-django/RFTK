@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -59,9 +60,9 @@
         </div>
         <div class="offcanvas-body">
             <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="/">Счет</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'utd' %}">УПД</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'vat-invoice' %}">Счет-фактура</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'invoice_document' %}">Счет</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'utd_document' %}">УПД</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'vat_invoice_document' %}">Счет-фактура</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'packing-list' %}">Товарная накладная</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'commercial-offer' %}">Коммерческое предложение</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'outlay' %}">Смета</a></li>
@@ -85,16 +86,24 @@
                 {% for field in form %}
                 <div class="col-md-6 mb-3">
                     <div class="form-group">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <label for="{{ field.id_for_label }}">{{ field.label }} {% if field|is_required %}<span style="color:red;">*</span>{% endif %}</label>
                         {{ field }}
                         {% if field.help_text %}
                             <small class="form-text text-muted">{{ field.help_text }}</small>
                         {% endif %}
-                        {% if field.name == "organization" or field.name == "counterparty" %}
+                        {% if field.name == "organization" or field.name == "counterparty" or field.name == "consignee" or field.name == "shipper" %}
                             <div class="mt-2">
                                 {% if field.name == "organization" %}
                                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOrganizationModal">
                                         <i class="fas fa-plus"></i> Добавить организацию
+                                    </button>
+                                {% elif field.name == "consignee" %}
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal">
+                                        <i class="fas fa-plus"></i> Добавить грузополучателя
+                                    </button>
+                                {% elif field.name == "shipper" %}
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal">
+                                        <i class="fas fa-plus"></i> Добавить грузоотправителя
                                     </button>
                                 {% else %}
                                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal">
@@ -161,6 +170,8 @@
 
         <div class="d-flex justify-content-start" style="margin-top: 7px;">
             <button type="submit" class="btn btn-primary" style="margin-right: 7px;">Сохранить</button>
+            <button type="submit" class="btn btn-success" onclick="setDownloadExcel()">Сохранить и скачать Excel</button>
+            <input type="hidden" name="download_excel" id="download_excel" value="false">
         </div>
       </form>
    </div>
@@ -174,7 +185,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="organizationForm" method="post" action="{% url 'add_organization' %}">
+                    <form id="organizationForm" method="post" action="{% url 'add_organization_with_bank' %}">
                         {% csrf_token %}
                         <h5>Информация о организации</h5>
                         {% for field in org_form %}
@@ -184,23 +195,7 @@
                                 {{ field }}
                                 <button type="button" class="btn btn-primary" id="findByINN">Найти</button>
                             </div>
-                            {% else %}
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        <hr>
-                        <h5>Банковские реквизиты</h5>
-                        {% for field in bank_form %}
-                            {% if field.name == 'bic'%}
-                            <label class="form-label" for="{{ bank_form.bic.id_for_label }}"></label>
-                            <div class="input-group">
-                                {{ field }}
-                                <button type="button" class="btn btn-primary" id="findByBIK">Найти</button>
-                            </div>
+                            <div id="innSuggestions" class="dropdown-menu"></div>
                             {% else %}
                             <label class="form-label">{{ field.label }}</label>
                             {{ field }}
@@ -227,7 +222,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="counterpartyForm" method="post" action="{% url 'add_counterparty' %}">
+                    <form id="counterpartyForm" method="post" action="{% url 'add_counterparty_with_bank' %}">
                         {% csrf_token %}
                         <h5>Информация о контрагенте</h5>
                         {% for field in counterparty_form %}
@@ -237,23 +232,7 @@
                                 {{ field }}
                                 <button type="button" class="btn btn-primary" id="findByINNCounterparty">Найти</button>
                             </div>
-                            {% else %}
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        <hr>
-                        <h5>Банковские реквизиты</h5>
-                        {% for field in counterparty_bank_form %}
-                            {% if field.name == 'bic'%}
-                            <label class="form-label" for="{{ counterparty_bank_form.bic.id_for_label }}"></label>
-                            <div class="input-group">
-                                {{ field }}
-                                <button type="button" class="btn btn-primary" id="findByBIKCounterparty">Найти</button>
-                            </div>
+                            <div id="innSuggestionsCounterparty" class="dropdown-menu"></div>
                             {% else %}
                             <label class="form-label">{{ field.label }}</label>
                             {{ field }}
@@ -272,4 +251,9 @@
     </div>
 
    </body>
+<script>
+    function setDownloadExcel() {
+        document.getElementById('download_excel').value = "true";
+    }
+</script>
 </html>

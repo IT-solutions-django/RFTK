@@ -4,6 +4,19 @@ from django.forms import modelformset_factory
 
 
 class UtdDocumentForm(forms.ModelForm):
+    CURRENCY_CHOICES = [
+        ('Российский рубль, 643', 'Российский рубль, 643'),
+        ('Доллар США, 840', 'Доллар США, 840'),
+        ('Евро, 978', 'Евро, 978')
+    ]
+
+    currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='Валюта',
+        required=False
+    )
+
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -32,6 +45,11 @@ class UtdDocumentForm(forms.ModelForm):
         label='Грузоотправитель',
         required=True
     )
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
 
     class Meta:
         model = UtdDocument
@@ -49,11 +67,15 @@ class UtdDocumentForm(forms.ModelForm):
             'data_transportation',
             'shipment_date',
             'date_of_receipt',
+            'type_document',
+            'currency',
+            'nds',
+            'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'shipment_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'date_of_receipt': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'shipment_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'date_of_receipt': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'shipping_document': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'state_ID_contract': forms.TextInput(
@@ -62,9 +84,11 @@ class UtdDocumentForm(forms.ModelForm):
             'data_transportation': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
+            'type_document': forms.TextInput(attrs={'class': 'form-control'}),
+            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
-            'name': 'Название документа',
+            'name': 'УПД №',
             'date': 'Дата создания документа',
             'organization': 'Организация',
             'shipper': 'Грузоотправитель',

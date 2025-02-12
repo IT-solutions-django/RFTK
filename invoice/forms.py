@@ -5,6 +5,23 @@ from django.forms import modelformset_factory
 
 
 class InvoiceDocumentForm(forms.ModelForm):
+    CURRENCY_CHOICES = [
+        ('Российский рубль, 643', 'Российский рубль, 643'),
+        ('Доллар США, 840', 'Доллар США, 840'),
+        ('Евро, 978', 'Евро, 978')
+    ]
+
+    currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='Валюта',
+        required=False
+    )
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
     bank_organization = forms.ModelChoiceField(
         queryset=BankDetailsOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -53,19 +70,23 @@ class InvoiceDocumentForm(forms.ModelForm):
             'consignee',
             'purpose_of_payment',
             'payment_for',
-            'agreement'
+            'agreement',
+            'currency',
+            'nds',
+            'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'purpose_of_payment': forms.TextInput(
                 attrs={'placeholder': 'Например, Авансовый платёж', 'class': 'form-control'}),
             'payment_for': forms.TextInput(
                 attrs={'placeholder': 'Опишите, за что производится оплата', 'class': 'form-control'}),
             'agreement': forms.TextInput(attrs={'placeholder': 'Номер и дата договора', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
-            'name': 'Название документа',
+            'name': 'Счет на оплату №',
             'date': 'Дата создания документа',
             'organization': 'Организация',
             'counterparty': 'Контрагент',
@@ -85,12 +106,16 @@ class InvoiceDocumentForm(forms.ModelForm):
             self.fields['counterparty'].queryset = Buyer.objects.filter(user=request.user)
             self.fields['consignee'].queryset = Buyer.objects.filter(user=request.user)
 
-            organization_id = request.POST.get("organization") or request.GET.get("organization")
+            organization_id = request.POST.get("organization") or request.GET.get("organization") or (
+                getattr(self.instance, "organization_id", None) if self.instance else None
+            )
             if organization_id:
                 self.fields['bank_organization'].queryset = BankDetailsOrganization.objects.filter(
                     organization_id=organization_id)
 
-            counterparty_id = request.POST.get("counterparty") or request.GET.get("counterparty")
+            counterparty_id = request.POST.get("counterparty") or request.GET.get("counterparty") or (
+                getattr(self.instance, "counterparty_id", None) if self.instance else None
+            )
             if counterparty_id:
                 self.fields['bank_counterparty'].queryset = BankDetailsBuyer.objects.filter(
                     organization_id=counterparty_id)
@@ -108,9 +133,10 @@ class OrganizationForm(forms.ModelForm):
                                           'title': 'ИНН может содержать только цифры'}),
             'kpp': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите КПП', 'pattern': '[0-9]+',
                                           'title': 'КПП может содержать только цифры'}),
-            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН', 'pattern': '[0-9]+',
-                                           'title': 'ОГРН может содержать только цифры'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
+            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'pattern': '[0-9]+',
+                                           'title': 'ОГРН может содержать только цифры', 'placeholder': 'ОГРН/ОГРНИП'}),
+            'address': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'pattern': r'^\+7\d{10}$',
                        'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
@@ -135,7 +161,7 @@ class OrganizationForm(forms.ModelForm):
                 field.help_text = 'Загрузите подпись руководителя'
             else:
                 field.help_text = ''
-                field.label = ''
+
 
 
 class BankDetailsOrganizationForm(forms.ModelForm):
@@ -149,7 +175,8 @@ class BankDetailsOrganizationForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
                        'title': 'БИК может содержать только цифры'}),
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
-            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
+            'location': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list_bank'}),
             'correspondent_account': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
                        'title': 'Кор.счет может содержать только цифры'}),
@@ -162,7 +189,19 @@ class BankDetailsOrganizationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.help_text = ''
-            field.label = ''
+            field.required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if any(cleaned_data.values()):
+            required_fields = ['bic', 'naming', 'location', 'correspondent_account', 'current_account']
+            missing_fields = [field for field in required_fields if not cleaned_data.get(field)]
+
+            if missing_fields:
+                raise forms.ValidationError("Все поля банковских данных обязательны, если хотя бы одно заполнено.")
+
+        return cleaned_data
 
 
 class CounterpartyForm(forms.ModelForm):
@@ -179,7 +218,8 @@ class CounterpartyForm(forms.ModelForm):
                                           'title': 'КПП может содержать только цифры'}),
             'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ОГРН', 'pattern': '[0-9]+',
                                            'title': 'ОГРН может содержать только цифры'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
+            'address': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'pattern': r'^\+7\d{10}$',
                        'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
@@ -191,7 +231,6 @@ class CounterpartyForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.help_text = ''
-            field.label = ''
 
 
 class BankCounterpartyForm(forms.ModelForm):
@@ -205,7 +244,8 @@ class BankCounterpartyForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
                        'title': 'БИК может содержать только цифры'}),
             'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
-            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите адрес'}),
+            'location': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list_bank'}),
             'correspondent_account': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
                        'title': 'Кор.счет может содержать только цифры'}),
@@ -218,7 +258,19 @@ class BankCounterpartyForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.help_text = ''
-            field.label = ''
+            field.required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if any(cleaned_data.values()):
+            required_fields = ['bic', 'naming', 'location', 'correspondent_account', 'current_account']
+            missing_fields = [field for field in required_fields if not cleaned_data.get(field)]
+
+            if missing_fields:
+                raise forms.ValidationError("Все поля банковских данных обязательны, если хотя бы одно заполнено.")
+
+        return cleaned_data
 
 
 class InvoiceDocumentTableForm(forms.ModelForm):

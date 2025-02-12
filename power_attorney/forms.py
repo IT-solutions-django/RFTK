@@ -6,6 +6,11 @@ from invoice.models import BankDetailsOrganization
 
 
 class PowerAttorneyDocumentForm(forms.ModelForm):
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
     bank_organization = forms.ModelChoiceField(
         queryset=BankDetailsOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -28,9 +33,9 @@ class PowerAttorneyDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'validity_period': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_issue': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'validity_period': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date_issue': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'to_receive_from': forms.TextInput(attrs={'class': 'form-control'}),
             'according_document': forms.TextInput(attrs={'class': 'form-control'}),
             'person_power': forms.TextInput(attrs={'class': 'form-control'}),
@@ -46,7 +51,9 @@ class PowerAttorneyDocumentForm(forms.ModelForm):
         if request:
             self.fields['organization'].queryset = InformationOrganization.objects.filter(user=request.user)
 
-            organization_id = request.POST.get("organization") or request.GET.get("organization")
+            organization_id = request.POST.get("organization") or request.GET.get("organization") or (
+                getattr(self.instance, "organization_id", None) if self.instance else None
+            )
             if organization_id:
                 self.fields['bank_organization'].queryset = BankDetailsOrganization.objects.filter(
                     organization_id=organization_id)

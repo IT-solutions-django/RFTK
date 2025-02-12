@@ -3,11 +3,14 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, PdfSaveOptions, PaperSizeType
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
 from io import BytesIO
+from datetime import datetime
+from PyPDF2 import PdfReader, PdfWriter
+import os
 
 
 def html_to_excel():
@@ -65,7 +68,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_invoice_excel(data, organization_data, formset_data):
+def create_invoice_excel(data, organization_data, formset_data, pdf=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -73,15 +76,13 @@ def create_invoice_excel(data, organization_data, formset_data):
     file_path = 'invoice/utils/output.xlsx'
 
     workbook = openpyxl.load_workbook(file_path)
+    workbook.remove(workbook["Evaluation Warning"])
 
     sheet = workbook["Счет на оплату"]
 
     for row in sheet.iter_rows():
         if row[0].row == 11:
             sheet.row_dimensions[row[0].row].height = 77
-        else:
-            sheet.row_dimensions[row[0].row].height = 16
-
 
     sheet['A1'] = organization_data['name']
     sheet['A2'] = organization_data['address']
@@ -98,7 +99,10 @@ def create_invoice_excel(data, organization_data, formset_data):
     sheet[
         'AY11'] = f"{data['counterparty'].address}\nИНН {data['counterparty'].inn}\nОГРН {data['counterparty'].ogrn}\n{data['bank_counterparty'].naming}, {data['bank_counterparty'].location}\nКор. счет {data['bank_counterparty'].correspondent_account}\nБИК {data['bank_counterparty'].bic}"
 
-    sheet['A13'] = f"{data['name']} от {data['date']}"
+    date_str = str(data['date'])
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%d-%m-%Y")
+    sheet['A13'] = f"Счет №{data['name']} от {formatted_date}"
 
     sheet['A15'] = f"за {data['payment_for']}"
 
@@ -108,8 +112,12 @@ def create_invoice_excel(data, organization_data, formset_data):
 
     total_sum = 0
 
+    if data['nds'] > 0 and data['nds']:
+        nds = int(data['nds'])
+    else:
+        nds = 0
+
     for idx, table_data in enumerate(formset_data, 1):
-        total_sum += table_data["amount"]
 
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
         sheet[f'E{start_table_row + idx}'] = f'{table_data["name"]}'
@@ -117,7 +125,13 @@ def create_invoice_excel(data, organization_data, formset_data):
         sheet[f'BP{start_table_row + idx}'] = f'{table_data["quantity"]}'
         sheet[f'BY{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
         sheet[f'CG{start_table_row + idx}'] = f'{table_data["discount"]}'
-        sheet[f'CN{start_table_row + idx}'] = f'{table_data["amount"]}'
+        if nds > 0:
+            sheet[
+                f'CN{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
+            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
+        else:
+            sheet[f'CN{start_table_row + idx}'] = f'{table_data["amount"]}'
+            total_sum += table_data["amount"]
 
     sheet[f'A{start_table_row + len(formset_data) + 1}'] = 'Итого'
     sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
@@ -127,14 +141,58 @@ def create_invoice_excel(data, organization_data, formset_data):
     sheet[f'AI{start_table_row + len(formset_data) + 7}'] = organization_data['supervisor']
     sheet[f'AI{start_table_row + len(formset_data) + 9}'] = organization_data['accountant']
 
-    if data['organization'].stamp:
+    if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
         img = Image(BytesIO(image_file.read()))
 
-        img.width = 50
-        img.height = 50
+        img.width = 45 * 2.83
+        img.height = 45 * 2.83
 
-        sheet.add_image(img, f"CU{start_table_row + len(formset_data) + 8}")
+        sheet.add_image(img, f"BO{start_table_row + len(formset_data) + 8}")
+
+    if data['organization'].signature and data['is_stamp']:
+        image_file = data['organization'].signature
+
+        image_data = image_file.read()
+
+        img_stream = BytesIO(image_data)
+
+        img1 = Image(img_stream)
+        img1.width = 70
+        img1.height = 35
+        sheet.add_image(img1, f"BY{start_table_row + len(formset_data) + 7}")
+
+    if pdf:
+        temp_excel_path = "invoice/utils/invoice.xlsx"
+        temp_pdf_path = "invoice/utils/invoice.pdf"
+        temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"
+
+        workbook.save(temp_excel_path)
+
+        workbook_aspose = Workbook(temp_excel_path)
+        workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+
+        reader = PdfReader(temp_pdf_path)
+        writer = PdfWriter()
+
+        pages_to_remove = [i for i in range(1, 55)]
+
+        for i in range(len(reader.pages)):
+            if i not in pages_to_remove:
+                writer.add_page(reader.pages[i])
+
+        with open(temp_modified_pdf_path, "wb") as output_pdf:
+            writer.write(output_pdf)
+
+        with open(temp_modified_pdf_path, "rb") as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+
+        os.remove(temp_excel_path)
+        os.remove(temp_pdf_path)
+        os.remove(temp_modified_pdf_path)
+
+        return response
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

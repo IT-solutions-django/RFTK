@@ -4,6 +4,23 @@ from django.forms import modelformset_factory
 
 
 class CommercialOfferDocumentForm(forms.ModelForm):
+    CURRENCY_CHOICES = [
+        ('Российский рубль, 643', 'Российский рубль, 643'),
+        ('Доллар США, 840', 'Доллар США, 840'),
+        ('Евро, 978', 'Евро, 978')
+    ]
+
+    currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='Валюта',
+        required=False
+    )
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -26,9 +43,10 @@ class CommercialOfferDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control', 'type': 'date'}),
             'naming': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
+            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': 'КП №',

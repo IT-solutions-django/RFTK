@@ -3,6 +3,18 @@ from invoice.models import VatInvoiceDocument, InformationOrganization, Buyer
 
 
 class VatInvoiceDocumentForm(forms.ModelForm):
+    CURRENCY_CHOICES = [
+        ('Российский рубль, 643', 'Российский рубль, 643'),
+        ('Доллар США, 840', 'Доллар США, 840'),
+        ('Евро, 978', 'Евро, 978')
+    ]
+
+    currency = forms.ChoiceField(
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='Валюта',
+        required=False
+    )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -31,6 +43,11 @@ class VatInvoiceDocumentForm(forms.ModelForm):
         label='Грузоотправитель',
         required=True
     )
+    is_stamp = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Добавить печать и подпись'
+    )
 
     class Meta:
         model = VatInvoiceDocument
@@ -44,18 +61,22 @@ class VatInvoiceDocumentForm(forms.ModelForm):
             'consignee',
             'shipping_document',
             'state_ID_contract',
+            'currency',
+            'nds',
+            'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'shipping_document': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'state_ID_contract': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
+            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
-            'name': 'Название документа',
+            'name': 'Счет-фактура №',
             'date': 'Дата создания документа',
             'organization': 'Организация',
             'shipper': 'Грузоотправитель',
