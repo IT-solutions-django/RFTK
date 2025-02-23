@@ -129,8 +129,8 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             sheet[f'BB{start_table_row + idx}'] = table_data['quantity']
             sheet[f'BM{start_table_row + idx}'] = table_data['unit_of_measurement']
             sheet[f'BW{start_table_row + idx}'] = f'{table_data["price"]}'
-            sheet[f'CN{start_table_row + idx}'] = f'{round(float(table_data["price"]) * float(table_data['quantity']), 2)}'
-            total_sum_with_nds += round(float(table_data["price"]) * float(table_data['quantity']), 2)
+            sheet[f'CN{start_table_row + idx}'] = f'{round(float(table_data["price"]) * float(table_data["quantity"]), 2)}'
+            total_sum_with_nds += round(float(table_data["price"]) * float(table_data["quantity"]), 2)
             total_nds += round(float(table_data["price"]) * float(table_data['quantity'] * nds * 0.01), 2)
 
         sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum_with_nds}'
