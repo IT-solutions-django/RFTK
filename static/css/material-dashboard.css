@@ -25797,12 +25797,12 @@ hr.horizontal.gray-light {
   color: #fff;
   border-right-width: 0;
   border-bottom-width: 0;
-  background-color: rgba(199, 199, 199, 0.2);
+  background-color: #FA980B;
 }
 
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapse .nav-item.active .nav-link.active,
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapsing .nav-item.active .nav-link.active {
-  background-image: linear-gradient(195deg, #262626 0%, #262626 100%);
+  background-image: #FA980B;
 }
 
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapse .nav-item.active .nav-link.active span,
@@ -25812,12 +25812,12 @@ hr.horizontal.gray-light {
 
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapse .nav-item .nav-link.active,
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapsing .nav-item .nav-link.active {
-  background-color: rgba(199, 199, 199, 0.2);
+  background-color: #FA980B;
 }
 
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapse .nav-item .nav-link.active+.collapse .nav-item .nav-link.active,
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active+.collapsing .nav-item .nav-link.active+.collapse .nav-item .nav-link.active {
-  background-image: linear-gradient(195deg, #262626 0%, #262626 100%);
+  background-image: #FA980B!important;
   color: #fff !important;
 }
 
@@ -29161,7 +29161,7 @@ pre[class*=language-] {
 }
 
 .navbar-vertical .navbar-nav>.nav-item .nav-link.active {
-    background-color: black !important;
+    background-color: #FA980B !important;
 }
 
 #innSuggestions {
@@ -29297,13 +29297,88 @@ th {
     background-color: orange;
     margin-left: 7px;
     height: 35px;
-
     border-radius: 7px;
     color: white;
 }
 
+.bg-gradient-dark {
+    background-image: none!important;
+}
 
+.btn-dark, .btn.bg-gradient-dark {
+    background: #FA980B;
+}
 
+.btn-dark:hover, .btn.bg-gradient-dark:hover {
+    background-color: orange;
+}
+
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    background-color: orange!important;
+}
+
+.card-header div {
+    background-image: linear-gradient(195deg, #42424a 0%, #191919 100%)!important;
+}
+
+.btn-primary {
+    background-color: #FA980B!important;
+}
+
+.btn-primary:hover {
+    box-shadow: none!important;
+}
+
+.btn-success {
+    background-color: white!important;
+    border: 1px solid #FA980B!important;
+    color: black!important;
+}
+
+.btn-success:hover {
+    box-shadow: none!important;
+    background-color: #FA980B!important;
+}
+
+.btn-secondary {
+    background-color: white!important;
+    border: 1px solid #FA980B!important;
+    color: black!important;
+}
+
+.btn-info {
+    background-color: white!important;
+    border: 1px solid #FA980B!important;
+    color: black!important;
+}
+
+.btn-info:hover {
+    box-shadow: none!important;
+    background-color: #FA980B!important;
+}
+
+.add-row {
+    border-radius: 50%!important;
+    background-color: green!important;
+    border: 1px solid green!important;
+    color: white!important;
+}
+
+.add-row:hover {
+    background-color: green!important;
+}
+
+.add-row:active {
+    background-color: green !important;
+}
+
+.remove-row {
+    border-radius: 50%!important;
+}
+
+aside {
+    z-index: 100 !important;
+}
 
 
 /*# sourceMappingURL=dashboard-free.css.map */
