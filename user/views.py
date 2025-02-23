@@ -140,13 +140,14 @@ def add_counterparty_from_profile(request):
         if counterparty_form.is_valid():
             organization = counterparty_form.save(commit=False)
             organization.user = request.user
-            organization.save()
+            # organization.save()
 
             if any(counterparty_bank_form.data.get('counterparty_bank-' + field) for field in
                    counterparty_bank_form.fields):
                 for field in counterparty_bank_form.fields.values():
                     field.required = True
                 if counterparty_bank_form.is_valid():
+                    organization.save()
                     bank_details = counterparty_bank_form.save(commit=False)
                     bank_details.organization = organization
                     bank_details.save()
@@ -156,6 +157,7 @@ def add_counterparty_from_profile(request):
                         'counterparty_bank_form': counterparty_bank_form
                     })
 
+            organization.save()
             return redirect('profile')
     else:
         counterparty_form = CounterpartyForm(prefix='counterparty')
@@ -435,8 +437,22 @@ def edit_document(request, id_doc, doc_type):
                 response = excel(form.cleaned_data, formset_data, True)
             return response
 
-        return redirect(document_info["redirect"])
-
+        if doc_type == 'invoice':
+            organization_data = {
+                "name": form.cleaned_data['organization'].naming,
+                "inn": form.cleaned_data['organization'].inn,
+                "kpp": form.cleaned_data['organization'].kpp,
+                "ogrn": form.cleaned_data['organization'].ogrn,
+                "address": form.cleaned_data['organization'].address,
+                "phone": form.cleaned_data['organization'].phone,
+                "position_at_work": form.cleaned_data['organization'].position_at_work,
+                "supervisor": form.cleaned_data['organization'].supervisor,
+                "accountant": form.cleaned_data['organization'].accountant,
+                "code_company": form.cleaned_data['organization'].code_company,
+            }
+            return excel(form.cleaned_data, organization_data, formset_data, True, True)
+        else:
+            return excel(form.cleaned_data, formset_data, True, True)
     return render(request, template_name, {
         'form': form,
         'formset': formset,
@@ -554,3 +570,137 @@ def inn_autocomplete(request):
         return JsonResponse({"suggestions": suggestions})
 
     return JsonResponse({"suggestions": []})
+
+
+def bank_autocomplete(request):
+    query = request.GET.get('query', '').strip()
+
+    if len(query) < 3:
+        return JsonResponse({"suggestions": []})
+
+    url = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/bank"
+    headers = {
+        "Authorization": f"Token {DADATA_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "query": query,
+        "count": 5,
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        results = response.json().get("suggestions", [])
+        suggestions = [{"value": item["value"], "inn": item["data"]["bic"]} for item in results]
+        return JsonResponse({"suggestions": suggestions})
+
+    return JsonResponse({"suggestions": []})
+
+
+def print_document(request, doc_type, document_id):
+    models_doc_type = {
+        'invoice': {
+            'model': InvoiceDocument,
+            'form': InvoiceDocumentForm,
+            'formset': InvoiceDocumentTableFormSet,
+            'excel': create_invoice_excel
+        },
+        'utd': {
+            'model': UtdDocument,
+            'form': UtdDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'excel': create_utd_excel
+        },
+        'vat_invoice': {
+            'model': VatInvoiceDocument,
+            'form': VatInvoiceDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'excel': create_vat_invoice_excel,
+        },
+        'commercial_offer': {
+            'model': CommercialOfferDocument,
+            'form': CommercialOfferDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_commercial_offer_excel,
+        },
+        'outlay': {
+            'model': OutlayDocument,
+            'form': OutlayDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_outlay_excel,
+        },
+        'ks-2': {
+            'model': Ks2Document,
+            'form': Ks2DocumentForm,
+            'formset': Ks2DocumentTableFormSet,
+            'excel': create_ks2_excel,
+        },
+        'ks-3': {
+            'model': Ks3Document,
+            'form': Ks3DocumentForm,
+            'formset': Ks3DocumentTableFormSet,
+            'excel': create_ks3_excel,
+        },
+        'act_service': {
+            'model': ActServiceDocument,
+            'form': ActServiceDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_act_service_excel,
+        },
+        'power_attorney': {
+            'model': PowerAttorneyDocument,
+            'form': PowerAttorneyDocumentForm,
+            'formset': PowerAttorneyDocumentTableFormSet,
+            'excel': create_power_attorney_excel,
+        },
+        'sales_receipt': {
+            'model': SalesReceiptDocument,
+            'form': SalesReceiptDocumentForm,
+            'formset': SalesReceiptDocumentTableFormSet,
+            'excel': create_sales_receipt_excel,
+        },
+        'pko': {
+            'model': PkoDocument,
+            'form': PkoDocumentForm,
+            'excel': create_pko_excel,
+        },
+        'rko': {
+            'model': RkoDocument,
+            'form': RkoDocumentForm,
+            'excel': create_rko_excel,
+        }
+    }
+
+    document = get_object_or_404(models_doc_type[doc_type]['model'], id=document_id)
+
+    form = models_doc_type[doc_type]['form'](instance=document)
+
+    if doc_type not in ['pko', 'rko']:
+        formset = models_doc_type[doc_type]['formset'](queryset=document.table_product.all())
+    else:
+        formset = []
+
+    form_data = {field.name: getattr(form.instance, field.name) for field in form.instance._meta.get_fields()}
+
+    formset_data = []
+    for form_s in formset:
+        forms_data = {field.name: field.value() for field in form_s}
+        formset_data.append(forms_data)
+
+    if doc_type == 'invoice':
+        organization_data = {
+            "name": form_data['organization'].naming,
+            "inn": form_data['organization'].inn,
+            "kpp": form_data['organization'].kpp,
+            "ogrn": form_data['organization'].ogrn,
+            "address": form_data['organization'].address,
+            "phone": form_data['organization'].phone,
+            "position_at_work": form_data['organization'].position_at_work,
+            "supervisor": form_data['organization'].supervisor,
+            "accountant": form_data['organization'].accountant,
+            "code_company": form_data['organization'].code_company,
+        }
+        return models_doc_type[doc_type]['excel'](form_data, organization_data, formset_data, True, True)
+
+    return models_doc_type[doc_type]['excel'](form_data, formset_data, True, True)

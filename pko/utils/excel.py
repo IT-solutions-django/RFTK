@@ -13,7 +13,7 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 
 
-def create_pko_excel(data, formset_data, pdf=False):
+def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
     file_path = 'pko/utils/Приходный кассовый ордер №1 от 06.02.2025 г..xlsx'
 
     workbook = openpyxl.load_workbook(file_path)
@@ -32,15 +32,55 @@ def create_pko_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['BA9'] = f'{formatted_date}'
 
-    sheet['A15'] = f'{data["account_debit"]}'
-    sheet['V15'] = f'{data["account_loan"]}'
-    sheet['AP15'] = f'{data["summa"]}'
-    sheet['L17'] = f'{data["payer"]}'
-    sheet['L19'] = f'{data["base"]}'
-    sheet['I23'] = f'{data["summa"]} рублей'
-    sheet['M27'] = f'{data["annex"]}'
-    sheet['AK32'] = f'{data["organization"].accountant}'
-    sheet['AK35'] = f'{data["organization"].supervisor}'
+    if data["account_debit"]:
+        sheet['A15'] = f'{data["account_debit"]}'
+    else:
+        sheet['A15'] = ''
+
+    if data["account_loan"]:
+        sheet['V15'] = f'{data["account_loan"]}'
+    else:
+        sheet['V15'] = ''
+
+    if data["summa"]:
+        sheet['AP15'] = f'{data["summa"]}'
+    else:
+        sheet['AP15'] = ''
+
+    if data["payer"]:
+        sheet['L17'] = f'{data["payer"]}'
+    else:
+        sheet['L17'] = ''
+
+    if data["base"]:
+        sheet['L19'] = f'{data["base"]}'
+    else:
+        sheet['L19'] = ''
+
+    if data["summa"]:
+        sheet['I23'] = f'{data["summa"]} рублей'
+    else:
+        sheet['I23'] = ''
+
+    if int(data['nds']) and int(data['nds']) > 0 and data["summa"]:
+        nds = round(float(data["summa"]) * int(data['nds']) * 0.01, 2)
+        sheet['A25'] = f'В том числе НДС({data['nds']}%): {nds}'
+
+    if data["annex"]:
+        sheet['M27'] = f'{data["annex"]}'
+    else:
+        sheet['M27'] = ''
+
+    if data["organization"].accountant:
+        sheet['AK32'] = f'{data["organization"].accountant}'
+    else:
+        sheet['AK32'] = ''
+
+    if data["organization"].supervisor:
+        sheet['AK35'] = f'{data["organization"].supervisor}'
+    else:
+        sheet['AK35'] = ''
+
     sheet['BR2'] = f'{data["organization"].naming}'
 
     date_str = str(data['date'])
@@ -48,12 +88,34 @@ def create_pko_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['BR6'] = f'к приходному кассовому ордеру № {data["name"]} от {formatted_date}'
 
-    sheet['CC8'] = f'{data["payer"]}'
-    sheet['CC11'] = f'{data["base"]}'
-    sheet['CC13'] = f'{data["summa"]} рублей'
-    sheet['BR14'] = ''
-    sheet['BR29'] = f'{data["organization"].accountant}'
-    sheet['BR35'] = f'{data["organization"].supervisor}'
+    if data["payer"]:
+        sheet['CC8'] = f'{data["payer"]}'
+    else:
+        sheet['CC8'] = ''
+
+    if data["base"]:
+        sheet['CC11'] = f'{data["base"]}'
+    else:
+        sheet['CC11'] = ''
+
+    if data["summa"]:
+        sheet['CC13'] = f'{data["summa"]} рублей'
+    else:
+        sheet['CC13'] = ''
+
+    if int(data['nds']) and int(data['nds']) > 0 and data["summa"]:
+        nds = round(float(data["summa"]) * int(data['nds']) * 0.01, 2)
+        sheet['BR14'] = f'В том числе НДС({data['nds']}%): {nds}'
+
+    if data["organization"].accountant:
+        sheet['BR29'] = f'{data["organization"].accountant}'
+    else:
+        sheet['BR29'] = ''
+
+    if data["organization"].supervisor:
+        sheet['BR35'] = f'{data["organization"].supervisor}'
+    else:
+        sheet['BR35'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -107,7 +169,10 @@ def create_pko_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

@@ -13,7 +13,7 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 
 
-def create_rko_excel(data, formset_data, pdf=False):
+def create_rko_excel(data, formset_data, pdf=False, watch_document=False):
     file_path = 'rko/utils/Расходный кассовый ордер №1 от 06.02.2025 г..xlsx'
 
     workbook = openpyxl.load_workbook(file_path)
@@ -32,18 +32,65 @@ def create_rko_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['CO10'] = f'{formatted_date}'
 
-    sheet['W15'] = f'{data["account_debit"]}'
-    sheet['BK15'] = f'{data["account_loan"]}'
-    sheet['BX15'] = f'{data["summa"]}'
-    sheet['I17'] = f'{data["payer"]}'
-    sheet['L19'] = f'{data["base"]}'
-    sheet['H21'] = f'{data["summa"]} рублей'
-    sheet['M23'] = f'{data["annex"]}'
-    sheet['T25'] = f'{data["organization"].position_at_work}'
-    sheet['BZ25'] = f'{data["organization"].supervisor}'
-    sheet['AW28'] = f'{data["organization"].accountant}'
-    sheet['E37'] = f'{data["passport"]}'
-    sheet['AO42'] = f'{data["organization"].supervisor}'
+    if data["account_debit"]:
+        sheet['W15'] = f'{data["account_debit"]}'
+    else:
+        sheet['W15'] = ''
+
+    if data["account_loan"]:
+        sheet['BK15'] = f'{data["account_loan"]}'
+    else:
+        sheet['BK15'] = ''
+
+    if data["summa"]:
+        sheet['BX15'] = f'{data["summa"]}'
+    else:
+        sheet['BX15'] = ''
+
+    if data["payer"]:
+        sheet['I17'] = f'{data["payer"]}'
+    else:
+        sheet['I17'] = ''
+
+    if data["base"]:
+        sheet['L19'] = f'{data["base"]}'
+    else:
+        sheet['L19'] = ''
+
+    if data["summa"]:
+        sheet['H21'] = f'{data["summa"]} рублей'
+    else:
+        sheet['H21'] = ''
+
+    if data["annex"]:
+        sheet['M23'] = f'{data["annex"]}'
+    else:
+        sheet['M23'] = ''
+
+    if data["organization"].position_at_work:
+        sheet['T25'] = f'{data["organization"].position_at_work}'
+    else:
+        sheet['T25'] = ''
+
+    if data["organization"].supervisor:
+        sheet['BZ25'] = f'{data["organization"].supervisor}'
+    else:
+        sheet['BZ25'] = ''
+
+    if data["organization"].accountant:
+        sheet['AW28'] = f'{data["organization"].accountant}'
+    else:
+        sheet['AW28'] = ''
+
+    if data["passport"]:
+        sheet['E37'] = f'{data["passport"]}'
+    else:
+        sheet['E37'] = ''
+
+    if data["organization"].supervisor:
+        sheet['AO42'] = f'{data["organization"].supervisor}'
+    else:
+        sheet['AO42'] = ''
 
     if data['organization'].signature and data['is_stamp']:
         image_file = data['organization'].signature
@@ -88,7 +135,10 @@ def create_rko_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

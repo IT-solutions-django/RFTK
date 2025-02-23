@@ -69,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_sales_receipt_excel(data, formset_data, pdf=False):
+def create_sales_receipt_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -102,7 +102,10 @@ def create_sales_receipt_excel(data, formset_data, pdf=False):
         total_sum += table_data["amount"]
 
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
-        sheet[f'E{start_table_row + idx}'] = f'{table_data["article_number"]}'
+        if table_data["article_number"]:
+            sheet[f'E{start_table_row + idx}'] = f'{table_data["article_number"]}'
+        else:
+            sheet[f'E{start_table_row + idx}'] = ''
         sheet[f'N{start_table_row + idx}'] = table_data['name']
         sheet[f'BL{start_table_row + idx}'] = table_data['unit_of_measurement']
         sheet[f'BS{start_table_row + idx}'] = f'{table_data["quantity"]}'
@@ -163,7 +166,10 @@ def create_sales_receipt_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

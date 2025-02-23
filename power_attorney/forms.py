@@ -16,7 +16,7 @@ class PowerAttorneyDocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Банк организации',
         label='Банк организации',
-        required=True
+        required=False
     )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
@@ -64,7 +64,7 @@ class PowerAttorneyDocumentTableForm(forms.ModelForm):
         model = PowerAttorneyDocumentTable
         fields = '__all__'
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'name': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', 'style': 'height: 90px;'}),
             'unit_of_measurement': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
         }
@@ -73,5 +73,6 @@ class PowerAttorneyDocumentTableForm(forms.ModelForm):
 PowerAttorneyDocumentTableFormSet = modelformset_factory(
     PowerAttorneyDocumentTable,
     form=PowerAttorneyDocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

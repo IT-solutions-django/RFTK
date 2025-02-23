@@ -198,15 +198,15 @@
                         {% if field.name == "organization" or field.name == "counterparty" or field.name == "consignee" %}
                             <div class="mt-2">
                                 {% if field.name == "organization" %}
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOrganizationModal" style="border-color:#e91e63; color:red;">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOrganizationModal" style="border-color:#e91e63; color:red;" data-modal-type="organization">
                                         <i class="fas fa-plus"></i> Добавить организацию
                                     </button>
                                 {% elif field.name == "consignee" %}
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;" data-modal-type="consignee">
                                         <i class="fas fa-plus"></i> Добавить грузополучателя
                                     </button>
                                 {% else %}
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;" data-modal-type="counterparty">
                                         <i class="fas fa-plus"></i> Добавить контрагента
                                     </button>
                                 {% endif %}
@@ -225,14 +225,14 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Наименование</th>
-                        <th>Единица измерения</th>
-                        <th>Количество</th>
-                        <th>Цена</th>
-                        <th>Скидка</th>
-                        <th>Сумма</th>
-                        <th>Действия</th>
+                        <th style="width: 30px; min-width: 30px;">#</th>
+                        <th style="width: 190px; min-width: 190px;">Наименование</th>
+                        <th style="width: 100px; min-width: 100px;">Единица измерения</th>
+                        <th style="width: 140px; min-width: 140px;">Количество</th>
+                        <th style="width: 150px; min-width: 150px;">Цена</th>
+                        <th style="width: 150px; min-width: 150px;">Скидка</th>
+                        <th style="width: 150px; min-width: 150px;">Сумма</th>
+                        <th style="width: 90px; min-width: 90px;">Действия</th>
                     </tr>
                 </thead>
                 <tbody id="formset-body">
@@ -261,7 +261,7 @@
         </div>
 
         <div class="d-flex justify-content-start" style="margin-top: 7px;">
-            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;">Сохранить</button>
+            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview'">Сохранить</button>
             <button type="submit" class="btn btn-success" onclick="setDownloadExcel()">Excel</button>
             <input type="hidden" name="download_excel" id="download_excel" value="false">
             <button type="submit" class="btn btn-info" onclick="setDownloadPdf()" style="margin-left: 7px;">PDF</button>
@@ -317,6 +317,7 @@
                                 {{ field|add_attr:"required=true" }}
                                 <button type="button" class="btn btn-primary" id="findByBIK" style="background-color:#e91e63;">Найти</button>
                             </div>
+                            <div id="bicSuggestions" class="dropdown-menu"></div>
                             {% else %}
                             {{ field|add_attr:"required=true" }}
                             <label class="form-label">{{ field.label }}</label>
@@ -328,6 +329,7 @@
                         {% endfor %}
                         </div>
                         <div class="text-left mt-3">
+                            <input type="hidden" name="modal_type" id="modal_type">
                             <button type="submit" class="btn btn-success">Сохранить</button>
                         </div>
                     </form>
@@ -374,11 +376,12 @@
                         <div class="col-md-6 mb-3 form-floating">
                             {% if field.name == 'bic'%}
                             <div class="input-group">
-                                {{ field }}
+                                {{ field|add_attr:"required=true" }}
                                 <button type="button" class="btn btn-primary" id="findByBIKCounterparty" style="background-color:#e91e63;">Найти</button>
                             </div>
+                            <div id="bicSuggestionsCounterparty" class="dropdown-menu"></div>
                             {% else %}
-                            {{ field }}
+                            {{ field|add_attr:"required=true" }}
                             <label class="form-label">{{ field.label }}</label>
                             {% if field.help_text %}
                             <small class="form-text text-muted">{{ field.help_text }}</small>
@@ -388,6 +391,7 @@
                         {% endfor %}
                         </div>
                         <div class="text-left mt-3">
+                            <input type="hidden" name="modal_type_consignee" id="modal_type_consignee">
                             <button type="submit" class="btn btn-success">Сохранить</button>
                         </div>
                     </form>
@@ -406,10 +410,16 @@
 </body>
 <script>
     function setDownloadExcel() {
+        document.getElementById('download_pdf').value = "false";
         document.getElementById('download_excel').value = "true";
     };
     function setDownloadPdf() {
+        document.getElementById('download_excel').value = "false";
         document.getElementById('download_pdf').value = "true";
-    }
+    };
+    function resetDownload() {
+        document.getElementById('download_excel').value = "false";
+        document.getElementById('download_pdf').value = "false";
+    };
 </script>
 </html>

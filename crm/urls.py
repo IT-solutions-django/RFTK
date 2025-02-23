@@ -32,7 +32,7 @@ from power_attorney.views import PowerAttorneyDocumentCreateView, power_attorney
 from sales_receipt.views import SalesReceiptDocumentCreateView, sales_receipt_document
 from pko.views import PkoDocumentCreateView, pko_document
 from rko.views import RkoDocumentCreateView, rko_document
-from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete
+from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -83,4 +83,6 @@ urlpatterns = [
     path("find-company/", find_company_by_inn, name="find-company"),
     path("find-bank/", find_bank_by_bik, name="find-bank"),
     path('inn_autocomplete/', inn_autocomplete, name='inn_autocomplete'),
+    path('bank_autocomplete/', bank_autocomplete, name='bank_autocomplete'),
+    path('document/<str:doc_type>/<int:document_id>/print/', views.print_document, name='print_document'),
 ]

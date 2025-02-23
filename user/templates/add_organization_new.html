@@ -238,6 +238,7 @@
                                 {{ bank_form.bic }}
                                 <button type="button" class="btn btn-primary" id="findByBIK" style="background-color:#e91e63;">Найти</button>
                             </div>
+                            <div id="bicSuggestions" class="dropdown-menu"></div>
                             {% elif field.name == 'location' %}
                             {{ field }}
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>

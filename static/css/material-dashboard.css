@@ -29270,6 +29270,38 @@ pre[class*=language-] {
     box-shadow: none;
 }
 
+.table thead th {
+    font-size: 13px!important;
+    font-weight: 600!important;
+    padding: 10px!important;
+}
+
+.table td, .table th {
+    white-space: wrap!important;
+}
+
+th {
+    vertical-align: middle!important;
+    text-align: center!important;
+}
+
+.search-document-input {
+    border: 1px solid orange!important;
+    width: 75%!important;
+    padding: 8px!important;
+    height: 35px!important;
+}
+
+.search-document-button {
+    border: 1px solid orange;
+    background-color: orange;
+    margin-left: 7px;
+    height: 35px;
+
+    border-radius: 7px;
+    color: white;
+}
+
 
 
 

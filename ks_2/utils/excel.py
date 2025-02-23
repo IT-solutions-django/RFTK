@@ -69,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_ks2_excel(data, formset_data, pdf=False):
+def create_ks2_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -85,21 +85,50 @@ def create_ks2_excel(data, formset_data, pdf=False):
         if row[0].row in [9, 24, 17]:
             sheet.row_dimensions[row[0].row].height = 22
 
-    sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
+    if data["investor"]:
+        sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
+    else:
+        sheet['K5'] = ''
+
     sheet['Y7'] = f'{data["counterparty"].naming}, {data["counterparty"].address}'
     sheet['Y9'] = f'{data["organization"].naming}, {data["organization"].address}'
     sheet['EW8'] = ''
-    sheet['K11'] = f'{data["name_construction"]}, {data["address_construction"]}'
-    sheet['K13'] = f'{data["name_object"]}'
-    sheet['EW14'] = f'{data["view_okdp"]}'
-    sheet['EW16'] = f'{data["number_agreement"]}'
 
-    date_str = str(data['date_agreement'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d %m %Y").split(' ')
-    sheet['EW17'] = f'{formatted_date[0]}'
-    sheet['FA17'] = f'{formatted_date[1]}'
-    sheet['FF17'] = f'{formatted_date[2]}'
+    if data["name_construction"]:
+        sheet['K11'] = f'{data["name_construction"]}'
+    elif data["address_construction"]:
+        sheet['K11'] = f'{data["address_construction"]}'
+    elif data["name_construction"] and data["address_construction"]:
+        sheet['K11'] = f'{data["name_construction"]}, {data["address_construction"]}'
+    else:
+        sheet['K11'] = ''
+
+    if data["name_object"]:
+        sheet['K13'] = f'{data["name_object"]}'
+    else:
+        sheet['K13'] = ''
+
+    if data["view_okdp"]:
+        sheet['EW14'] = f'{data["view_okdp"]}'
+    else:
+        sheet['EW14'] = ''
+
+    if data["number_agreement"]:
+        sheet['EW16'] = f'{data["number_agreement"]}'
+    else:
+        sheet['EW16'] = ''
+
+    if data['date_agreement']:
+        date_str = str(data['date_agreement'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d %m %Y").split(' ')
+        sheet['EW17'] = f'{formatted_date[0]}'
+        sheet['FA17'] = f'{formatted_date[1]}'
+        sheet['FF17'] = f'{formatted_date[2]}'
+    else:
+        sheet['EW17'] = ''
+        sheet['FA17'] = ''
+        sheet['FF17'] = ''
 
     sheet['BJ20'] = f'{data["name"]}'
 
@@ -108,23 +137,38 @@ def create_ks2_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['CB20'] = f'{formatted_date}'
 
-    date_str = str(data['period_from'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
+    if data['period_from']:
+        date_str = str(data['period_from'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
 
-    sheet['DA20'] = f'{formatted_date}'
+        sheet['DA20'] = f'{formatted_date}'
+    else:
+        sheet['DA20'] = ''
 
-    date_str = str(data['period_by'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['DN20'] = f'{formatted_date}'
+    if data['period_by']:
+        date_str = str(data['period_by'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
+        sheet['DN20'] = f'{formatted_date}'
 
-    sheet['BX24'] = f'{data["price_outlay"]}'
+    else:
+        sheet['DN20'] = ''
+
+    if data["price_outlay"]:
+        sheet['BX24'] = f'{data["price_outlay"]}'
+    else:
+        sheet['BX24'] = '0'
+
+    if data['nds'] == -1 or data['nds'] == '-1':
+        sheet['ET27'] = 'стоимость, руб (Без НДС).'
+    else:
+        sheet['ET27'] = f'стоимость, руб (НДС {data["nds"]}%).'
 
     start_table_row = 29
     total_sum = 0
     total_q = 0
-    if data['nds'] > 0 and data['nds']:
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
@@ -139,13 +183,8 @@ def create_ks2_excel(data, formset_data, pdf=False):
         sheet[f'DB{start_table_row + idx}'] = table_data['unit_of_measurement']
         sheet[f'DN{start_table_row + idx}'] = f"{table_data['quantity']}"
         sheet[f'ED{start_table_row + idx}'] = table_data['price']
-        if nds > 0:
-            sheet[
-                f'ET{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
-        else:
-            sheet[f'ET{start_table_row + idx}'] = table_data['amount']
-            total_sum += table_data['amount']
+        sheet[f'ET{start_table_row + idx}'] = table_data['amount']
+        total_sum += table_data['amount']
 
     sheet[f'DN{start_table_row + len(formset_data) + 1}'] = f'{total_q}'
     sheet[f'ET{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
@@ -154,7 +193,7 @@ def create_ks2_excel(data, formset_data, pdf=False):
     sheet[f'CK{start_table_row + len(formset_data) + 4}'] = f'{data["organization"].supervisor}'
 
     sheet[f'Q{start_table_row + len(formset_data) + 8}'] = ''
-    sheet[f'CK{start_table_row + len(formset_data) + 8}'] = f'{data["counterparty"].naming}'
+    sheet[f'CK{start_table_row + len(formset_data) + 8}'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -201,7 +240,10 @@ def create_ks2_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

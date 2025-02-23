@@ -203,11 +203,11 @@
                         {% if field.name == "organization" or field.name == "counterparty"%}
                             <div class="mt-2">
                                 {% if field.name == "organization" %}
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOrganizationModal" style="border-color:#e91e63; color:red;">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOrganizationModal" style="border-color:#e91e63; color:red;" data-modal-type="organization">
                                         <i class="fas fa-plus"></i> Добавить организацию
                                     </button>
                                 {% else %}
-                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCounterpartyModal" style="border-color:#e91e63; color:red;" data-modal-type="counterparty">
                                         <i class="fas fa-plus"></i> Добавить контрагента
                                     </button>
                                 {% endif %}
@@ -264,7 +264,7 @@
         </div>
 
         <div class="d-flex justify-content-start" style="margin-top: 7px;">
-            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;">Сохранить</button>
+            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview'">Сохранить</button>
             <button type="submit" class="btn btn-success" onclick="setDownloadExcel()">Excel</button>
             <input type="hidden" name="download_excel" id="download_excel" value="false">
             <button type="submit" class="btn btn-info" onclick="setDownloadPdf()" style="margin-left: 7px;">PDF</button>
@@ -312,6 +312,7 @@
                             </div>
 
                         <div class="text-left mt-3">
+                            <input type="hidden" name="modal_type" id="modal_type">
                             <button type="submit" class="btn btn-success">Сохранить</button>
                         </div>
                     </form>
@@ -352,6 +353,7 @@
                         {% endfor %}
                         </div>
                         <div class="text-left mt-3">
+                            <input type="hidden" name="modal_type_consignee" id="modal_type_consignee">
                             <button type="submit" class="btn btn-success">Сохранить</button>
                         </div>
                     </form>
@@ -370,10 +372,16 @@
 </body>
 <script>
     function setDownloadExcel() {
+        document.getElementById('download_pdf').value = "false";
         document.getElementById('download_excel').value = "true";
     };
     function setDownloadPdf() {
+        document.getElementById('download_excel').value = "false";
         document.getElementById('download_pdf').value = "true";
-    }
+    };
+    function resetDownload() {
+        document.getElementById('download_excel').value = "false";
+        document.getElementById('download_pdf').value = "false";
+    };
 </script>
 </html>

@@ -12,6 +12,11 @@ from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
+months_russian = [
+    'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
+    'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'
+]
+
 
 def html_to_excel():
     html_file = "power_attorney/utils/updated_file.html"
@@ -69,7 +74,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_power_attorney_excel(data, formset_data, pdf=False):
+def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -100,14 +105,28 @@ def create_power_attorney_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['O3'] = f'{formatted_date}'
 
-    date_str = str(data['validity_period'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['Z3'] = f'{formatted_date}'
+    if data['validity_period']:
+        date_str = str(data['validity_period'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
+        sheet['Z3'] = f'{formatted_date}'
+    else:
+        sheet['Z3'] = ''
 
-    sheet['AK3'] = f'{data["person_power"]}'
-    sheet['A5'] = f'{data["to_receive_from"]}'
-    sheet['AS5'] = f'{data["according_document"]}'
+    if data["person_power"]:
+        sheet['AK3'] = f'{data["person_power"]}'
+    else:
+        sheet['AK3'] = ''
+
+    if data["to_receive_from"]:
+        sheet['A5'] = f'{data["to_receive_from"]}'
+    else:
+        sheet['A5'] = ''
+
+    if data["according_document"]:
+        sheet['AS5'] = f'{data["according_document"]}'
+    else:
+        sheet['AS5'] = ''
 
     sheet[
         'M15'] = f'{data["organization"].naming}, ИНН {data["organization"].inn} КПП {data["organization"].kpp}, {data["organization"].address}'
@@ -116,36 +135,74 @@ def create_power_attorney_excel(data, formset_data, pdf=False):
     date_str = str(data['date'])
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     formatted_date = date_obj.strftime("%d %B %Y").split(' ')
+
+    month = date_obj.month
+    month_russian = months_russian[month - 1]
+
     sheet['O19'] = f'{formatted_date[0]}'
-    sheet['U19'] = f'{formatted_date[1]}'
+    sheet['U19'] = f'{month_russian}'
     sheet['AN19'] = f'{formatted_date[2]}'
 
-    date_str = str(data['validity_period'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d %B %Y").split(' ')
-    sheet['AF21'] = f'{formatted_date[0]}'
-    sheet['AL21'] = f'{formatted_date[1]}'
-    sheet['BE21'] = f'{formatted_date[2]}'
+    if data['validity_period']:
+        date_str = str(data['validity_period'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d %B %Y").split(' ')
+
+        month = date_obj.month
+        month_russian = months_russian[month - 1]
+
+        sheet['AF21'] = f'{formatted_date[0]}'
+        sheet['AL21'] = f'{month_russian}'
+        sheet['BE21'] = f'{formatted_date[2]}'
+    else:
+        sheet['AF21'] = ''
+        sheet['AL21'] = ''
+        sheet['BE21'] = ''
 
     sheet[
         'A23'] = f'{data["organization"].naming}, ИНН {data["organization"].inn} КПП {data["organization"].kpp}, {data["organization"].address}'
     sheet[
         'A26'] = f'{data["organization"].naming}, ИНН {data["organization"].inn} КПП {data["organization"].kpp}, {data["organization"].address}'
 
-    sheet[
-        'A29'] = f'Счет № {data["bank_organization"].current_account} в {data["bank_organization"].naming}, {data["bank_organization"].location}, БИК {data["bank_organization"].bic}, корр.сч. {data["bank_organization"].correspondent_account}'
+    if data["bank_organization"]:
+        sheet[
+            'A29'] = f'Счет № {data["bank_organization"].current_account} в {data["bank_organization"].naming}, {data["bank_organization"].location}, БИК {data["bank_organization"].bic}, корр.сч. {data["bank_organization"].correspondent_account}'
+    else:
+        sheet[
+            'A29'] = ''
 
-    sheet['A31'] = f'Доверенность выдана: {data["person_power"]}'
-    sheet['A33'] = f'Паспорт: {data["passport_series"]} {data["passport_number"]}'
-    sheet['A35'] = f'Кем выдан: {data["issued_by"]}'
+    if data["person_power"]:
+        sheet['A31'] = f'Доверенность выдана: {data["person_power"]}'
+    else:
+        sheet['A31'] = f'Доверенность выдана:'
 
-    date_str = str(data['date_issue'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['A37'] = f'Дата выдачи: {formatted_date}'
+    if data["passport_series"] and data["passport_number"]:
+        sheet['A33'] = f'Паспорт: {data["passport_series"]} {data["passport_number"]}'
+    else:
+        sheet['A33'] = 'Паспорт:'
 
-    sheet['A39'] = f'На получение от {data["to_receive_from"]}'
-    sheet['A41'] = f'материальных ценностей по {data["according_document"]}'
+    if data["issued_by"]:
+        sheet['A35'] = f'Кем выдан: {data["issued_by"]}'
+    else:
+        sheet['A35'] = 'Кем выдан:'
+
+    if data['date_issue']:
+        date_str = str(data['date_issue'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
+        sheet['A37'] = f'Дата выдачи: {formatted_date}'
+    else:
+        sheet['A37'] = f'Дата выдачи:'
+
+    if data["to_receive_from"]:
+        sheet['A39'] = f'На получение от {data["to_receive_from"]}'
+    else:
+        sheet['A39'] = f'На получение от'
+
+    if data["according_document"]:
+        sheet['A41'] = f'материальных ценностей по {data["according_document"]}'
+    else:
+        sheet['A41'] = f'материальных ценностей по'
 
     start_table_row = 45
 
@@ -157,7 +214,10 @@ def create_power_attorney_excel(data, formset_data, pdf=False):
 
     sheet[f'BA{start_table_row + len(formset_data) + 4}'] = f'{data["organization"].supervisor}'
 
-    sheet[f'BA{start_table_row + len(formset_data) + 8}'] = f'{data["organization"].accountant}'
+    if data["organization"].accountant:
+        sheet[f'BA{start_table_row + len(formset_data) + 8}'] = f'{data["organization"].accountant}'
+    else:
+        sheet[f'BA{start_table_row + len(formset_data) + 8}'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -208,7 +268,10 @@ def create_power_attorney_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

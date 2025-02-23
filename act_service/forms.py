@@ -3,6 +3,22 @@ from invoice.models import ActServiceDocument, InformationOrganization, Buyer
 
 
 class ActServiceDocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
     CURRENCY_CHOICES = [
         ('Российский рубль, 643', 'Российский рубль, 643'),
         ('Доллар США, 840', 'Доллар США, 840'),
@@ -45,7 +61,6 @@ class ActServiceDocumentForm(forms.ModelForm):
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'payment_for': forms.TextInput(attrs={'class': 'form-control'}),
             'agreement': forms.TextInput(attrs={'class': 'form-control'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
 
         }
 

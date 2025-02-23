@@ -69,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_ks3_excel(data, formset_data, pdf=False):
+def create_ks3_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -85,19 +85,40 @@ def create_ks3_excel(data, formset_data, pdf=False):
         if row[0].row in [7, 9]:
             sheet.row_dimensions[row[0].row].height = 22
 
-    sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
+    if data["investor"]:
+        sheet['K5'] = f'{data["investor"].naming}, {data["investor"].address}'
+    else:
+        sheet['K5'] = ''
+
     sheet['X7'] = f'{data["counterparty"].naming}, {data["counterparty"].address}'
     sheet['Z9'] = f'{data["organization"].naming}, {data["organization"].address}'
     sheet['CQ8'] = ''
-    sheet['J11'] = f'{data["name_construction"]}, {data["address_construction"]}'
-    sheet['CQ14'] = f'{data["number_agreement"]}'
 
-    date_str = str(data['date_agreement'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d %m %Y").split(' ')
-    sheet['CQ15'] = f'{formatted_date[0]}'
-    sheet['CV15'] = f'{formatted_date[1]}'
-    sheet['DA15'] = f'{formatted_date[2]}'
+    if data["name_construction"]:
+        sheet['J11'] = f'{data["name_construction"]}'
+    elif data["address_construction"]:
+        sheet['J11'] = f'{data["address_construction"]}'
+    elif data["name_construction"] and data["address_construction"]:
+        sheet['J11'] = f'{data["name_construction"]}, {data["address_construction"]}'
+    else:
+        sheet['J11'] = ''
+
+    if data["number_agreement"]:
+        sheet['CQ14'] = f'{data["number_agreement"]}'
+    else:
+        sheet['CQ14'] = ''
+
+    if data['date_agreement']:
+        date_str = str(data['date_agreement'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d %m %Y").split(' ')
+        sheet['CQ15'] = f'{formatted_date[0]}'
+        sheet['CV15'] = f'{formatted_date[1]}'
+        sheet['DA15'] = f'{formatted_date[2]}'
+    else:
+        sheet['CQ15'] = ''
+        sheet['CV15'] = ''
+        sheet['DA15'] = ''
 
     sheet['BB20'] = f'{data["name"]}'
 
@@ -106,15 +127,21 @@ def create_ks3_excel(data, formset_data, pdf=False):
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['BQ20'] = f'{formatted_date}'
 
-    date_str = str(data['period_from'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['CJ20'] = f'{formatted_date}'
+    if data['period_from']:
+        date_str = str(data['period_from'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
+        sheet['CJ20'] = f'{formatted_date}'
+    else:
+        sheet['CJ20'] = ''
 
-    date_str = str(data['period_by'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['CU20'] = f'{formatted_date}'
+    if data['period_by']:
+        date_str = str(data['period_by'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d-%m-%Y")
+        sheet['CU20'] = f'{formatted_date}'
+    else:
+        sheet['CU20'] = ''
 
     sheet['BM28'] = ''
     sheet['CB28'] = ''
@@ -123,7 +150,11 @@ def create_ks3_excel(data, formset_data, pdf=False):
     start_table_row = 29
     total_sum = 0
     total_nds = 0
-    if data['nds'] > 0 and data['nds']:
+    total_sum_with_nds = 0
+    total_sum_work = 0
+    total_sum_year = 0
+
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
@@ -132,26 +163,40 @@ def create_ks3_excel(data, formset_data, pdf=False):
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
         sheet[f'G{start_table_row + idx}'] = table_data['name']
         sheet[f'BE{start_table_row + idx}'] = table_data['code']
-        sheet[f'BM{start_table_row + idx}'] = table_data['price_from_construction']
-        sheet[f'CB{start_table_row + idx}'] = f"{table_data['price_from_year']}"
-        if nds > 0:
-            sheet[f'CQ{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
-            total_nds += round((float(table_data["amount"]) * nds * 0.01), 2)
+        if table_data['price_from_construction']:
+            sheet[f'BM{start_table_row + idx}'] = table_data['price_from_construction']
+            total_sum_work += table_data['price_from_construction']
         else:
-            sheet[f'CQ{start_table_row + idx}'] = table_data['amount']
-            total_sum += table_data['amount']
+            sheet[f'BM{start_table_row + idx}'] = '0'
+        if table_data['price_from_year']:
+            sheet[f'CB{start_table_row + idx}'] = f"{table_data['price_from_year']}"
+            total_sum_year += table_data['price_from_year']
+        else:
+            sheet[f'CB{start_table_row + idx}'] = '0'
 
-    sheet[f'CQ{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
-    sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = f'{total_nds}'
-    sheet[f'BM{start_table_row + len(formset_data) + 3}'] = ''
-    sheet[f'CQ{start_table_row + len(formset_data) + 3}'] = ''
+        sheet[f'CQ{start_table_row + idx}'] = f'{round(float(table_data["price"]) * (float(table_data["quantity"])), 2)}'
+
+        total_sum_with_nds += round(float(table_data["price"]) * (float(table_data["quantity"])), 2)
+        total_sum += table_data['amount']
+        total_nds += round((float(table_data["price"]) * (float(table_data["quantity"])) * nds * 0.01), 2)
+
+    sheet['BM28'] = f'{total_sum_work}'
+    sheet['CB28'] = f'{total_sum_year}'
+    sheet['CQ28'] = f'{total_sum}'
+
+    sheet[f'CQ{start_table_row + len(formset_data) + 1}'] = f'{total_sum_with_nds}'
+    if data['nds'] == -1 or data['nds'] == '-1':
+        sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = 'Без НДС'
+    else:
+        sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = f'{total_nds}'
+    sheet[f'BM{start_table_row + len(formset_data) + 3}'] = 'Всего по акту'
+    sheet[f'CQ{start_table_row + len(formset_data) + 3}'] = f'{total_sum}'
 
     sheet[f'Z{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].position_at_work}'
     sheet[f'BX{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].supervisor}'
 
     sheet[f'Z{start_table_row + len(formset_data) + 5}'] = ''
-    sheet[f'BX{start_table_row + len(formset_data) + 5}'] = f'{data["counterparty"].naming}'
+    sheet[f'BX{start_table_row + len(formset_data) + 5}'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -198,7 +243,10 @@ def create_ks3_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

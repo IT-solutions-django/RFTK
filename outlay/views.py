@@ -8,6 +8,7 @@ from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, Counter
 from outlay.utils.excel import create_outlay_excel
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
+from django.utils.dateparse import parse_date
 
 
 class OutlayDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -33,9 +34,18 @@ class OutlayDocumentCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
+        document_name = form.cleaned_data.get('number_outlay')
+        document_date = form.cleaned_data.get('date')
+        existing_document = OutlayDocument.objects.filter(number_outlay=document_name, date=document_date)
+        if existing_document:
+            self.object = form.save(commit=False)
+            self.object.pk = existing_document.first().pk
+            self.object.user = self.request.user
+            self.object.save()
+        else:
+            self.object = form.save(commit=False)
+            self.object.user = self.request.user
+            self.object.save()
 
         formset = CommercialOfferDocumentTableFormSet(self.request.POST)
 
@@ -70,11 +80,28 @@ class OutlayDocumentCreateView(LoginRequiredMixin, CreateView):
                 response = create_outlay_excel(form_data, formset_data, True)
                 return response
 
+            form_data = form.cleaned_data
+            response = create_outlay_excel(form_data, formset_data, True, True)
+            return response
+
         return super().form_valid(form)
 
 
 def outlay_document(request):
+    query = request.GET.get('q', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+
     documents = OutlayDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+
+    if query:
+        documents = documents.filter(number_outlay__icontains=query)
+
+    if date_from:
+        documents = documents.filter(date__gte=parse_date(date_from))
+    if date_to:
+        documents = documents.filter(date__lte=parse_date(date_to))
+
     paginator = Paginator(documents, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -85,4 +112,4 @@ def outlay_document(request):
         document.delete()
         return redirect('outlay_document')
 
-    return render(request, 'outlay_document_new.html', {'page_obj': page_obj})
+    return render(request, 'outlay_document_new.html', {'page_obj': page_obj, 'query': query})

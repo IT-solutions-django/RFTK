@@ -68,7 +68,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_invoice_excel(data, organization_data, formset_data, pdf=False):
+def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -82,7 +82,7 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False):
 
     for row in sheet.iter_rows():
         if row[0].row == 11:
-            sheet.row_dimensions[row[0].row].height = 77
+            sheet.row_dimensions[row[0].row].height = 85
 
     sheet['A1'] = organization_data['name']
     sheet['A2'] = organization_data['address']
@@ -92,19 +92,30 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False):
     sheet['A8'] = organization_data['name']
 
     sheet['A10'] = organization_data['name']
-    sheet[
-        'A11'] = f"{organization_data['address']}\nИНН/КПП {organization_data['kpp']}/{organization_data['kpp']}\nОГРН {organization_data['ogrn']}\n{data['bank_organization'].naming}, {data['bank_organization'].location}\nКор. счет {data['bank_organization'].correspondent_account}\nБИК {data['bank_organization'].bic}"
+    if data['bank_organization']:
+        sheet[
+            'A11'] = f"{organization_data['address']}\nИНН/КПП {organization_data['kpp']}/{organization_data['kpp']}\nОГРН {organization_data['ogrn']}\n{data['bank_organization'].naming}, {data['bank_organization'].location}\nКор. счет {data['bank_organization'].correspondent_account}\nБИК {data['bank_organization'].bic}"
+    else:
+        sheet[
+            'A11'] = f"{organization_data['address']}\nИНН/КПП {organization_data['kpp']}/{organization_data['kpp']}\nОГРН {organization_data['ogrn']}"
 
     sheet['AY10'] = f"{data['counterparty'].naming}"
-    sheet[
-        'AY11'] = f"{data['counterparty'].address}\nИНН {data['counterparty'].inn}\nОГРН {data['counterparty'].ogrn}\n{data['bank_counterparty'].naming}, {data['bank_counterparty'].location}\nКор. счет {data['bank_counterparty'].correspondent_account}\nБИК {data['bank_counterparty'].bic}"
+    if data['bank_counterparty']:
+        sheet[
+            'AY11'] = f"{data['counterparty'].address}\nИНН {data['counterparty'].inn}\nОГРН {data['counterparty'].ogrn}\n{data['bank_counterparty'].naming}, {data['bank_counterparty'].location}\nКор. счет {data['bank_counterparty'].correspondent_account}\nБИК {data['bank_counterparty'].bic}"
+    else:
+        sheet[
+            'AY11'] = f"{data['counterparty'].address}\nИНН {data['counterparty'].inn}\nОГРН {data['counterparty'].ogrn}"
 
     date_str = str(data['date'])
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     formatted_date = date_obj.strftime("%d-%m-%Y")
     sheet['A13'] = f"Счет №{data['name']} от {formatted_date}"
 
-    sheet['A15'] = f"за {data['payment_for']}"
+    if data['payment_for']:
+        sheet['A15'] = f"за {data['payment_for']}"
+    else:
+        sheet['A15'] = ''
 
     start_table_row = 17
 
@@ -112,30 +123,35 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False):
 
     total_sum = 0
 
-    if data['nds'] > 0 and data['nds']:
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
+        total_sum += table_data["amount"]
 
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
         sheet[f'E{start_table_row + idx}'] = f'{table_data["name"]}'
         sheet[f'BB{start_table_row + idx}'] = f'{table_data["price"]}'
         sheet[f'BP{start_table_row + idx}'] = f'{table_data["quantity"]}'
         sheet[f'BY{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
-        sheet[f'CG{start_table_row + idx}'] = f'{table_data["discount"]}'
-        if nds > 0:
-            sheet[
-                f'CN{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
+        if table_data["discount"]:
+            sheet[f'CG{start_table_row + idx}'] = f'{table_data["discount"]}'
         else:
-            sheet[f'CN{start_table_row + idx}'] = f'{table_data["amount"]}'
-            total_sum += table_data["amount"]
+            sheet[f'CG{start_table_row + idx}'] = ''
+
+        sheet[f'CN{start_table_row + idx}'] = f'{table_data["amount"]}'
 
     sheet[f'A{start_table_row + len(formset_data) + 1}'] = 'Итого'
     sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
-    sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'{data["agreement"]}'
+    if data["agreement"]:
+        sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'{data["agreement"]}'
+    else:
+        sheet[f'A{start_table_row + len(formset_data) + 2}'] = ''
+
+    if data['purpose_of_payment']:
+        sheet[f'A{start_table_row + len(formset_data) + 3}'] = f'{data["purpose_of_payment"]}'
 
     sheet[f'A{start_table_row + len(formset_data) + 7}'] = organization_data['position_at_work']
     sheet[f'AI{start_table_row + len(formset_data) + 7}'] = organization_data['supervisor']
@@ -186,7 +202,10 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

@@ -3,6 +3,21 @@ from invoice.models import PkoDocument, InformationOrganization
 
 
 class PkoDocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
     is_stamp = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -30,7 +45,6 @@ class PkoDocumentForm(forms.ModelForm):
             'base': forms.TextInput(attrs={'class': 'form-control'}),
             'annex': forms.TextInput(attrs={'class': 'form-control'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

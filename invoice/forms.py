@@ -5,6 +5,22 @@ from django.forms import modelformset_factory
 
 
 class InvoiceDocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
     CURRENCY_CHOICES = [
         ('Российский рубль, 643', 'Российский рубль, 643'),
         ('Доллар США, 840', 'Доллар США, 840'),
@@ -27,14 +43,14 @@ class InvoiceDocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Банк организации',
         label='Банк организации',
-        required=True
+        required=False
     )
     bank_counterparty = forms.ModelChoiceField(
         queryset=BankDetailsBuyer.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Банк контрагента',
         label='Банк контрагента',
-        required=True
+        required=False
     )
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
@@ -55,7 +71,7 @@ class InvoiceDocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Грузополучатель',
         label='Грузополучатель',
-        required=True
+        required=False
     )
 
     class Meta:
@@ -83,7 +99,6 @@ class InvoiceDocumentForm(forms.ModelForm):
                 attrs={'placeholder': 'Опишите, за что производится оплата', 'class': 'form-control'}),
             'agreement': forms.TextInput(attrs={'placeholder': 'Номер и дата договора', 'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': 'Счет на оплату №',
@@ -161,7 +176,6 @@ class OrganizationForm(forms.ModelForm):
                 field.help_text = 'Загрузите подпись руководителя'
             else:
                 field.help_text = ''
-
 
 
 class BankDetailsOrganizationForm(forms.ModelForm):
@@ -285,7 +299,7 @@ class InvoiceDocumentTableForm(forms.ModelForm):
             'discount',
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'name': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', "style": "height: 90px"}),
             'unit_of_measurement': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
@@ -297,5 +311,6 @@ class InvoiceDocumentTableForm(forms.ModelForm):
 InvoiceDocumentTableFormSet = modelformset_factory(
     InvoiceDocumentTable,
     form=InvoiceDocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

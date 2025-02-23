@@ -158,7 +158,7 @@ class InvoiceDocumentTable(models.Model):
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
     discount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Скидка',
-                                   help_text='Введите скидку на товар')
+                                   help_text='Введите скидку на товар', null=True, blank=True)
 
     class Meta:
         verbose_name = "Таблица для документа счет"
@@ -169,19 +169,20 @@ class InvoiceDocumentTable(models.Model):
 
 
 class UtdDocumentTable(models.Model):
-    product_code = models.CharField(max_length=50, verbose_name='Код товара', help_text='Введите код товара / услуг')
+    product_code = models.CharField(max_length=50, verbose_name='Код товара', help_text='Введите код товара / услуг',
+                                    null=True, blank=True)
     name = models.TextField(verbose_name='Наименование', help_text='Введите наименование продукта')
     product_type_code = models.CharField(max_length=50, verbose_name='Код вида товара',
-                                         help_text='Введите код вида товара')
+                                         help_text='Введите код вида товара', null=True, blank=True)
     unit_of_measurement = models.CharField(max_length=10, verbose_name='Единица измерения',
                                            help_text='Введите единицу измерения')
-    excise = models.CharField(max_length=50, verbose_name='Акциз', help_text='Введите акциз')
+    excise = models.CharField(max_length=50, verbose_name='Акциз', help_text='Введите акциз', null=True, blank=True)
     quantity = models.IntegerField(verbose_name='Количество', help_text='Введите количество товара')
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
-    country = models.CharField(max_length=50, verbose_name='Страна', help_text='Введите страну')
-    number_GTD = models.TextField(verbose_name='№ ГТД', help_text='Введите № ГТД')
+    country = models.CharField(max_length=50, verbose_name='Страна', help_text='Введите страну', null=True, blank=True)
+    number_GTD = models.TextField(verbose_name='№ ГТД', help_text='Введите № ГТД', null=True, blank=True)
 
     class Meta:
         verbose_name = "Таблица для документа упд"
@@ -198,16 +199,17 @@ class InvoiceDocument(models.Model):
     date = models.DateField(verbose_name='Дата создания')
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
     bank_organization = models.ForeignKey(BankDetailsOrganization, on_delete=models.CASCADE,
-                                          verbose_name='Банк организации', help_text='Выберите банк организации'
-                                          )
+                                          verbose_name='Банк организации', help_text='Выберите банк организации',
+                                          null=True, blank=True)
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty')
-    bank_counterparty = models.ForeignKey(BankDetailsBuyer, on_delete=models.CASCADE, verbose_name='Банк контрагента')
+    bank_counterparty = models.ForeignKey(BankDetailsBuyer, on_delete=models.CASCADE, verbose_name='Банк контрагента',
+                                          null=True, blank=True)
     consignee = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Грузополучатель',
-                                  related_name='as_consignee')
-    purpose_of_payment = models.CharField(max_length=150, verbose_name='Назначение платежа')
-    payment_for = models.CharField(max_length=150, verbose_name='Оплата за')
-    agreement = models.CharField(max_length=150, verbose_name='Договор')
+                                  related_name='as_consignee', null=True, blank=True)
+    purpose_of_payment = models.CharField(max_length=150, verbose_name='Назначение платежа', null=True, blank=True)
+    payment_for = models.CharField(max_length=150, verbose_name='Оплата за', null=True, blank=True)
+    agreement = models.CharField(max_length=150, verbose_name='Договор', null=True, blank=True)
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
@@ -224,28 +226,30 @@ class InvoiceDocument(models.Model):
 class UtdDocument(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              help_text='Выберите пользователя')
-    name = models.CharField(max_length=150, verbose_name='Название')
+    name = models.TextField(verbose_name='Название')
     date = models.DateField(verbose_name='Дата создания')
     payment_document = models.CharField(max_length=500, verbose_name='К платежно-расчетному документу', null=True,
                                         blank=True)
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
-    shipper = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Грузоотправитель',
-                                related_name='as_shipper_utd')
+    shipper = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Грузоотправитель',
+                                related_name='as_shipper_utd', null=True, blank=True)
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_utd')
     consignee = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Грузополучатель',
-                                  related_name='as_consignee_utd')
-    shipping_document = models.CharField(max_length=500, verbose_name='Документ об отгрузке')
-    state_ID_contract = models.CharField(max_length=150, verbose_name='Идентификатор гос. контракта')
+                                  related_name='as_consignee_utd', null=True, blank=True)
+    shipping_document = models.CharField(max_length=500, verbose_name='Документ об отгрузке', null=True, blank=True)
+    state_ID_contract = models.CharField(max_length=150, verbose_name='Идентификатор гос. контракта', null=True,
+                                         blank=True)
     table_product = models.ManyToManyField(UtdDocumentTable, verbose_name='Таблица товаров')
-    basis_for_transfer = models.CharField(max_length=150, verbose_name='Основание передачи')
-    data_transportation = models.CharField(max_length=150, verbose_name='Данные о транспортировке и грузе')
-    shipment_date = models.DateField(verbose_name='Дата отгрузки')
+    basis_for_transfer = models.CharField(max_length=150, verbose_name='Основание передачи', null=True, blank=True)
+    data_transportation = models.CharField(max_length=150, verbose_name='Данные о транспортировке и грузе', null=True,
+                                           blank=True)
+    shipment_date = models.DateField(verbose_name='Дата отгрузки', null=True, blank=True)
     date_of_receipt = models.DateField(verbose_name='Дата получения', null=True, blank=True)
     type_document = models.CharField(max_length=150, verbose_name='Тип документа', blank=True, null=True,
-                                     default='Счет-фактура и передаточный документ(акт)')
+                                     default='Передаточный документ(акт)')
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
-    nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
+    nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=-1)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
 
     class Meta:
@@ -264,14 +268,15 @@ class VatInvoiceDocument(models.Model):
     payment_document = models.CharField(max_length=500, verbose_name='К платежно-расчетному документу', null=True,
                                         blank=True)
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
-    shipper = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Грузоотправитель',
-                                related_name='as_shipper_vat')
+    shipper = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Грузоотправитель',
+                                related_name='as_shipper_vat', null=True, blank=True)
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_vat')
     consignee = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Грузополучатель',
-                                  related_name='as_consignee_vat')
-    shipping_document = models.CharField(max_length=500, verbose_name='Документ об отгрузке')
-    state_ID_contract = models.CharField(max_length=150, verbose_name='Идентификатор гос. контракта')
+                                  related_name='as_consignee_vat', null=True, blank=True)
+    shipping_document = models.CharField(max_length=500, verbose_name='Документ об отгрузке', null=True, blank=True)
+    state_ID_contract = models.CharField(max_length=150, verbose_name='Идентификатор гос. контракта', null=True,
+                                         blank=True)
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
@@ -366,8 +371,9 @@ class CommercialOfferDocument(models.Model):
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_commercial')
     naming = models.CharField(max_length=150, verbose_name='Наименование',
-                              help_text='Пример: на установку системы кондиционирования на 2 этаже')
-    address = models.CharField(max_length=150, verbose_name='Адрес')
+                              help_text='Пример: на установку системы кондиционирования на 2 этаже', null=True,
+                              blank=True)
+    address = models.CharField(max_length=150, verbose_name='Адрес', null=True, blank=True)
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
@@ -391,12 +397,14 @@ class OutlayDocument(models.Model):
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_outlay')
     base = models.CharField(max_length=250, verbose_name='Основание',
-                            help_text='Пример: к Договору № 114 от 04.12.2012 г.')
+                            help_text='Пример: к Договору № 114 от 04.12.2012 г.', null=True, blank=True)
     work_time = models.CharField(max_length=250, verbose_name='Срок выполнения работ',
-                                 help_text='Пример: 1 месяц с даты подписания настоящего приложения')
+                                 help_text='Пример: 1 месяц с даты подписания настоящего приложения', null=True,
+                                 blank=True)
     name_construction = models.CharField(max_length=250, verbose_name='Наименование стройки',
-                                         help_text='Пример: на установку системы кондиционирования на 2 этаже')
-    address = models.CharField(max_length=150, verbose_name='Адрес')
+                                         help_text='Пример: на установку системы кондиционирования на 2 этаже',
+                                         null=True, blank=True)
+    address = models.CharField(max_length=150, verbose_name='Адрес', null=True, blank=True)
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
@@ -411,9 +419,11 @@ class OutlayDocument(models.Model):
 
 
 class Ks2DocumentTable(models.Model):
-    number_outlay = models.CharField(max_length=50, verbose_name='№ по смете', help_text='Введите № по смете')
+    number_outlay = models.CharField(max_length=50, verbose_name='№ по смете', help_text='Введите № по смете',
+                                     null=True, blank=True)
     name = models.TextField(verbose_name='Наименование', help_text='Введите наименование продукта')
-    number_unit = models.CharField(max_length=50, verbose_name='№ ед. расц.', help_text='Введите № ед. расц.')
+    number_unit = models.CharField(max_length=50, verbose_name='№ ед. расц.', help_text='Введите № ед. расц.',
+                                   null=True, blank=True)
     unit_of_measurement = models.CharField(max_length=10, verbose_name='Единица измерения',
                                            help_text='Введите единицу измерения')
     quantity = models.IntegerField(verbose_name='Количество', help_text='Введите количество товара')
@@ -438,16 +448,16 @@ class Ks2Document(models.Model):
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_ks2')
     investor = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Инвестор',
-                                 related_name='as_investor')
-    name_construction = models.CharField(max_length=250, verbose_name='Наименование стройки')
-    address_construction = models.CharField(max_length=150, verbose_name='Адрес стройки')
-    name_object = models.CharField(max_length=150, verbose_name='Наименование объекта')
-    view_okdp = models.CharField(max_length=150, verbose_name='Вид деятельности по ОКДП')
-    number_agreement = models.CharField(max_length=150, verbose_name='Номер договора подряда')
-    date_agreement = models.DateField(verbose_name='Дата договора подряда')
-    price_outlay = models.CharField(max_length=50, verbose_name='Сметная стоимость по договору')
-    period_from = models.DateField(verbose_name='Отчетный период с')
-    period_by = models.DateField(verbose_name='Отчетный период по')
+                                 related_name='as_investor', null=True, blank=True)
+    name_construction = models.CharField(max_length=250, verbose_name='Наименование стройки', null=True, blank=True)
+    address_construction = models.CharField(max_length=150, verbose_name='Адрес стройки', null=True, blank=True)
+    name_object = models.CharField(max_length=150, verbose_name='Наименование объекта', null=True, blank=True)
+    view_okdp = models.CharField(max_length=150, verbose_name='Вид деятельности по ОКДП', null=True, blank=True)
+    number_agreement = models.CharField(max_length=150, verbose_name='Номер договора подряда', null=True, blank=True)
+    date_agreement = models.DateField(verbose_name='Дата договора подряда', null=True, blank=True)
+    price_outlay = models.CharField(max_length=50, verbose_name='Сметная стоимость по договору', null=True, blank=True)
+    period_from = models.DateField(verbose_name='Отчетный период с', null=True, blank=True)
+    period_by = models.DateField(verbose_name='Отчетный период по', null=True, blank=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
     table_product = models.ManyToManyField(Ks2DocumentTable, verbose_name='Таблица товаров')
@@ -462,16 +472,16 @@ class Ks2Document(models.Model):
 
 class Ks3DocumentTable(models.Model):
     name = models.TextField(verbose_name='Наименование', help_text='Введите наименование работ, затрат')
-    code = models.CharField(max_length=50, verbose_name='Код', help_text='Введите код')
+    code = models.CharField(max_length=50, verbose_name='Код', help_text='Введите код', null=True, blank=True)
     quantity = models.IntegerField(verbose_name='Количество', help_text='Введите количество товара')
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     price_from_construction = models.DecimalField(max_digits=12, decimal_places=2,
                                                   verbose_name='Стоимость с начала проведения работ',
-                                                  help_text='Введите стоимость')
+                                                  help_text='Введите стоимость', null=True, blank=True)
     price_from_year = models.DecimalField(max_digits=12, decimal_places=2,
                                           verbose_name='Стоимость с начала года',
-                                          help_text='Введите стоимость')
+                                          help_text='Введите стоимость', null=True, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')
 
     class Meta:
@@ -491,13 +501,13 @@ class Ks3Document(models.Model):
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_ks3')
     investor = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Инвестор',
-                                 related_name='as_investor_ks3')
-    name_construction = models.CharField(max_length=250, verbose_name='Наименование стройки')
-    address_construction = models.CharField(max_length=150, verbose_name='Адрес стройки')
-    number_agreement = models.CharField(max_length=150, verbose_name='Номер договора подряда')
-    date_agreement = models.DateField(verbose_name='Дата договора подряда')
-    period_from = models.DateField(verbose_name='Отчетный период с')
-    period_by = models.DateField(verbose_name='Отчетный период по')
+                                 related_name='as_investor_ks3', null=True, blank=True)
+    name_construction = models.CharField(max_length=250, verbose_name='Наименование стройки', null=True, blank=True)
+    address_construction = models.CharField(max_length=150, verbose_name='Адрес стройки', null=True, blank=True)
+    number_agreement = models.CharField(max_length=150, verbose_name='Номер договора подряда', null=True, blank=True)
+    date_agreement = models.DateField(verbose_name='Дата договора подряда', null=True, blank=True)
+    period_from = models.DateField(verbose_name='Отчетный период с', null=True, blank=True)
+    period_by = models.DateField(verbose_name='Отчетный период по', null=True, blank=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
     table_product = models.ManyToManyField(Ks3DocumentTable, verbose_name='Таблица товаров')
@@ -518,8 +528,8 @@ class ActServiceDocument(models.Model):
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
     counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
                                      related_name='as_counterparty_act_service')
-    payment_for = models.CharField(max_length=150, verbose_name='Оплата за')
-    agreement = models.CharField(max_length=150, verbose_name='Договор')
+    payment_for = models.CharField(max_length=150, verbose_name='Оплата за', null=True, blank=True)
+    agreement = models.CharField(max_length=150, verbose_name='Договор', null=True, blank=True)
     currency = models.CharField(max_length=100, verbose_name='Валюта', blank=True, null=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
@@ -552,18 +562,18 @@ class PowerAttorneyDocument(models.Model):
                              help_text='Выберите пользователя')
     name = models.CharField(max_length=150, verbose_name='Доверенность №')
     date = models.DateField(verbose_name='Дата выдачи')
-    validity_period = models.DateField(verbose_name='Срок действия, до')
-    to_receive_from = models.CharField(max_length=150, verbose_name='На получение от')
-    according_document = models.CharField(max_length=150, verbose_name='По документу')
+    validity_period = models.DateField(verbose_name='Срок действия, до', null=True, blank=True)
+    to_receive_from = models.CharField(max_length=150, verbose_name='На получение от', null=True, blank=True)
+    according_document = models.CharField(max_length=150, verbose_name='По документу', null=True, blank=True)
     person_power = models.CharField(max_length=250, verbose_name='Лицо, получившее доверенность',
-                                    help_text='Должность, Ф.И.О. полн. в дат. падеже')
-    passport_series = models.CharField(max_length=10, verbose_name='Серия паспорта')
-    passport_number = models.CharField(max_length=10, verbose_name='Номер паспорта')
-    issued_by = models.CharField(max_length=150, verbose_name='Кем выдан')
-    date_issue = models.DateField(verbose_name='Дата выдачи')
+                                    help_text='Должность, Ф.И.О. полн. в дат. падеже', null=True, blank=True)
+    passport_series = models.CharField(max_length=10, verbose_name='Серия паспорта', null=True, blank=True)
+    passport_number = models.CharField(max_length=10, verbose_name='Номер паспорта', null=True, blank=True)
+    issued_by = models.CharField(max_length=150, verbose_name='Кем выдан', null=True, blank=True)
+    date_issue = models.DateField(verbose_name='Дата выдачи', null=True, blank=True)
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
     bank_organization = models.ForeignKey(BankDetailsOrganization, on_delete=models.CASCADE,
-                                          verbose_name='Банк организации')
+                                          verbose_name='Банк организации', null=True, blank=True)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
     table_product = models.ManyToManyField(PowerAttorneyDocumentTable, verbose_name='Таблица товаров')
 
@@ -576,7 +586,8 @@ class PowerAttorneyDocument(models.Model):
 
 
 class SalesReceiptDocumentTable(models.Model):
-    article_number = models.CharField(max_length=100, verbose_name='Артикул', help_text='Введите артикул')
+    article_number = models.CharField(max_length=100, verbose_name='Артикул', help_text='Введите артикул', null=True,
+                                      blank=True)
     name = models.TextField(verbose_name='Наименование', help_text='Введите наименование продукта')
     unit_of_measurement = models.CharField(max_length=10, verbose_name='Единица измерения',
                                            help_text='Введите единицу измерения')
@@ -616,14 +627,14 @@ class PkoDocument(models.Model):
                              help_text='Выберите пользователя')
     name = models.CharField(max_length=150, verbose_name='Приходный кассовый ордер №')
     date = models.DateField(verbose_name='Дата создания')
-    payer = models.CharField(max_length=250, verbose_name='Информация о плательщике')
+    payer = models.CharField(max_length=250, verbose_name='Информация о плательщике', null=True, blank=True)
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
-    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету')
-    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту')
-    summa = models.CharField(max_length=150, verbose_name='Сумма')
+    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету', null=True, blank=True)
+    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту', null=True, blank=True)
+    summa = models.CharField(max_length=150, verbose_name='Сумма', null=True, blank=True)
     base = models.CharField(max_length=250, verbose_name='Основание',
-                            help_text='Например: Расходная накладная № 123 от 17.12.2016')
-    annex = models.CharField(max_length=250, verbose_name='Приложение')
+                            help_text='Например: Расходная накладная № 123 от 17.12.2016', null=True, blank=True)
+    annex = models.CharField(max_length=250, verbose_name='Приложение', null=True, blank=True)
     nds = models.IntegerField(verbose_name='Ставка НДС', null=True, blank=True, default=0)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
 
@@ -637,15 +648,16 @@ class RkoDocument(models.Model):
                              help_text='Выберите пользователя')
     name = models.CharField(max_length=150, verbose_name='Приходный кассовый ордер №')
     date = models.DateField(verbose_name='Дата создания')
-    payer = models.CharField(max_length=250, verbose_name='Информация о получателе')
-    passport = models.CharField(max_length=250, verbose_name='Документ, удостоверяющий личность получателя')
+    payer = models.CharField(max_length=250, verbose_name='Информация о получателе', null=True, blank=True)
+    passport = models.CharField(max_length=250, verbose_name='Документ, удостоверяющий личность получателя', null=True,
+                                blank=True)
     organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
-    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету')
-    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту')
-    summa = models.CharField(max_length=150, verbose_name='Сумма')
+    account_debit = models.CharField(max_length=150, verbose_name='Счет по дебету', null=True, blank=True)
+    account_loan = models.CharField(max_length=150, verbose_name='Счет по кредиту', null=True, blank=True)
+    summa = models.CharField(max_length=150, verbose_name='Сумма', null=True, blank=True)
     base = models.CharField(max_length=250, verbose_name='Основание',
-                            help_text='Например: Расходная накладная № 123 от 17.12.2016')
-    annex = models.CharField(max_length=250, verbose_name='Приложение')
+                            help_text='Например: Расходная накладная № 123 от 17.12.2016', null=True, blank=True)
+    annex = models.CharField(max_length=250, verbose_name='Приложение', null=True, blank=True)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
 
     class Meta:

@@ -3,6 +3,22 @@ from invoice.models import VatInvoiceDocument, InformationOrganization, Buyer
 
 
 class VatInvoiceDocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
     CURRENCY_CHOICES = [
         ('Российский рубль, 643', 'Российский рубль, 643'),
         ('Доллар США, 840', 'Доллар США, 840'),
@@ -34,14 +50,14 @@ class VatInvoiceDocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Грузополучатель',
         label='Грузополучатель',
-        required=True
+        required=False
     )
     shipper = forms.ModelChoiceField(
         queryset=Buyer.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Грузоотправитель',
         label='Грузоотправитель',
-        required=True
+        required=False
     )
     is_stamp = forms.BooleanField(
         required=False,
@@ -73,7 +89,6 @@ class VatInvoiceDocumentForm(forms.ModelForm):
                 attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': 'Счет-фактура №',
@@ -94,4 +109,4 @@ class VatInvoiceDocumentForm(forms.ModelForm):
             self.fields['organization'].queryset = InformationOrganization.objects.filter(user=request.user)
             self.fields['counterparty'].queryset = Buyer.objects.filter(user=request.user)
             self.fields['consignee'].queryset = Buyer.objects.filter(user=request.user)
-            self.fields['shipper'].queryset = Buyer.objects.filter(user=request.user)
+            self.fields['shipper'].queryset = InformationOrganization.objects.filter(user=request.user)

@@ -10,6 +10,34 @@ class UtdDocumentForm(forms.ModelForm):
         ('Евро, 978', 'Евро, 978')
     ]
 
+    TYPE_DOCUMENT_CHOICES = [
+        ('Счет-фактура и передаточный документ(акт)', 'Счет-фактура и передаточный документ(акт)'),
+        ('Передаточный документ(акт)', 'Передаточный документ(акт)')
+    ]
+
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
+    type_document = forms.ChoiceField(
+        choices=TYPE_DOCUMENT_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='Тип документа',
+        required=False
+    )
+
     currency = forms.ChoiceField(
         choices=CURRENCY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select select2'}),
@@ -36,14 +64,14 @@ class UtdDocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Грузополучатель',
         label='Грузополучатель',
-        required=True
+        required=False
     )
     shipper = forms.ModelChoiceField(
-        queryset=Buyer.objects.none(),
+        queryset=InformationOrganization.objects.none(),
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Грузоотправитель',
         label='Грузоотправитель',
-        required=True
+        required=False
     )
     is_stamp = forms.BooleanField(
         required=False,
@@ -84,8 +112,6 @@ class UtdDocumentForm(forms.ModelForm):
             'data_transportation': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
-            'type_document': forms.TextInput(attrs={'class': 'form-control'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': 'УПД №',
@@ -110,7 +136,7 @@ class UtdDocumentForm(forms.ModelForm):
             self.fields['organization'].queryset = InformationOrganization.objects.filter(user=request.user)
             self.fields['counterparty'].queryset = Buyer.objects.filter(user=request.user)
             self.fields['consignee'].queryset = Buyer.objects.filter(user=request.user)
-            self.fields['shipper'].queryset = Buyer.objects.filter(user=request.user)
+            self.fields['shipper'].queryset = InformationOrganization.objects.filter(user=request.user)
 
 
 class UtdDocumentTableForm(forms.ModelForm):
@@ -118,12 +144,13 @@ class UtdDocumentTableForm(forms.ModelForm):
         model = UtdDocumentTable
         fields = '__all__'
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'product_code': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'product_type_code': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'excise': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'country': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'number_GTD': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'name': forms.Textarea(
+                attrs={'class': 'form-control', 'required': 'required', "style": "height: 90px"}),
+            'product_code': forms.TextInput(attrs={'class': 'form-control'}),
+            'product_type_code': forms.TextInput(attrs={'class': 'form-control'}),
+            'excise': forms.TextInput(attrs={'class': 'form-control'}),
+            'country': forms.TextInput(attrs={'class': 'form-control'}),
+            'number_GTD': forms.TextInput(attrs={'class': 'form-control'}),
             'unit_of_measurement': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
@@ -134,5 +161,6 @@ class UtdDocumentTableForm(forms.ModelForm):
 UtdDocumentTableFormSet = modelformset_factory(
     UtdDocumentTable,
     form=UtdDocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

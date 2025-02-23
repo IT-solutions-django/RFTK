@@ -1,9 +1,26 @@
 from django import forms
 from invoice.models import CommercialOfferDocument, CommercialOfferDocumentTable, InformationOrganization, Buyer
 from django.forms import modelformset_factory
+from django.core.exceptions import ValidationError
 
 
 class CommercialOfferDocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
     CURRENCY_CHOICES = [
         ('Российский рубль, 643', 'Российский рубль, 643'),
         ('Доллар США, 840', 'Доллар США, 840'),
@@ -46,7 +63,6 @@ class CommercialOfferDocumentForm(forms.ModelForm):
             'date': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control', 'type': 'date'}),
             'naming': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': 'КП №',
@@ -71,7 +87,7 @@ class CommercialOfferDocumentTableForm(forms.ModelForm):
         model = CommercialOfferDocumentTable
         fields = '__all__'
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'name': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', 'style': 'height: 90px;'}),
             'unit_of_measurement': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
@@ -82,5 +98,6 @@ class CommercialOfferDocumentTableForm(forms.ModelForm):
 CommercialOfferDocumentTableFormSet = modelformset_factory(
     CommercialOfferDocumentTable,
     form=CommercialOfferDocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

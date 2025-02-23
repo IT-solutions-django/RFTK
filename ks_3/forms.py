@@ -4,6 +4,22 @@ from django.forms import modelformset_factory
 
 
 class Ks3DocumentForm(forms.ModelForm):
+    NDS_CHOICES = [
+        (-1, 'Без НДС'),
+        (0, '0%'),
+        (3, '3%'),
+        (5, '5%'),
+        (10, '10%'),
+        (20, '20%')
+    ]
+
+    nds = forms.ChoiceField(
+        choices=NDS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        label='НДС',
+        required=False
+    )
+
     is_stamp = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -28,7 +44,7 @@ class Ks3DocumentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         empty_label='Инвестор',
         label='Инвестор',
-        required=True
+        required=False
     )
 
     class Meta:
@@ -46,7 +62,6 @@ class Ks3DocumentForm(forms.ModelForm):
             'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'date_agreement': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'nds': forms.NumberInput(attrs={'class': 'form-control'}),
 
         }
 
@@ -65,12 +80,12 @@ class Ks3DocumentTableForm(forms.ModelForm):
         model = Ks3DocumentTable
         fields = '__all__'
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'code': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'name': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', 'style': 'height: 90px;'}),
+            'code': forms.TextInput(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'price_from_construction': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'price_from_year': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'price_from_construction': forms.NumberInput(attrs={'class': 'form-control'}),
+            'price_from_year': forms.NumberInput(attrs={'class': 'form-control'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
         }
 
@@ -78,5 +93,6 @@ class Ks3DocumentTableForm(forms.ModelForm):
 Ks3DocumentTableFormSet = modelformset_factory(
     Ks3DocumentTable,
     form=Ks3DocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

@@ -72,7 +72,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_act_service_excel(data, formset_data, pdf=False):
+def create_act_service_excel(data, formset_data, pdf=False, watch_document=False):
     try:
         excel_to_html()
         change_html(len(formset_data))
@@ -96,8 +96,17 @@ def create_act_service_excel(data, formset_data, pdf=False):
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         formatted_date = date_obj.strftime("%d-%m-%Y")
         sheet['A2'] = f'Акт № {data["name"]} от {formatted_date}'
-        sheet['A4'] = f'выполненных работ / оказанных услуг по договору {data["agreement"]}'
-        sheet['A5'] = f'за {data["payment_for"]}'
+
+        if data["agreement"]:
+            sheet['A4'] = f'выполненных работ / оказанных услуг по договору {data["agreement"]}'
+        else:
+            sheet['A4'] = f'выполненных работ / оказанных услуг по договору'
+
+        if data["payment_for"]:
+            sheet['A5'] = f'за {data["payment_for"]}'
+        else:
+            sheet['A5'] = ''
+
         sheet[
             'Q7'] = f'{data["organization"].naming}, ИНН {data["organization"].inn}, КПП {data["organization"].kpp}, {data["organization"].address}'
         sheet[
@@ -105,29 +114,28 @@ def create_act_service_excel(data, formset_data, pdf=False):
 
         start_table_row = 11
         total_sum = 0
-        if data['nds'] > 0 and data['nds']:
+        total_nds = 0
+        total_sum_with_nds = 0
+        if int(data['nds']) > 0 and int(data['nds']):
             nds = int(data['nds'])
         else:
             nds = 0
 
         for idx, table_data in enumerate(formset_data, 1):
+            total_sum += table_data['amount']
 
             sheet[f'A{start_table_row + idx}'] = f'{idx}'
             sheet[f'E{start_table_row + idx}'] = table_data['name']
             sheet[f'BB{start_table_row + idx}'] = table_data['quantity']
             sheet[f'BM{start_table_row + idx}'] = table_data['unit_of_measurement']
-            sheet[f'BW{start_table_row + idx}'] = f"{table_data['price']}"
-            if nds > 0:
-                sheet[
-                    f'CN{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-                total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
-            else:
-                sheet[f'CN{start_table_row + idx}'] = table_data['amount']
-                total_sum += table_data['amount']
+            sheet[f'BW{start_table_row + idx}'] = f'{table_data["price"]}'
+            sheet[f'CN{start_table_row + idx}'] = f'{round(float(table_data["price"]) * float(table_data['quantity']), 2)}'
+            total_sum_with_nds += round(float(table_data["price"]) * float(table_data['quantity']), 2)
+            total_nds += round(float(table_data["price"]) * float(table_data['quantity'] * nds * 0.01), 2)
 
-        sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
+        sheet[f'CN{start_table_row + len(formset_data) + 1}'] = f'{total_sum_with_nds}'
         if nds > 0:
-            sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'НДС {data["nds"]}%'
+            sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'Сумма НДС {data["nds"]}%: {total_nds} руб.'
         else:
             sheet[f'A{start_table_row + len(formset_data) + 2}'] = 'Без НДС'
 
@@ -140,7 +148,7 @@ def create_act_service_excel(data, formset_data, pdf=False):
         sheet[f'Q{start_table_row + len(formset_data) + 14}'] = f'{data["organization"].supervisor}'
 
         sheet[f'BD{start_table_row + len(formset_data) + 11}'] = ''
-        sheet[f'BT{start_table_row + len(formset_data) + 14}'] = f'{data["counterparty"].naming}'
+        sheet[f'BT{start_table_row + len(formset_data) + 14}'] = ''
 
         if data['organization'].stamp and data['is_stamp']:
             image_file = data['organization'].stamp
@@ -187,7 +195,10 @@ def create_act_service_excel(data, formset_data, pdf=False):
 
             with open(temp_modified_pdf_path, "rb") as pdf_file:
                 response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+                if watch_document:
+                    response["Content-Disposition"] = "inline; filename=invoice.pdf"
+                else:
+                    response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
             os.remove(temp_excel_path)
             os.remove(temp_pdf_path)

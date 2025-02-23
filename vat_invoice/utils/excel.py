@@ -68,7 +68,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_vat_invoice_excel(data, formset_data, pdf=False):
+def create_vat_invoice_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -95,8 +95,15 @@ def create_vat_invoice_excel(data, formset_data, pdf=False):
     sheet['AF6'] = data['organization'].naming
     sheet['AF7'] = data['organization'].address
     sheet['AF8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
-    sheet['AF9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
-    sheet['AF10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
+    if data["shipper"]:
+        sheet['AF9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
+    else:
+        sheet['AF9'] = ''
+    if data["consignee"]:
+        sheet['AF10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
+    else:
+        sheet['AF10'] = ''
+
     sheet['AF11'] = data['payment_document']
     sheet['AJ12'] = data['shipping_document']
 
@@ -109,41 +116,62 @@ def create_vat_invoice_excel(data, formset_data, pdf=False):
     start_table_row = 25
     total_sum = 0
     total_sum_nds = 0
+    total_sum_with_nds = 0
 
-    if data['nds'] > 0 and data['nds']:
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
+        sheet.row_dimensions[start_table_row + idx].height = 22
+
         total_sum += table_data["amount"]
 
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
         sheet[f'E{start_table_row + idx}'] = f'{table_data["name"]}'
-        sheet[f'AD{start_table_row + idx}'] = f'{table_data["product_type_code"]}'
-        sheet[f'AK{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
+        if table_data["product_type_code"]:
+            sheet[f'AD{start_table_row + idx}'] = f'{table_data["product_type_code"]}'
+        else:
+            sheet[f'AD{start_table_row + idx}'] = ''
+        sheet[f'AK{start_table_row + idx}'] = ''
         sheet[f'AP{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
         sheet[f'BD{start_table_row + idx}'] = f'{table_data["quantity"]}'
         sheet[f'BL{start_table_row + idx}'] = f'{table_data["price"]}'
-        sheet[f'BW{start_table_row + idx}'] = f'{table_data["amount"]}'
-        sheet[f'CL{start_table_row + idx}'] = f'{table_data["excise"]}'
-        sheet[f'CS{start_table_row + idx}'] = f'{data["nds"]}%'
+        sheet[f'BW{start_table_row + idx}'] = f'{round(float(table_data["quantity"]) * float(table_data["price"]), 2)}'
+        total_sum_with_nds += float(table_data["quantity"]) * float(table_data["price"])
+
+        if table_data["excise"]:
+            sheet[f'CL{start_table_row + idx}'] = f'{table_data["excise"]}'
+        else:
+            sheet[f'CL{start_table_row + idx}'] = 'Без акциза'
+        if data["nds"] == '-1':
+            sheet[f'CS{start_table_row + idx}'] = 'Без НДС'
+        else:
+            sheet[f'CS{start_table_row + idx}'] = f'{data["nds"]}%'
         if nds > 0:
-            sheet[f'CY{start_table_row + idx}'] = f'{float(table_data["amount"]) * nds * 0.01}'
-            total_sum_nds += float(table_data["amount"]) * nds * 0.01
+            sheet[f'CY{start_table_row + idx}'] = f'{round(float(table_data["quantity"]) * float(table_data["price"]) * nds * 0.01, 2)}'
+            total_sum_nds += float(table_data["quantity"]) * float(table_data["price"]) * nds * 0.01
         else:
             sheet[f'CY{start_table_row + idx}'] = f'{0}'
-        if nds > 0:
-            sheet[f'DN{start_table_row + idx}'] = f'{float(table_data["amount"]) + float(table_data["amount"]) * nds * 0.01}'
-        else:
-            sheet[f'DN{start_table_row + idx}'] = table_data["amount"]
-        sheet[f'EC{start_table_row + idx}'] = f'{table_data["country"]}'
-        sheet[f'EK{start_table_row + idx}'] = f'{table_data["country"]}'
-        sheet[f'ES{start_table_row + idx}'] = f'{table_data["number_GTD"]}'
 
-    sheet[f'BW{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
+        sheet[f'DN{start_table_row + idx}'] = f'{table_data["amount"]}'
+
+        if table_data["country"]:
+            sheet[f'EC{start_table_row + idx}'] = ''
+            sheet[f'EK{start_table_row + idx}'] = f'{table_data["country"]}'
+        else:
+            sheet[f'EC{start_table_row + idx}'] = ''
+            sheet[f'EK{start_table_row + idx}'] = ''
+
+        if table_data["number_GTD"]:
+            sheet[f'ES{start_table_row + idx}'] = f'{table_data["number_GTD"]}'
+        else:
+            sheet[f'ES{start_table_row + idx}'] = ''
+
+    sheet[f'BW{start_table_row + len(formset_data) + 1}'] = f'{round(total_sum_with_nds, 2)}'
     sheet[f'CY{start_table_row + len(formset_data) + 1}'] = f'{round(total_sum_nds, 2)}'
-    sheet[f'DN{start_table_row + len(formset_data) + 1}'] = f'{float(total_sum) + float(total_sum_nds)}'
+    sheet[f'DN{start_table_row + len(formset_data) + 1}'] = f'{float(total_sum)}'
 
     sheet[f'AW{start_table_row + len(formset_data) + 3}'] = data['organization'].supervisor
     sheet[f'EB{start_table_row + len(formset_data) + 3}'] = data['organization'].accountant
@@ -193,7 +221,10 @@ def create_vat_invoice_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

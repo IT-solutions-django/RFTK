@@ -7,6 +7,7 @@ from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, Counter
 from power_attorney.utils.excel import create_power_attorney_excel
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
+from django.utils.dateparse import parse_date
 
 
 class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -32,9 +33,18 @@ class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
+        document_name = form.cleaned_data.get('name')
+        document_date = form.cleaned_data.get('date')
+        existing_document = PowerAttorneyDocument.objects.filter(name=document_name, date=document_date)
+        if existing_document:
+            self.object = form.save(commit=False)
+            self.object.pk = existing_document.first().pk
+            self.object.user = self.request.user
+            self.object.save()
+        else:
+            self.object = form.save(commit=False)
+            self.object.user = self.request.user
+            self.object.save()
 
         formset = PowerAttorneyDocumentTableFormSet(self.request.POST)
 
@@ -67,11 +77,28 @@ class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
                 response = create_power_attorney_excel(form_data, formset_data, True)
                 return response
 
+            form_data = form.cleaned_data
+            response = create_power_attorney_excel(form_data, formset_data, True, True)
+            return response
+
         return super().form_valid(form)
 
 
 def power_attorney_document(request):
+    query = request.GET.get('q', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+
     documents = PowerAttorneyDocument.objects.select_related('organization').filter(user=request.user)
+
+    if query:
+        documents = documents.filter(name__icontains=query)
+
+    if date_from:
+        documents = documents.filter(date__gte=parse_date(date_from))
+    if date_to:
+        documents = documents.filter(date__lte=parse_date(date_to))
+
     paginator = Paginator(documents, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -82,4 +109,5 @@ def power_attorney_document(request):
         document.delete()
         return redirect('power_attorney_document')
 
-    return render(request, 'power_attorney_document_new.html', {'page_obj': page_obj})
+    return render(request, 'power_attorney_document_new.html',
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})

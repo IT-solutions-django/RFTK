@@ -13,6 +13,11 @@ import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
+months_russian = [
+    'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
+    'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'
+]
+
 
 def html_to_excel():
     html_file = "utd/utils/updated_file.html"
@@ -69,7 +74,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_utd_excel(data, formset_data, pdf=False):
+def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -88,93 +93,162 @@ def create_utd_excel(data, formset_data, pdf=False):
     sheet['O2'] = 'УПД'
     sheet['AP2'] = data['name']
 
+    if data['type_document'] == 'Счет-фактура и передаточный документ(акт)':
+        sheet['H7'] = '1'
+    else:
+        sheet['H7'] = '2'
+
     date_str = str(data['date'])
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d-%m-%Y")
-    sheet['BK2'] = formatted_date
+    formatted_date = date_obj.strftime("%d %B %Y").split(' ')
+
+    month = date_obj.month
+    month_russian = months_russian[month - 1]
+
+    sheet['BK2'] = f'{formatted_date[0]} {month_russian} {formatted_date[2]}'
 
     sheet['AP6'] = data['organization'].naming
     sheet['AP7'] = data['organization'].address
     sheet['AP8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
-    sheet['AP9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
-    sheet['AP10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
+    if data["shipper"]:
+        sheet['AP9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
+    else:
+        sheet['AP9'] = ''
+    if data["consignee"]:
+        sheet['AP10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
+    else:
+        sheet['AP10'] = ''
     sheet['AT11'] = data['payment_document']
     sheet['AX12'] = data['shipping_document']
 
-    sheet['DL6'] = f'{data["counterparty"].naming}'
-    sheet['DL7'] = f'{data["counterparty"].address}'
-    sheet['DL8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
+    if data["counterparty"]:
+        sheet['DL6'] = f'{data["counterparty"].naming}'
+        sheet['DL7'] = f'{data["counterparty"].address}'
+        sheet['DL8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
+    else:
+        sheet['DL6'] = ''
+        sheet['DL7'] = ''
+        sheet['DL8'] = ''
     sheet['EE10'] = data['state_ID_contract']
 
     start_table_row = 21
     total_sum = 0
     total_sum_nds = 0
+    total_sum_with_nds = 0
 
-    if data['nds'] > 0:
+    if int(data['nds']) > 0:
         nds = int(data['nds'])
     else:
         nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
+        sheet.row_dimensions[start_table_row + idx].height = 22
+
         total_sum += table_data["amount"]
 
-        sheet[f'A{start_table_row + idx}'] = f'{table_data["product_code"]}'
+        if table_data["product_code"]:
+            sheet[f'A{start_table_row + idx}'] = f'{table_data["product_code"]}'
+        else:
+            sheet[f'A{start_table_row + idx}'] = ''
         sheet[f'N{start_table_row + idx}'] = f'{idx}'
         sheet[f'R{start_table_row + idx}'] = f'{table_data["name"]}'
-        sheet[f'AQ{start_table_row + idx}'] = f'{table_data["product_type_code"]}'
-        sheet[f'AW{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
+
+        if table_data["product_type_code"]:
+            sheet[f'AQ{start_table_row + idx}'] = f'{table_data["product_type_code"]}'
+        else:
+            sheet[f'AQ{start_table_row + idx}'] = ''
+
+        sheet[f'AW{start_table_row + idx}'] = ''
         sheet[f'BA{start_table_row + idx}'] = f'{table_data["unit_of_measurement"]}'
         sheet[f'BN{start_table_row + idx}'] = f'{table_data["quantity"]}'
         sheet[f'BU{start_table_row + idx}'] = f'{table_data["price"]}'
-        sheet[f'CE{start_table_row + idx}'] = f'{table_data["amount"]}'
-        sheet[f'CR{start_table_row + idx}'] = f'{table_data["excise"]}'
-        sheet[f'CX{start_table_row + idx}'] = f'{data["nds"]}%'
+        sheet[f'CE{start_table_row + idx}'] = f'{round(float(table_data["quantity"]) * float(table_data["price"]), 2)}'
+        total_sum_with_nds += float(table_data["quantity"]) * float(table_data["price"])
+
+        if table_data["excise"]:
+            sheet[f'CR{start_table_row + idx}'] = f'{table_data["excise"]}'
+        else:
+            sheet[f'CR{start_table_row + idx}'] = 'Без акциза'
+        if data["nds"] == '-1':
+            sheet[f'CX{start_table_row + idx}'] = 'Без НДС'
+        else:
+            sheet[f'CX{start_table_row + idx}'] = f'{data["nds"]}%'
         if nds > 0:
-            sheet[f'DD{start_table_row + idx}'] = f'{float(table_data["amount"]) * nds * 0.01}'
-            total_sum_nds += float(table_data["amount"]) * nds * 0.01
+            sheet[f'DD{start_table_row + idx}'] = f'{round(float(table_data["quantity"]) * float(table_data["price"]) * nds * 0.01, 2)}'
+            total_sum_nds += float(table_data["quantity"]) * float(table_data["price"]) * nds * 0.01
         else:
             sheet[f'DD{start_table_row + idx}'] = f'{0}'
         sheet[
-            f'DQ{start_table_row + idx}'] = f'{float(table_data["amount"]) + float(table_data["amount"]) * nds * 0.01}'
-        sheet[f'ED{start_table_row + idx}'] = f'{table_data["country"]}'
-        sheet[f'EJ{start_table_row + idx}'] = f'{table_data["country"]}'
-        sheet[f'ET{start_table_row + idx}'] = f'{table_data["number_GTD"]}'
+            f'DQ{start_table_row + idx}'] = f'{table_data["amount"]}'
+
+        if table_data["country"]:
+            sheet[f'ED{start_table_row + idx}'] = ''
+            sheet[f'EJ{start_table_row + idx}'] = f'{table_data["country"]}'
+        else:
+            sheet[f'ED{start_table_row + idx}'] = ''
+            sheet[f'EJ{start_table_row + idx}'] = ''
+
+        if table_data["number_GTD"]:
+            sheet[f'ET{start_table_row + idx}'] = f'{table_data["number_GTD"]}'
+        else:
+            sheet[f'ET{start_table_row + idx}'] = ''
 
     sheet[f'DD{start_table_row + len(formset_data) + 1}'] = f'{round(total_sum_nds, 2)}'
-    sheet[f'CE{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
-    sheet[f'DQ{start_table_row + len(formset_data) + 1}'] = f'{float(total_sum) + float(total_sum_nds)}'
+    sheet[f'CE{start_table_row + len(formset_data) + 1}'] = f'{round(total_sum_with_nds, 2)}'
+    sheet[f'DQ{start_table_row + len(formset_data) + 1}'] = f'{float(total_sum)}'
 
-    sheet[f'BS{start_table_row + len(formset_data) + 3}'] = data['organization'].supervisor
-    sheet[f'EL{start_table_row + len(formset_data) + 3}'] = data['organization'].accountant
+    if data['organization']:
+        sheet[f'BS{start_table_row + len(formset_data) + 3}'] = data['organization'].supervisor
+        sheet[f'EL{start_table_row + len(formset_data) + 3}'] = data['organization'].accountant
+    else:
+        sheet[f'BS{start_table_row + len(formset_data) + 3}'] = ''
+        sheet[f'EL{start_table_row + len(formset_data) + 3}'] = ''
 
     sheet[f'AW{start_table_row + len(formset_data) + 9}'] = data['basis_for_transfer']
     sheet[f'AJ{start_table_row + len(formset_data) + 11}'] = data['data_transportation']
 
-    sheet[f'A{start_table_row + len(formset_data) + 14}'] = data['organization'].position_at_work
-    sheet[f'AZ{start_table_row + len(formset_data) + 14}'] = data['organization'].supervisor
+    if data['organization']:
+        sheet[f'A{start_table_row + len(formset_data) + 14}'] = data['organization'].position_at_work
+        sheet[f'AZ{start_table_row + len(formset_data) + 14}'] = data['organization'].supervisor
+    else:
+        sheet[f'A{start_table_row + len(formset_data) + 14}'] = ''
+        sheet[f'AZ{start_table_row + len(formset_data) + 14}'] = ''
 
-    date_str = str(data['shipment_date'])
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    formatted_date = date_obj.strftime("%d %B %Y").split(' ')
-    sheet[f'AL{start_table_row + len(formset_data) + 16}'] = formatted_date[0]
-    sheet[f'AR{start_table_row + len(formset_data) + 16}'] = formatted_date[1]
-    sheet[f'BP{start_table_row + len(formset_data) + 16}'] = formatted_date[2]
+    if data['shipment_date']:
+        date_str = str(data['shipment_date'])
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d %B %Y").split(' ')
+
+        month = date_obj.month
+        month_russian = months_russian[month - 1]
+
+        sheet[f'AL{start_table_row + len(formset_data) + 16}'] = formatted_date[0]
+        sheet[f'AR{start_table_row + len(formset_data) + 16}'] = month_russian
+        sheet[f'BP{start_table_row + len(formset_data) + 16}'] = formatted_date[2]
+    else:
+        sheet[f'AL{start_table_row + len(formset_data) + 16}'] = ''
+        sheet[f'AR{start_table_row + len(formset_data) + 16}'] = ''
+        sheet[f'BP{start_table_row + len(formset_data) + 16}'] = ''
 
     sheet[f'A{start_table_row + len(formset_data) + 21}'] = data['organization'].position_at_work
     sheet[f'AZ{start_table_row + len(formset_data) + 21}'] = data['organization'].supervisor
 
     sheet[
-        f'A{start_table_row + len(formset_data) + 24}'] = f'{data["organization"].naming} ИНН/КПП {data["organization"].inn} / {data["organization"].kpp}'
+        f'A{start_table_row + len(formset_data) + 24}'] = ''
 
     sheet[f'CF{start_table_row + len(formset_data) + 14}'] = ''
-    sheet[f'EE{start_table_row + len(formset_data) + 14}'] = data["counterparty"].naming
+    sheet[f'EE{start_table_row + len(formset_data) + 14}'] = ''
 
     if data['date_of_receipt']:
         date_str = str(data['date_of_receipt'])
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         formatted_date = date_obj.strftime("%d %B %Y").split(' ')
+
+        month = date_obj.month
+        month_russian = months_russian[month - 1]
+
         sheet[f'DP{start_table_row + len(formset_data) + 16}'] = formatted_date[0]
-        sheet[f'DV{start_table_row + len(formset_data) + 16}'] = formatted_date[1]
+        sheet[f'DV{start_table_row + len(formset_data) + 16}'] = month_russian
         sheet[f'ET{start_table_row + len(formset_data) + 16}'] = formatted_date[2]
     else:
         sheet[f'DP{start_table_row + len(formset_data) + 16}'] = ''
@@ -182,10 +256,10 @@ def create_utd_excel(data, formset_data, pdf=False):
         sheet[f'ET{start_table_row + len(formset_data) + 16}'] = ''
 
     sheet[f'CF{start_table_row + len(formset_data) + 21}'] = ''
-    sheet[f'EE{start_table_row + len(formset_data) + 21}'] = data["counterparty"].naming
+    sheet[f'EE{start_table_row + len(formset_data) + 21}'] = ''
 
     sheet[
-        f'CF{start_table_row + len(formset_data) + 24}'] = f'{data["counterparty"].naming} ИНН/КПП {data["counterparty"].inn} / {data["counterparty"].kpp}'
+        f'CF{start_table_row + len(formset_data) + 24}'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -224,7 +298,8 @@ def create_utd_excel(data, formset_data, pdf=False):
         sheet.add_image(img3, f"AZ{start_table_row + len(formset_data) + 3}")
 
     for row in sheet.iter_rows():
-        if row[0].row in [start_table_row + len(formset_data) + 3, start_table_row + len(formset_data) + 14]:
+        if row[0].row in [start_table_row + len(formset_data) + 3, start_table_row + len(formset_data) + 14,
+                          start_table_row + len(formset_data) + 19, start_table_row + len(formset_data) + 21]:
             sheet.row_dimensions[row[0].row].height = 22
 
     if pdf:
@@ -251,7 +326,10 @@ def create_utd_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

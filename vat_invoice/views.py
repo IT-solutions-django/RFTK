@@ -8,6 +8,7 @@ from vat_invoice.utils.excel import create_vat_invoice_excel
 from utd.forms import UtdDocumentTableFormSet
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
+from django.utils.dateparse import parse_date
 
 
 class VatInvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -33,9 +34,17 @@ class VatInvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
+        document_name = form.cleaned_data.get('name')
+        existing_document = VatInvoiceDocument.objects.filter(name=document_name)
+        if existing_document:
+            self.object = form.save(commit=False)
+            self.object.pk = existing_document.first().pk
+            self.object.user = self.request.user
+            self.object.save()
+        else:
+            self.object = form.save(commit=False)
+            self.object.user = self.request.user
+            self.object.save()
 
         formset = UtdDocumentTableFormSet(self.request.POST)
 
@@ -75,11 +84,28 @@ class VatInvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
                 response = create_vat_invoice_excel(form_data, formset_data, True)
                 return response
 
+            form_data = form.cleaned_data
+            response = create_vat_invoice_excel(form_data, formset_data, True, True)
+            return response
+
         return super().form_valid(form)
 
 
 def vat_invoice_document(request):
+    query = request.GET.get('q', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+
     documents = VatInvoiceDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+
+    if query:
+        documents = documents.filter(name__icontains=query)
+
+    if date_from:
+        documents = documents.filter(date__gte=parse_date(date_from))
+    if date_to:
+        documents = documents.filter(date__lte=parse_date(date_to))
+
     paginator = Paginator(documents, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -90,4 +116,5 @@ def vat_invoice_document(request):
         document.delete()
         return redirect('vat_invoice_document')
 
-    return render(request, 'vat_invoice_document_new.html', {'page_obj': page_obj})
+    return render(request, 'vat_invoice_document_new.html',
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})

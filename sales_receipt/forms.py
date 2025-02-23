@@ -53,8 +53,8 @@ class SalesReceiptDocumentTableForm(forms.ModelForm):
         model = SalesReceiptDocumentTable
         fields = '__all__'
         widgets = {
-            'article_number': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'name': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'article_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', 'style': 'height: 90px;'}),
             'unit_of_measurement': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'required': 'required'}),
@@ -65,5 +65,6 @@ class SalesReceiptDocumentTableForm(forms.ModelForm):
 SalesReceiptDocumentTableFormSet = modelformset_factory(
     SalesReceiptDocumentTable,
     form=SalesReceiptDocumentTableForm,
-    extra=1
+    extra=1,
+    max_num=1
 )

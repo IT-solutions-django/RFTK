@@ -69,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_outlay_excel(data, formset_data, pdf=False):
+def create_outlay_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -91,13 +91,20 @@ def create_outlay_excel(data, formset_data, pdf=False):
     sheet['BT3'] = data['base']
     sheet['A5'] = data['name']
     sheet['A7'] = data['name_construction']
-    sheet['A8'] = f'по адресу {data["address"]}'
-    sheet['A10'] = f'Срок выполнения работ: {data["work_time"]}'
+    if data["address"]:
+        sheet['A8'] = f'по адресу {data["address"]}'
+    else:
+        sheet['A8'] = ''
+
+    if data["work_time"]:
+        sheet['A10'] = f'Срок выполнения работ: {data["work_time"]}'
+    else:
+        sheet['A10'] = ''
 
     start_table_row = 12
     total_sum = 0
     total_nds = 0
-    if data['nds'] > 0 and data['nds']:
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
@@ -108,30 +115,31 @@ def create_outlay_excel(data, formset_data, pdf=False):
         sheet[f'BL{start_table_row + idx}'] = table_data['unit_of_measurement']
         sheet[f'BS{start_table_row + idx}'] = table_data['quantity']
         sheet[f'CB{start_table_row + idx}'] = table_data['price']
-        if nds > 0:
-            sheet[f'CQ{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
-            total_nds += round((float(table_data["amount"]) * nds * 0.01), 2)
-        else:
-            sheet[f'CQ{start_table_row + idx}'] = table_data['amount']
-            total_sum += table_data['amount']
+
+        sheet[f'CQ{start_table_row + idx}'] = f'{round(float(table_data["quantity"]) * float(table_data["price"]), 2)}'
+        total_sum += table_data['amount']
+        total_nds += round((float(table_data["quantity"]) * float(table_data["price"]) * nds * 0.01), 2)
 
     sheet[f'CQ{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
-    sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'НДС {data["nds"]}%:'
-    sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = f'{total_nds}'
+    if data["nds"] == -1 or data["nds"] == '-1':
+        sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'Без НДС'
+        sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = ''
+    else:
+        sheet[f'A{start_table_row + len(formset_data) + 2}'] = f'НДС {data["nds"]}%:'
+        sheet[f'CQ{start_table_row + len(formset_data) + 2}'] = f'{total_nds}'
     sheet[f'A{start_table_row + len(formset_data) + 3}'] = ''
     sheet[f'CQ{start_table_row + len(formset_data) + 3}'] = ''
     sheet[f'A{start_table_row + len(formset_data) + 5}'] = f'Итого: {total_sum} рублей'
 
     sheet[
-        f'BE{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].naming}, ИНН/КПП {data["organization"].inn}/{data["organization"].kpp}'
+        f'BE{start_table_row + len(formset_data) + 9}'] = f'{data["organization"].naming}, ИНН/КПП {data["organization"].inn} / {data["organization"].kpp}'
     sheet[f'BE{start_table_row + len(formset_data) + 10}'] = f'{data["organization"].position_at_work}'
     sheet[f'BS{start_table_row + len(formset_data) + 11}'] = f'{data["organization"].supervisor}'
 
     sheet[
-        f'B{start_table_row + len(formset_data) + 9}'] = f'{data["counterparty"].naming}, ИНН/КПП {data["counterparty"].inn}/{data["counterparty"].kpp}'
+        f'B{start_table_row + len(formset_data) + 9}'] = f'{data["counterparty"].naming}, ИНН/КПП {data["counterparty"].inn} / {data["counterparty"].kpp}'
     sheet[f'B{start_table_row + len(formset_data) + 10}'] = ''
-    sheet[f'Q{start_table_row + len(formset_data) + 11}'] = f'{data["counterparty"].naming}'
+    sheet[f'Q{start_table_row + len(formset_data) + 11}'] = ''
 
     if data['organization'].stamp:
         image_file = data['organization'].stamp
@@ -178,7 +186,10 @@ def create_outlay_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

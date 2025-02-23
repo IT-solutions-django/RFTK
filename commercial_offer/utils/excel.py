@@ -69,7 +69,7 @@ def excel_to_html():
     workbook.save(html_file, save_options)
 
 
-def create_commercial_offer_excel(data, formset_data, pdf=False):
+def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=False):
     excel_to_html()
     change_html(len(formset_data))
     html_to_excel()
@@ -91,9 +91,12 @@ def create_commercial_offer_excel(data, formset_data, pdf=False):
     sheet['A4'] = data['naming']
     sheet['A5'] = data['address']
 
+    if int(data['nds']) > 0:
+        sheet['EU7'] = f'Сумма, руб (c НДС {data["nds"]}%).'
+
     start_table_row = 7
     total_sum = 0
-    if data['nds'] > 0 and data['nds']:
+    if int(data['nds']) > 0 and int(data['nds']):
         nds = int(data['nds'])
     else:
         nds = 0
@@ -105,14 +108,14 @@ def create_commercial_offer_excel(data, formset_data, pdf=False):
         sheet[f'DP{start_table_row + idx}'] = table_data['unit_of_measurement']
         sheet[f'DW{start_table_row + idx}'] = table_data['quantity']
         sheet[f'EF{start_table_row + idx}'] = table_data['price']
-        if nds > 0:
-            sheet[f'EU{start_table_row + idx}'] = f'{round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)}'
-            total_sum += round(float(table_data["amount"]) + (float(table_data["amount"]) * nds * 0.01), 2)
-        else:
-            sheet[f'EU{start_table_row + idx}'] = table_data['amount']
-            total_sum += table_data["amount"]
 
-    sheet[f'A{start_table_row + len(formset_data) + 1}'] = f'Итого (с НДС {data["nds"]}%)'
+        sheet[f'EU{start_table_row + idx}'] = f'{table_data["amount"]}'
+        total_sum += table_data["amount"]
+
+    if data["nds"] == -1 or data["nds"] == '-1':
+        sheet[f'A{start_table_row + len(formset_data) + 1}'] = f'Итого (без НДС)'
+    else:
+        sheet[f'A{start_table_row + len(formset_data) + 1}'] = f'Итого (с НДС {data["nds"]}%)'
     sheet[f'EU{start_table_row + len(formset_data) + 1}'] = f'{total_sum}'
 
     sheet[
@@ -122,7 +125,7 @@ def create_commercial_offer_excel(data, formset_data, pdf=False):
 
     sheet[
         f'CF{start_table_row + len(formset_data) + 5}'] = f"{data['counterparty'].naming}, ИНН/КПП {data['counterparty'].inn}/{data['counterparty'].kpp}"
-    sheet[f'CF{start_table_row + len(formset_data) + 6}'] = f"{data['counterparty'].naming}"
+    sheet[f'CF{start_table_row + len(formset_data) + 6}'] = ''
 
     if data['organization'].stamp and data['is_stamp']:
         image_file = data['organization'].stamp
@@ -169,7 +172,10 @@ def create_commercial_offer_excel(data, formset_data, pdf=False):
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
-            response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            if watch_document:
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            else:
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
