@@ -64,7 +64,7 @@ def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
 
     if int(data['nds']) and int(data['nds']) > 0 and data["summa"]:
         nds = round(float(data["summa"]) * int(data['nds']) * 0.01, 2)
-        sheet['A25'] = f'В том числе НДС({data['nds']}%): {nds}'
+        sheet['A25'] = f'В том числе НДС({data["nds"]}%): {nds}'
 
     if data["annex"]:
         sheet['M27'] = f'{data["annex"]}'
@@ -105,7 +105,7 @@ def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
 
     if int(data['nds']) and int(data['nds']) > 0 and data["summa"]:
         nds = round(float(data["summa"]) * int(data['nds']) * 0.01, 2)
-        sheet['BR14'] = f'В том числе НДС({data['nds']}%): {nds}'
+        sheet['BR14'] = f'В том числе НДС({data["nds"]}%): {nds}'
 
     if data["organization"].accountant:
         sheet['BR29'] = f'{data["organization"].accountant}'
