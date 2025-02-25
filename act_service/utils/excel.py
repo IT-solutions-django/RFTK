@@ -13,14 +13,14 @@ from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
-import ssl
-
 logging.basicConfig(level=logging.DEBUG)
 
-ssl._create_default_https_context = ssl._create_unverified_context
-
-license_as = License()
 try:
+    license_as = License()
+except Exception as e:
+    logging.error(f"Ошибка при установке лицензии на 1 шаге: {e}")
+try:
+    license_as = License()
     license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
 except Exception as e:
     logging.error(f"Ошибка при установке лицензии: {e}")
