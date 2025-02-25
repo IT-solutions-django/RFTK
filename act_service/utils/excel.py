@@ -3,7 +3,7 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, License
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
@@ -14,6 +14,9 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 
 logging.basicConfig(level=logging.DEBUG)
+
+license_as = License()
+license_as.set_license("lic/Aspose.Cells.lic")
 
 
 def html_to_excel():
@@ -129,7 +132,8 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             sheet[f'BB{start_table_row + idx}'] = table_data['quantity']
             sheet[f'BM{start_table_row + idx}'] = table_data['unit_of_measurement']
             sheet[f'BW{start_table_row + idx}'] = f'{table_data["price"]}'
-            sheet[f'CN{start_table_row + idx}'] = f'{round(float(table_data["price"]) * float(table_data["quantity"]), 2)}'
+            sheet[
+                f'CN{start_table_row + idx}'] = f'{round(float(table_data["price"]) * float(table_data["quantity"]), 2)}'
             total_sum_with_nds += round(float(table_data["price"]) * float(table_data["quantity"]), 2)
             total_nds += round(float(table_data["price"]) * float(table_data['quantity'] * nds * 0.01), 2)
 

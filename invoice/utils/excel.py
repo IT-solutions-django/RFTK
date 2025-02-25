@@ -3,7 +3,7 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, PdfSaveOptions, PaperSizeType
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, PdfSaveOptions, PaperSizeType, License
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
@@ -11,6 +11,9 @@ from io import BytesIO
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
+
+license_as = License()
+license_as.set_license("lic/Aspose.Cells.lic")
 
 
 def html_to_excel():
