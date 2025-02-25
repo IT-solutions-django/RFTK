@@ -12,8 +12,8 @@ from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
-license_as = License()
-license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
+# license_as = License()
+# license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
