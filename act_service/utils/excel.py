@@ -13,10 +13,17 @@ from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
 
+import ssl
+
 logging.basicConfig(level=logging.DEBUG)
 
-# license_as = License()
-# license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
+ssl._create_default_https_context = ssl._create_unverified_context
+
+license_as = License()
+try:
+    license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
+except Exception as e:
+    logging.error(f"Ошибка при установке лицензии: {e}")
 
 
 def html_to_excel():
