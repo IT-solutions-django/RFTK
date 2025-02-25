@@ -1,3 +1,4 @@
+import convertapi
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
@@ -11,9 +12,6 @@ from io import BytesIO
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
-
-# license_as = License()
-# license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
@@ -100,6 +98,11 @@ def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=Fa
             sheet.row_dimensions[row[0].row].height = 22
         elif row[0].row == 9:
             sheet.row_dimensions[row[0].row].height = 27
+
+    start_col = 208
+    num_cols = 790
+
+    sheet.delete_cols(start_col, num_cols)
 
     sheet['A3'] = f'{data["name"]}'
 
@@ -248,14 +251,16 @@ def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=Fa
             sheet.row_dimensions[row[0].row].height = 22
 
     if pdf:
-        temp_excel_path = "power_attorney/utils/invoice.xlsx"
-        temp_pdf_path = "power_attorney/utils/invoice.pdf"
-        temp_modified_pdf_path = "power_attorney/utils/invoice_modified.pdf"
+        convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+
+        temp_excel_path = "act_service/utils/invoice.xlsx"
+        temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
 
         workbook.save(temp_excel_path)
 
-        workbook_aspose = Workbook(temp_excel_path)
-        workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+        temp_pdf_path = convertapi.convert('pdf', {
+            'File': temp_excel_path,
+        }, from_format='xls').save_files('act_service/utils')[0]
 
         reader = PdfReader(temp_pdf_path)
         writer = PdfWriter()
@@ -263,8 +268,9 @@ def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=Fa
         pages_to_remove = [i for i in range(1, 55)]
 
         for i in range(len(reader.pages)):
-            if i not in pages_to_remove:
-                writer.add_page(reader.pages[i])
+            writer.add_page(reader.pages[i])
+            # if i not in pages_to_remove:
+            #     writer.add_page(reader.pages[i])
 
         with open(temp_modified_pdf_path, "wb") as output_pdf:
             writer.write(output_pdf)
@@ -281,6 +287,40 @@ def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=Fa
         os.remove(temp_modified_pdf_path)
 
         return response
+
+        # temp_excel_path = "power_attorney/utils/invoice.xlsx"
+        # temp_pdf_path = "power_attorney/utils/invoice.pdf"
+        # temp_modified_pdf_path = "power_attorney/utils/invoice_modified.pdf"
+        #
+        # workbook.save(temp_excel_path)
+        #
+        # workbook_aspose = Workbook(temp_excel_path)
+        # workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+        #
+        # reader = PdfReader(temp_pdf_path)
+        # writer = PdfWriter()
+        #
+        # pages_to_remove = [i for i in range(1, 55)]
+        #
+        # for i in range(len(reader.pages)):
+        #     if i not in pages_to_remove:
+        #         writer.add_page(reader.pages[i])
+        #
+        # with open(temp_modified_pdf_path, "wb") as output_pdf:
+        #     writer.write(output_pdf)
+        #
+        # with open(temp_modified_pdf_path, "rb") as pdf_file:
+        #     response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+        #     if watch_document:
+        #         response["Content-Disposition"] = "inline; filename=invoice.pdf"
+        #     else:
+        #         response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+        #
+        # os.remove(temp_excel_path)
+        # os.remove(temp_pdf_path)
+        # os.remove(temp_modified_pdf_path)
+        #
+        # return response
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

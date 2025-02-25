@@ -1,9 +1,10 @@
+import convertapi
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, PdfSaveOptions, PaperSizeType, License
+from aspose.cells import Workbook, HtmlSaveOptions, SaveFormat, PdfSaveOptions, PaperSizeType, License, LoadFormat
 from bs4 import BeautifulSoup
 import aspose.cells as cells
 from openpyxl.drawing.image import Image
@@ -11,9 +12,6 @@ from io import BytesIO
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
-
-# license_as = License()
-# license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
 
 
 def html_to_excel():
@@ -86,6 +84,11 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
     for row in sheet.iter_rows():
         if row[0].row == 11:
             sheet.row_dimensions[row[0].row].height = 85
+
+    start_col = 110
+    num_cols = 790
+
+    sheet.delete_cols(start_col, num_cols)
 
     sheet['A1'] = organization_data['name']
     sheet['A2'] = organization_data['address']
@@ -182,14 +185,20 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         sheet.add_image(img1, f"BY{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        temp_excel_path = "invoice/utils/invoice.xlsx"
-        temp_pdf_path = "invoice/utils/invoice.pdf"
-        temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"
+        convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+
+        temp_excel_path = "act_service/utils/invoice.xlsx"
+        temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
 
         workbook.save(temp_excel_path)
 
-        workbook_aspose = Workbook(temp_excel_path)
-        workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+        temp_pdf_path = convertapi.convert('pdf', {
+            'File': temp_excel_path,
+            'PageSize': 'Default',  # Установить размер страницы
+            'PageOrientation': 'Default',  # Ориентация страницы (по желанию)
+            'FitToPage': True,  # Подгонка содержимого под размер страницы,
+            'AutoFit': True
+        }, from_format='xls').save_files('act_service/utils')[0]
 
         reader = PdfReader(temp_pdf_path)
         writer = PdfWriter()
@@ -197,8 +206,13 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         pages_to_remove = [i for i in range(1, 55)]
 
         for i in range(len(reader.pages)):
-            if i not in pages_to_remove:
-                writer.add_page(reader.pages[i])
+            writer.add_page(reader.pages[i])
+            # if reader.pages[i].extract_text() == 'ООО "УМСКУЛ"' or not reader.pages[i].extract_text():
+            #     continue
+            # else:
+            #     writer.add_page(reader.pages[i])
+            # # if i not in pages_to_remove:
+            # #     writer.add_page(reader.pages[i])
 
         with open(temp_modified_pdf_path, "wb") as output_pdf:
             writer.write(output_pdf)
@@ -215,6 +229,40 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         os.remove(temp_modified_pdf_path)
 
         return response
+
+        # temp_excel_path = "invoice/utils/invoice.xlsx"
+        # temp_pdf_path = "invoice/utils/invoice.pdf"
+        # temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"
+        #
+        # workbook.save(temp_excel_path)
+        #
+        # workbook_aspose = Workbook(temp_excel_path)
+        # workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+        #
+        # reader = PdfReader(temp_pdf_path)
+        # writer = PdfWriter()
+        #
+        # pages_to_remove = [i for i in range(1, 55)]
+        #
+        # for i in range(len(reader.pages)):
+        #     if i not in pages_to_remove:
+        #         writer.add_page(reader.pages[i])
+        #
+        # with open(temp_modified_pdf_path, "wb") as output_pdf:
+        #     writer.write(output_pdf)
+        #
+        # with open(temp_modified_pdf_path, "rb") as pdf_file:
+        #     response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+        #     if watch_document:
+        #         response["Content-Disposition"] = "inline; filename=invoice.pdf"
+        #     else:
+        #         response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+        #
+        # os.remove(temp_excel_path)
+        # os.remove(temp_pdf_path)
+        # os.remove(temp_modified_pdf_path)
+        #
+        # return response
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

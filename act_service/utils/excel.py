@@ -12,18 +12,9 @@ import logging
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import convertapi
 
 logging.basicConfig(level=logging.DEBUG)
-
-try:
-    license_as = License()
-except Exception as e:
-    logging.error(f"Ошибка при установке лицензии на 1 шаге: {e}")
-try:
-    license_as = License()
-    license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
-except Exception as e:
-    logging.error(f"Ошибка при установке лицензии: {e}")
 
 
 def html_to_excel():
@@ -101,6 +92,11 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
         for row in sheet.iter_rows():
             if row[0].row == 9:
                 sheet.row_dimensions[row[0].row].height = 22
+
+        start_col = 110
+        num_cols = 790
+
+        sheet.delete_cols(start_col, num_cols)
 
         date_str = str(data['date'])
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
@@ -183,14 +179,16 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 14}")
 
         if pdf:
+            convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+
             temp_excel_path = "act_service/utils/invoice.xlsx"
-            temp_pdf_path = "act_service/utils/invoice.pdf"
             temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
 
             workbook.save(temp_excel_path)
 
-            workbook_aspose = Workbook(temp_excel_path)
-            workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+            temp_pdf_path = convertapi.convert('pdf', {
+                'File': temp_excel_path,
+            }, from_format='xls').save_files('act_service/utils')[0]
 
             reader = PdfReader(temp_pdf_path)
             writer = PdfWriter()
@@ -198,8 +196,9 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             pages_to_remove = [i for i in range(1, 55)]
 
             for i in range(len(reader.pages)):
-                if i not in pages_to_remove:
-                    writer.add_page(reader.pages[i])
+                writer.add_page(reader.pages[i])
+                # if i not in pages_to_remove:
+                #     writer.add_page(reader.pages[i])
 
             with open(temp_modified_pdf_path, "wb") as output_pdf:
                 writer.write(output_pdf)
@@ -216,6 +215,40 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             os.remove(temp_modified_pdf_path)
 
             return response
+
+            # temp_excel_path = "act_service/utils/invoice.xlsx"
+            # temp_pdf_path = "act_service/utils/invoice.pdf"
+            # temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
+            #
+            # workbook.save(temp_excel_path)
+            #
+            # workbook_aspose = Workbook(temp_excel_path)
+            # workbook_aspose.save(temp_pdf_path, SaveFormat.PDF)
+            #
+            # reader = PdfReader(temp_pdf_path)
+            # writer = PdfWriter()
+            #
+            # pages_to_remove = [i for i in range(1, 55)]
+            #
+            # for i in range(len(reader.pages)):
+            #     if i not in pages_to_remove:
+            #         writer.add_page(reader.pages[i])
+            #
+            # with open(temp_modified_pdf_path, "wb") as output_pdf:
+            #     writer.write(output_pdf)
+            #
+            # with open(temp_modified_pdf_path, "rb") as pdf_file:
+            #     response = HttpResponse(pdf_file.read(), content_type="application/pdf")
+            #     if watch_document:
+            #         response["Content-Disposition"] = "inline; filename=invoice.pdf"
+            #     else:
+            #         response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+            #
+            # os.remove(temp_excel_path)
+            # os.remove(temp_pdf_path)
+            # os.remove(temp_modified_pdf_path)
+            #
+            # return response
 
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

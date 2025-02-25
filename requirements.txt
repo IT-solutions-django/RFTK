@@ -10,6 +10,8 @@ cffi==1.17.1
 chardet==5.2.0
 charset-normalizer==3.4.1
 click==8.1.8
+cloudconvert==2.1.0
+convertapi==2.0.0
 cryptography==44.0.0
 cssselect2==0.7.0
 Django==5.1.5
@@ -29,6 +31,7 @@ pycparser==2.22
 pydyf==0.11.0
 pyHanko==0.25.3
 pyhanko-certvalidator==0.26.5
+PyMuPDF==1.25.3
 pypdf==5.1.0
 PyPDF2==3.0.1
 pyphen==0.17.0
