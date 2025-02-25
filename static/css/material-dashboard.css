@@ -2880,7 +2880,7 @@ progress {
 .form-control:focus {
   color: none !important;
   background-color: none !important;
-  border-color: red !important;
+  border-color: #FA980B !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -21632,9 +21632,7 @@ fieldset:disabled .btn {
   box-shadow: none;
 }
 
-.alert-dismissible .btn-close {
-  background-image: none;
-}
+
 
 .avatar {
   color: #fff;
@@ -29323,6 +29321,7 @@ th {
 
 .btn-primary {
     background-color: #FA980B!important;
+    box-shadow: none!important;
 }
 
 .btn-primary:hover {
@@ -29333,6 +29332,7 @@ th {
     background-color: white!important;
     border: 1px solid #FA980B!important;
     color: black!important;
+    box-shadow: none!important;
 }
 
 .btn-success:hover {
@@ -29344,12 +29344,14 @@ th {
     background-color: white!important;
     border: 1px solid #FA980B!important;
     color: black!important;
+    box-shadow: none!important;
 }
 
 .btn-info {
     background-color: white!important;
     border: 1px solid #FA980B!important;
     color: black!important;
+    box-shadow: none!important;
 }
 
 .btn-info:hover {
@@ -29369,16 +29371,51 @@ th {
 }
 
 .add-row:active {
-    background-color: green !important;
+    border-color: orange!important;
 }
 
 .remove-row {
     border-radius: 50%!important;
 }
 
+.remove-row:active {
+    border-color: orange!important;
+}
+
 aside {
     z-index: 100 !important;
 }
+
+.accordion-item {
+    border: none!important;
+    border-bottom: 1px solid #FA980B !important;
+}
+
+.accordion-button {
+    background-color: white!important;
+    color: black!important;
+    box-shadow: none!important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #FA980B !important;
+    color: #FA980B !important`;
+}
+
+.accordion-button:focus {
+    box-shadow: none!important;
+    border-color: #FA980B!important;
+}
+
+.accordion-button::after {
+    filter: invert(48%) sepia(88%) saturate(746%) hue-rotate(15deg);
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: invert(48%) sepia(88%) saturate(746%) hue-rotate(15deg);
+}
+
+
 
 
 /*# sourceMappingURL=dashboard-free.css.map */

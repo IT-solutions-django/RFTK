@@ -258,3 +258,7 @@ def invoice_document(request):
 
     return render(request, 'invoice_document_new.html',
                   {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})
+
+
+def main(request):
+    return render(request, 'main.html')

@@ -26,7 +26,7 @@
   <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
     <div class="sidenav-header">
       <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand px-4 py-3 m-0" href="#">
+      <a class="navbar-brand px-4 py-3 m-0" href="/">
         <img src="{% static 'img/small.png' %}" class="navbar-brand-img" width="26" height="26" alt="main_logo">
         <span class="ms-1 text-sm text-dark">RFTK</span>
       </a>
@@ -201,7 +201,7 @@
                 <h6 class="mb-0">Документы</h6>
               </div>
               <div class="col-6 text-end">
-                <a class="btn bg-gradient-dark mb-0" href="/"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Создать новый документ</a>
+                <a class="btn bg-gradient-dark mb-0" href="{% url 'invoice' %}"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Создать новый документ</a>
               </div>
             </div>
             <div class="card-body pt-4 p-3">
@@ -209,7 +209,7 @@
                 {% for document in page_obj %}
                 <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
                   <div class="d-flex flex-column">
-                    <h6 class="mb-3 text-sm">Счет на оплату №{{ document.name }}</h6>
+                    <a href="{% url 'edit_document' document.id 'invoice' %}" class="mb-3 text-sm" style="font-size: 16px !important; font-weight: 600 !important;">Счет на оплату №{{ document.name }}</a>
                     <span class="mb-2 text-xs">Дата создания: <span class="text-dark font-weight-bold ms-sm-2">{{ document.date|date:"j E Y" }}</span></span>
                     <span class="mb-2 text-xs">Огранизация: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.organization.naming }}</span></span>
                     <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }}</span></span>

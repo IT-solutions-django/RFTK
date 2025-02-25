@@ -52,13 +52,19 @@ $(document).ready(function () {
                     document.getElementById("id_organization-address").value = data.address;
                     document.getElementById("id_organization-position_at_work").value = data.position_at_work;
                     document.getElementById("id_organization-supervisor").value = data.supervisor;
-                    document.getElementById("type_selection").value = "ogrn";
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrn";
+                    }
                 }
                 else {
                     document.getElementById("id_organization-naming").value = data.name;
                     document.getElementById("id_organization-ogrn").value = data.ogrn;
                     document.getElementById("id_organization-address").value = data.address;
-                    document.getElementById("type_selection").value = "ogrnip";
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrnip";
+                    }
                 }
 
             } else {
@@ -125,13 +131,19 @@ $(document).ready(function () {
                     document.getElementById("id_counterparty-kpp").value = data.kpp;
                     document.getElementById("id_counterparty-ogrn").value = data.ogrn;
                     document.getElementById("id_counterparty-address").value = data.address;
-                    document.getElementById("type_selection").value = "ogrn";
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrn";
+                    }
                 }
                 else {
                     document.getElementById("id_counterparty-naming").value = data.name;
                     document.getElementById("id_counterparty-ogrn").value = data.ogrn;
                     document.getElementById("id_counterparty-address").value = data.address;
-                    document.getElementById("type_selection").value = "ogrnip";
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrnip";
+                    }
                 }
 
 
@@ -184,13 +196,17 @@ document.getElementById('organizationForm').addEventListener('submit', function 
                 select.add(option);
 
                 const select_bank = document.getElementById('id_bank_organization');
-                const option_bank = new Option(data.bank_name, data.bank_id, true, true);
-                select_bank.add(option_bank);
+                if (select_bank) {
+                    const option_bank = new Option(data.bank_name, data.bank_id, true, true);
+                    select_bank.add(option_bank);
+                }
             }
             else {const select = document.getElementById('id_shipper');
                 const option = new Option(data.name, data.id, true, true);
                 select.add(option);
                 }
+
+            this.reset();
 
         }
     })
@@ -234,8 +250,10 @@ document.getElementById('counterpartyForm').addEventListener('submit', function 
                 select.add(option);
 
                 const select_bank = document.getElementById('id_bank_counterparty');
-                const option_bank = new Option(data.bank_name, data.bank_id, true, true);
-                select_bank.add(option_bank);
+                if (select_bank) {
+                    const option_bank = new Option(data.bank_name, data.bank_id, true, true);
+                    select_bank.add(option_bank);
+                }
 
                 const select_consignee = document.getElementById('id_consignee');
                 if (select_consignee) {

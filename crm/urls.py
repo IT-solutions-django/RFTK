@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from invoice.views import InvoiceDocumentCreateView, add_organization, add_counterparty, pdf, get_banks, \
     generate_invoice_excel, get_banks_counterparty, add_organization_with_bank, add_counterparty_with_bank, \
-    invoice_document
+    invoice_document, main
 from user import views
 from utd.views import UtdDocumentCreateView, utd_document
 from vat_invoice.views import VatInvoiceDocumentCreateView, vat_invoice_document
@@ -38,7 +38,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', InvoiceDocumentCreateView.as_view(), name='invoice'),
+    path('', main, name='main'),
+    path('invoice/', InvoiceDocumentCreateView.as_view(), name='invoice'),
     path('invoice_document/', invoice_document, name='invoice_document'),
     path('utd/', UtdDocumentCreateView.as_view(), name='utd'),
     path('utd_document/', utd_document, name='utd_document'),

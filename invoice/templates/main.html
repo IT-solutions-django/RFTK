@@ -7,7 +7,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>
-    Счет-фактура | RFTK
+    Главная | RFTK
   </title>
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
@@ -20,6 +20,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <!-- CSS Files -->
   <link id="pagestyle" href="{% static 'css/material-dashboard.css' %}" rel="stylesheet" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -47,7 +49,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'vat_invoice_document' %}">
+          <a class="nav-link text-dark" href="{% url 'vat_invoice_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Счет-фактура</span>
           </a>
@@ -164,81 +166,133 @@
       </div>
     </nav>
     <!-- End Navbar -->
-    <div class="container-fluid py-2">
-      <form method="get" class="p-3 bg-light rounded shadow-sm">
-    <div class="row g-2 align-items-center">
-        <!-- Поле поиска -->
-        <div class="col-md-3">
-          <label class="form-label mb-0">Номер документа</label>
-            <input type="text" name="q" value="{{ query }}" placeholder="Поиск по номеру"
-                   class="form-control search-document-input" />
-        </div>
-
-        <!-- Поля даты -->
-        <div class="col-md-3">
-          <label class="form-label mb-0">Дата от</label>
-            <input type="date" name="date_from" value="{{ date_from }}" class="form-control search-document-input" />
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label mb-0">Дата до</label>
-            <input type="date" name="date_to" value="{{ date_to }}" class="form-control search-document-input" />
-        </div>
-
-        <!-- Кнопка поиска -->
-        <div class="col-md-12 mt-4">
-            <button type="submit" class="search-document-button">🔍 Найти</button>
-          <a href="{{ request.path }}" class="ms-4" style="color: red;">Сбросить</a>
+    <div class="container-fluid py-3">
+      <div class="row d-flex">
+        <div class="card p-4">
+            <h5 class="text-center" style="font-size: 18px!important;">Добро пожаловать на <span style="color: #FA980B!important">RFTK</span> — ваш надёжный помощник в создании <br>и заполнении документов онлайн!</h5>
+            <div class="row mt-5">
+                <div class="col-md-5">
+                    <img src="{% static 'img/Frame 707.png' %}" class="img-fluid">
+                </div>
+                <div class="col-md-7 d-flex align-items-center">
+                    <p style="color: black!important; font-size: 16px;">
+                        Мы понимаем, как важно иметь доступ к качественным и удобным инструментам для работы с документами.
+                        Наша платформа предлагает широкий выбор готовых бланков для различных нужд.
+                        Все наши бланки разработаны с учетом актуальных стандартов и требований,
+                        что позволяет вам быть уверенными в их юридической силе.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-</form>
 
-      <div class="row">
-        <div class="col-md-7 mt-4">
-          <div class="card">
-            <div class="row pb-0 px-3 mt-3">
-              <div class="col-6 d-flex align-items-center">
-                <h6 class="mb-0">Документы</h6>
-              </div>
-              <div class="col-6 text-end">
-                <a class="btn bg-gradient-dark mb-0" href="{% url 'vat-invoice' %}"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Создать новый документ</a>
-              </div>
-            </div>
-            <div class="card-body pt-4 p-3">
-              <ul class="list-group">
-                {% for document in page_obj %}
-                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
-                  <div class="d-flex flex-column">
-                    <a href="{% url 'edit_document' document.id 'vat_invoice' %}" class="mb-3 text-sm" style="font-size: 16px !important; font-weight: 600 !important;">Счет-фактура №{{ document.name }}</a>
-                    <span class="mb-2 text-xs">Дата создания: <span class="text-dark font-weight-bold ms-sm-2">{{ document.date|date:"j E Y" }}</span></span>
-                    <span class="mb-2 text-xs">Огранизация: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.organization.naming }}</span></span>
-                    <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }}</span></span>
-                    <form method="POST" action="{% url 'print_document' 'vat_invoice' document.id %}" style="margin-top: 35px;">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-link" name="print_document" value="true" onclick="this.form.target='preview'"><i class="material-symbols-rounded text-sm me-2 " style="font-size: 14px!important; margin-left: -17px;">print</i>Печать документа</button>
-                  </form>
-                  </div>
-                  <div class="ms-auto text-end">
-                    <form method="post" class="d-inline">
-                      {% csrf_token %}
-                            <input type="hidden" name="document_id" value="{{ document.id }}">
-                            <button type="submit" name="delete_document" class="btn btn-link text-danger text-gradient px-3 mb-0"><i class="material-symbols-rounded text-sm me-2">delete</i>Удалить</button>
+      <div class="text-center bg-warning text-white py-1 mt-5 rounded" style="background-color: #FA980B!important">
+        <h4>Как это работает?</h4>
+    </div>
 
-                    </form>
-                    <a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_document' document.id 'vat_invoice' %}"><i class="material-symbols-rounded text-sm me-2">edit</i>Редактировать</a>
-                  </div>
-                </li>
-                {% empty %}
-                Нет созданных документов
-                {% endfor %}
-
-
-              </ul>
-            </div>
-          </div>
+      <div class="row mt-5">
+        <!-- Первый шаг -->
+        <div class="col-md-7 d-flex align-items-center">
+            <h4 class="text-warning me-3" style="color: #FA980B!important">/01</h4>
+            <p style="color: black!important; font-size: 17px;">Просмотрите нашу библиотеку и выберите нужный документ.</p>
         </div>
+        <div class="col-md-5">
+            <div class="border rounded p-2 text-center bg-warning text-white" style="background-color: #FA980B!important; border-radius: 20px!important; font-size: 17px;">Выберите бланк</div>
+        </div>
+    </div>
 
-      </div>
+    <div class="row mt-5">
+        <!-- Второй шаг -->
+        <div class="col-md-7 d-flex align-items-center">
+            <h4 class="text-warning me-3" style="color: #FA980B!important">/02</h4>
+            <p style="color: black!important; font-size: 17px;">Заполните необходимые поля прямо на сайте.</p>
+        </div>
+        <div class="col-md-5">
+            <div class="border rounded p-2 text-center bg-warning text-white" style="background-color: #FA980B!important; border-radius: 20px!important; font-size: 17px;">Заполните поля</div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Третий шаг -->
+        <div class="col-md-7 d-flex align-items-center">
+            <h4 class="text-warning me-3" style="color: #FA980B!important">/03</h4>
+            <p style="color: black!important; font-size: 17px;">После завершения вы можете сохранить документ на своём устройстве или распечатать его.</p>
+        </div>
+        <div class="col-md-5">
+            <div class="border rounded p-2 text-center bg-warning text-white" style="background-color: #FA980B!important; border-radius: 20px!important; font-size: 17px;">Сохраните или распечатайте</div>
+        </div>
+    </div>
+
+      <div class="card p-4 mt-5">
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        Нужно ли платить за использование бланков?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Некоторые бланки доступны бесплатно, а другие требуют оплаты.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        Есть ли возможность распечатать готовый документ?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Да, после заполнения документа его можно распечатать или сохранить в PDF.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        Как внести изменения в уже заполненный документ?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Вы можете отредактировать документ перед его окончательным сохранением.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        Можно ли сохранить заполненный бланк на своем устройстве?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Да, документ можно скачать в PDF или другом формате.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                        Какие документы можно создать с помощью онлайн бланков?
+                    </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Доступны шаблоны договоров, заявлений, анкет и других документов.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     </div>
   </main>
@@ -249,6 +303,7 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{% static 'js/material-dashboard.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
