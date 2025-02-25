@@ -13,7 +13,7 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 
 license_as = License()
-license_as.set_license("lic/Aspose.Cells.lic")
+license_as.set_license("lic/Aspose.TotalforPythonvia.NET.lic")
 
 
 def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
