@@ -4,6 +4,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     libgdiplus \
+    libssl-dev \
     && apt-get clean
 
 COPY . .
