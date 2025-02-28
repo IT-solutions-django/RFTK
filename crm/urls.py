@@ -87,3 +87,6 @@ urlpatterns = [
     path('bank_autocomplete/', bank_autocomplete, name='bank_autocomplete'),
     path('document/<str:doc_type>/<int:document_id>/print/', views.print_document, name='print_document'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

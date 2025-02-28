@@ -206,9 +206,9 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             with open(temp_modified_pdf_path, "rb") as pdf_file:
                 response = HttpResponse(pdf_file.read(), content_type="application/pdf")
                 if watch_document:
-                    response["Content-Disposition"] = "inline; filename=invoice.pdf"
+                    response["Content-Disposition"] = "inline; filename=Акт оказания услуг.pdf"
                 else:
-                    response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+                    response["Content-Disposition"] = "attachment; filename=Акт оказания услуг.pdf"
 
             os.remove(temp_excel_path)
             os.remove(temp_pdf_path)
@@ -253,7 +253,7 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
+        response["Content-Disposition"] = f"attachment; filename=Акт оказания услуг.xlsx"
         workbook.save(response)
         return response
     except Exception as e:

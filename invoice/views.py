@@ -103,7 +103,7 @@ class InvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
 
 def add_organization_with_bank(request):
     if request.method == 'POST':
-        org_form = OrganizationForm(request.POST, prefix='organization')
+        org_form = OrganizationForm(request.POST, request.FILES, prefix='organization')
 
         if org_form.is_valid():
             organization = org_form.save(commit=False)
@@ -123,7 +123,7 @@ def add_organization_with_bank(request):
 
 def add_counterparty_with_bank(request):
     if request.method == 'POST':
-        counterparty_form = CounterpartyForm(request.POST, prefix='counterparty')
+        counterparty_form = CounterpartyForm(request.POST, request.FILES, prefix='counterparty')
 
         if counterparty_form.is_valid():
             counterparty = counterparty_form.save(commit=False)
@@ -143,7 +143,7 @@ def add_counterparty_with_bank(request):
 
 def add_organization(request):
     if request.method == 'POST':
-        org_form = OrganizationForm(request.POST, prefix='organization')
+        org_form = OrganizationForm(request.POST, request.FILES, prefix='organization')
         bank_form = BankDetailsOrganizationForm(request.POST, prefix='bank')
 
         if org_form.is_valid() and bank_form.is_valid():
@@ -170,7 +170,7 @@ def add_organization(request):
 
 def add_counterparty(request):
     if request.method == 'POST':
-        counterparty_form = CounterpartyForm(request.POST, prefix='counterparty')
+        counterparty_form = CounterpartyForm(request.POST, request.FILES, prefix='counterparty')
         counterparty_bank_form = BankCounterpartyForm(request.POST, prefix='counterparty_bank')
 
         if counterparty_form.is_valid() and counterparty_bank_form.is_valid():

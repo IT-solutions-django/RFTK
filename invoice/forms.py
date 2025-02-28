@@ -153,8 +153,7 @@ class OrganizationForm(forms.ModelForm):
             'address': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'pattern': r'^\+7\d{10}$',
-                       'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'inputmode': 'tel'}),
             'fax': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер факса'}),
             'position_at_work': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите должность'}),
             'supervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя руководителя'}),
@@ -235,8 +234,7 @@ class CounterpartyForm(forms.ModelForm):
             'address': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'pattern': r'^\+7\d{10}$',
-                       'title': '+7XXXXXXXXXX', 'maxlength': '12', 'inputmode': 'tel'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'inputmode': 'tel'}),
             'code_company': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите условное наимнование организации'}),
         }

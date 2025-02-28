@@ -56,8 +56,8 @@ class InformationOrganization(models.Model):
     ogrn = models.CharField(max_length=50, verbose_name='ОГРН/ОГРНИП', help_text='Введите ОГРН организации',
                             validators=[validate_ogrn], blank=True, null=True)
     address = models.TextField(verbose_name='Адрес', help_text='Введите адрес организации', null=True, blank=True)
-    phone = models.CharField(max_length=50, verbose_name='Телефон', help_text='Введите телефон организации',
-                             validators=[validate_phone], null=True, blank=True)
+    phone = models.CharField(max_length=50, verbose_name='Телефон', help_text='Введите телефон организации', null=True,
+                             blank=True)
     fax = models.CharField(max_length=50, verbose_name='Факс', help_text='Введите факс организации', null=True,
                            blank=True)
     position_at_work = models.CharField(max_length=50, verbose_name='Должность руководителя',
@@ -116,7 +116,7 @@ class Buyer(models.Model):
     address = models.TextField(verbose_name='Адрес', help_text='Введите адрес организации покупателя', null=True,
                                blank=True)
     phone = models.CharField(max_length=50, verbose_name='Телефон', help_text='Введите телефон организации покупателя',
-                             validators=[validate_phone], null=True, blank=True)
+                             null=True, blank=True)
     code_company = models.CharField(max_length=50, verbose_name='Условное наименование организации покупателя',
                                     help_text='Пример: Клиент, Заказчик, Покупатель', null=True, blank=True)
 
@@ -177,7 +177,7 @@ class UtdDocumentTable(models.Model):
     unit_of_measurement = models.CharField(max_length=10, verbose_name='Единица измерения',
                                            help_text='Введите единицу измерения')
     excise = models.CharField(max_length=50, verbose_name='Акциз', help_text='Введите акциз', null=True, blank=True)
-    quantity = models.IntegerField(verbose_name='Количество', help_text='Введите количество товара')
+    quantity = models.FloatField(verbose_name='Количество', help_text='Введите количество товара')
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Цена',
                                 help_text='Введите стоимость товара')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Сумма')

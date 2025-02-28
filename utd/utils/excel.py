@@ -288,19 +288,19 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         img_stream = BytesIO(image_data)
 
         img1 = Image(img_stream)
-        img1.width = 70
+        img1.width = 65
         img1.height = 30
         sheet.add_image(img1, f"AD{start_table_row + len(formset_data) + 14}")
 
         img_stream2 = BytesIO(image_data)
         img2 = Image(img_stream2)
-        img2.width = 70
+        img2.width = 65
         img2.height = 30
         sheet.add_image(img2, f"AD{start_table_row + len(formset_data) + 21}")
 
         img_stream3 = BytesIO(image_data)
         img3 = Image(img_stream3)
-        img3.width = 70
+        img3.width = 65
         img3.height = 30
         sheet.add_image(img3, f"AZ{start_table_row + len(formset_data) + 3}")
 
@@ -312,14 +312,28 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     if pdf:
         convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
 
-        temp_excel_path = "act_service/utils/invoice.xlsx"
-        temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
+        temp_excel_path = "utd/utils/invoice.xlsx"
+        temp_modified_pdf_path = "utd/utils/invoice_modified.pdf"
+        temp_excel_count = "utd/utils/count_page_excel.xlsx"
+
+        workbook.save(temp_excel_count)
+
+        temp_pdf_path_count = convertapi.convert('pdf', {
+            'File': temp_excel_count,
+        }, from_format='xls').save_files('utd/utils')[0]
+
+        reader_count = PdfReader(temp_pdf_path_count)
+        pages_count = len(reader_count.pages)
+
+        workbook = openpyxl.load_workbook(temp_excel_count)
+        sheet = workbook["УПД"]
+        sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
 
         workbook.save(temp_excel_path)
 
         temp_pdf_path = convertapi.convert('pdf', {
             'File': temp_excel_path,
-        }, from_format='xls').save_files('act_service/utils')[0]
+        }, from_format='xls').save_files('utd/utils')[0]
 
         reader = PdfReader(temp_pdf_path)
         writer = PdfWriter()
@@ -337,13 +351,15 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+                response["Content-Disposition"] = "inline; filename=УПД.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+                response["Content-Disposition"] = "attachment; filename=УПД.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
         os.remove(temp_modified_pdf_path)
+        os.remove(temp_pdf_path_count)
+        os.remove(temp_excel_count)
 
         return response
 
@@ -384,6 +400,6 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=УПД.xlsx"
     workbook.save(response)
     return response

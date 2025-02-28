@@ -154,14 +154,14 @@ def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
     if pdf:
         convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
 
-        temp_excel_path = "act_service/utils/invoice.xlsx"
-        temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
+        temp_excel_path = "pko/utils/invoice.xlsx"
+        temp_modified_pdf_path = "pko/utils/invoice_modified.pdf"
 
         workbook.save(temp_excel_path)
 
         temp_pdf_path = convertapi.convert('pdf', {
             'File': temp_excel_path,
-        }, from_format='xls').save_files('act_service/utils')[0]
+        }, from_format='xls').save_files('pko/utils')[0]
 
         reader = PdfReader(temp_pdf_path)
         writer = PdfWriter()
@@ -179,9 +179,9 @@ def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+                response["Content-Disposition"] = "inline; filename=ПКО.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+                response["Content-Disposition"] = "attachment; filename=ПКО.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -226,6 +226,6 @@ def create_pko_excel(data, formset_data, pdf=False, watch_document=False):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=ПКО.xlsx"
     workbook.save(response)
     return response
