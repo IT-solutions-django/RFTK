@@ -196,9 +196,9 @@ def create_outlay_excel(data, formset_data, pdf=False, watch_document=False):
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=Смета.pdf"
+                response["Content-Disposition"] = "inline; filename=outlay.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=Смета.pdf"
+                response["Content-Disposition"] = "attachment; filename=outlay.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -243,6 +243,6 @@ def create_outlay_excel(data, formset_data, pdf=False, watch_document=False):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=Смета.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=outlay.xlsx"
     workbook.save(response)
     return response

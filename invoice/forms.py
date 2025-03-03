@@ -153,7 +153,8 @@ class OrganizationForm(forms.ModelForm):
             'address': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'inputmode': 'tel'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите номер телефона', 'inputmode': 'tel',
+                       'type': 'tel'}),
             'fax': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер факса'}),
             'position_at_work': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите должность'}),
             'supervisor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя руководителя'}),
@@ -234,7 +235,7 @@ class CounterpartyForm(forms.ModelForm):
             'address': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list'}),
             'phone': forms.TextInput(
-                attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'inputmode': 'tel'}),
+                attrs={'class': 'form-control', 'placeholder': 'Введите телефон', 'inputmode': 'tel', 'type': 'tel'}),
             'code_company': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Введите условное наимнование организации'}),
         }

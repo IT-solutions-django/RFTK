@@ -254,9 +254,9 @@ def create_ks3_excel(data, formset_data, pdf=False, watch_document=False):
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=КС-3.pdf"
+                response["Content-Disposition"] = "inline; filename=ks_3.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=КС-3.pdf"
+                response["Content-Disposition"] = "attachment; filename=ks_3.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -301,6 +301,6 @@ def create_ks3_excel(data, formset_data, pdf=False, watch_document=False):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=КС-3.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=ks_3.xlsx"
     workbook.save(response)
     return response

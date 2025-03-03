@@ -232,9 +232,9 @@ def create_vat_invoice_excel(data, formset_data, pdf=False, watch_document=False
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=Счет-фактура.pdf"
+                response["Content-Disposition"] = "inline; filename=vat_invoice.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=Счет-фактура.pdf"
+                response["Content-Disposition"] = "attachment; filename=vat_invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -279,6 +279,6 @@ def create_vat_invoice_excel(data, formset_data, pdf=False, watch_document=False
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=Счет-фактура.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=vat_invoice.xlsx"
     workbook.save(response)
     return response

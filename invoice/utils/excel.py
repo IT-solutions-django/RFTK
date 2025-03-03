@@ -220,9 +220,9 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=Счет.pdf"
+                response["Content-Disposition"] = "inline; filename=invoice.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=Счет.pdf"
+                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -267,6 +267,6 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=Счет.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=invoice.xlsx"
     workbook.save(response)
     return response

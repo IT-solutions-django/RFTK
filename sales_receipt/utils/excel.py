@@ -176,9 +176,9 @@ def create_sales_receipt_excel(data, formset_data, pdf=False, watch_document=Fal
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=Товарный чек.pdf"
+                response["Content-Disposition"] = "inline; filename=sales_receipt.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=Товарный чек.pdf"
+                response["Content-Disposition"] = "attachment; filename=sales_receipt.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -223,6 +223,6 @@ def create_sales_receipt_excel(data, formset_data, pdf=False, watch_document=Fal
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=Товарный чек.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=sales_receipt.xlsx"
     workbook.save(response)
     return response

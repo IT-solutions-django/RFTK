@@ -87,9 +87,9 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
     sheet = workbook["УПД"]
 
-    for row in sheet.iter_rows():
-        if row[0].row in [7, 9, 10, 11, 12]:
-            sheet.row_dimensions[row[0].row].height = 22
+    # for row in sheet.iter_rows():
+    #     if row[0].row in [7, 9, 10, 11, 12]:
+    #         sheet.row_dimensions[row[0].row].height = 22
 
     start_col = 208
     num_cols = 790
@@ -148,7 +148,7 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
-        sheet.row_dimensions[start_table_row + idx].height = 22
+        sheet.row_dimensions[start_table_row + idx].height = 20
 
         total_sum += table_data["amount"]
 
@@ -306,8 +306,8 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
     for row in sheet.iter_rows():
         if row[0].row in [start_table_row + len(formset_data) + 3, start_table_row + len(formset_data) + 14,
-                          start_table_row + len(formset_data) + 19, start_table_row + len(formset_data) + 21]:
-            sheet.row_dimensions[row[0].row].height = 22
+                          start_table_row + len(formset_data) + 21]:
+            sheet.row_dimensions[row[0].row].height = 20
 
     if pdf:
         convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
@@ -351,9 +351,9 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=УПД.pdf"
+                response["Content-Disposition"] = "inline; filename=utd.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=УПД.pdf"
+                response["Content-Disposition"] = "attachment; filename=utd.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -400,6 +400,6 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=УПД.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=utd.xlsx"
     workbook.save(response)
     return response

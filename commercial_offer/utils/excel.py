@@ -181,9 +181,9 @@ def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=
         with open(temp_modified_pdf_path, "rb") as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=Коммерческое предложение.pdf"
+                response["Content-Disposition"] = "inline; filename=commercial_offer.pdf"
             else:
-                response["Content-Disposition"] = "attachment; filename=Коммерческое предложение.pdf"
+                response["Content-Disposition"] = "attachment; filename=commercial_offer.pdf"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)
@@ -228,6 +228,6 @@ def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response["Content-Disposition"] = f"attachment; filename=Коммерческое предложение.xlsx"
+    response["Content-Disposition"] = f"attachment; filename=commercial_offer.xlsx"
     workbook.save(response)
     return response
