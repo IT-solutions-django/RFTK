@@ -275,10 +275,13 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         img_stream1 = BytesIO(image_data)
         img1 = Image(img_stream1)
-        img1.width = 45 * 2.83
-        img1.height = 45 * 2.83
+        img1.width = 43 * 2.83
+        img1.height = 43 * 2.83
 
-        sheet.add_image(img1, f"E{start_table_row + len(formset_data) + 24}")
+        if len(formset_data) == 1:
+            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 20}")
+        else:
+            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 25}")
 
     if data['organization'].signature and data['is_stamp']:
         image_file = data['organization'].signature
@@ -288,20 +291,20 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         img_stream = BytesIO(image_data)
 
         img1 = Image(img_stream)
-        img1.width = 65
-        img1.height = 30
+        img1.width = 70
+        img1.height = 40
         sheet.add_image(img1, f"AD{start_table_row + len(formset_data) + 14}")
 
         img_stream2 = BytesIO(image_data)
         img2 = Image(img_stream2)
-        img2.width = 65
-        img2.height = 30
+        img2.width = 70
+        img2.height = 40
         sheet.add_image(img2, f"AD{start_table_row + len(formset_data) + 21}")
 
         img_stream3 = BytesIO(image_data)
         img3 = Image(img_stream3)
-        img3.width = 65
-        img3.height = 30
+        img3.width = 70
+        img3.height = 40
         sheet.add_image(img3, f"AZ{start_table_row + len(formset_data) + 3}")
 
     for row in sheet.iter_rows():
@@ -310,7 +313,7 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
             sheet.row_dimensions[row[0].row].height = 20
 
     if pdf:
-        convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+        convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
 
         temp_excel_path = "utd/utils/invoice.xlsx"
         temp_modified_pdf_path = "utd/utils/invoice_modified.pdf"
@@ -327,7 +330,10 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         workbook = openpyxl.load_workbook(temp_excel_count)
         sheet = workbook["УПД"]
-        sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
+        if len(formset_data) == 1:
+            sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'1'
+        else:
+            sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
 
         workbook.save(temp_excel_path)
 

@@ -205,7 +205,7 @@ def create_vat_invoice_excel(data, formset_data, pdf=False, watch_document=False
         sheet.add_image(img1, f"AH{start_table_row + len(formset_data) + 3}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+        convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
 
         temp_excel_path = "vat_invoice/utils/invoice.xlsx"
         temp_modified_pdf_path = "vat_invoice/utils/invoice_modified.pdf"

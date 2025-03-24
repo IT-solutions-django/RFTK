@@ -185,7 +185,7 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         sheet.add_image(img1, f"BY{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+        convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
 
         temp_excel_path = "invoice/utils/invoice.xlsx"
         temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"

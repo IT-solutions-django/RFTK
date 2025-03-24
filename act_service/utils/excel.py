@@ -179,7 +179,7 @@ def create_act_service_excel(data, formset_data, pdf=False, watch_document=False
             sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 14}")
 
         if pdf:
-            convertapi.api_credentials = 'secret_VEJPjELYZzhUihM6'
+            convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
 
             temp_excel_path = "act_service/utils/invoice.xlsx"
             temp_modified_pdf_path = "act_service/utils/invoice_modified.pdf"
