@@ -120,7 +120,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
 
     sheet['A4'] = f'взаимных расчетов за период с {formatted_date_from[0]} {month_russian_from} {formatted_date_from[2]} по {formatted_date_by[0]} {month_russian_by} {formatted_date_by[2]}'
 
-    sheet['A6'] = f'между {data['organization'].naming}'
+    sheet['A6'] = f'между {data["organization"].naming}'
 
     sheet['A8'] = f'и {data["counterparty"].naming}'
 
@@ -131,9 +131,9 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
 
     sheet['BV10'] = data['place_of_act']
 
-    sheet['A12'] = f'Мы, нижеподписавшиеся, {data['organization'].position_at_work} {data['organization'].naming} {data['organization'].supervisor} с одной стороны, и {data["counterparty"].naming}, с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:'
+    sheet['A12'] = f'Мы, нижеподписавшиеся, {data["organization"].position_at_work} {data["organization"].naming} {data["organization"].supervisor} с одной стороны, и {data["counterparty"].naming}, с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:'
 
-    sheet['A14'] = f'По данным {data['organization'].naming}, руб.'
+    sheet['A14'] = f'По данным {data["organization"].naming}, руб.'
 
     sheet['BD14'] = f'По данным {data["counterparty"].naming}, руб.'
 
@@ -241,7 +241,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
             f'CJ{start_table_row + len(formset_data) + 2}'] = ''
         total_sum_counterparty = abs(sum_loan_counterparty - sum_debit_counterparty - int(data["balance_debit"]))
 
-    sheet[f'A{start_table_row + len(formset_data) + 4}'] = f'По данным {data['organization'].naming}'
+    sheet[f'A{start_table_row + len(formset_data) + 4}'] = f'По данным {data["organization"].naming}'
 
     sheet[f'BE{start_table_row + len(formset_data) + 4}'] = f'По данным {data["counterparty"].naming}'
 
@@ -257,15 +257,15 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
         sheet[
             f'BE{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["organization"].naming} {total_sum_counterparty} руб.'
 
-    sheet[f'A{start_table_row + len(formset_data) + 7}'] = f'от {data['organization'].naming}'
+    sheet[f'A{start_table_row + len(formset_data) + 7}'] = f'от {data["organization"].naming}'
 
     sheet[f'BE{start_table_row + len(formset_data) + 7}'] = f'от {data["counterparty"].naming}'
 
-    sheet[f'A{start_table_row + len(formset_data) + 8}'] = f'{data['organization'].position_at_work}'
+    sheet[f'A{start_table_row + len(formset_data) + 8}'] = f'{data["organization"].position_at_work}'
 
     sheet[f'BE{start_table_row + len(formset_data) + 8}'] = ''
 
-    sheet[f'R{start_table_row + len(formset_data) + 10}'] = f'{data['organization'].supervisor}'
+    sheet[f'R{start_table_row + len(formset_data) + 10}'] = f'{data["organization"].supervisor}'
 
     sheet[f'BV{start_table_row + len(formset_data) + 10}'] = ''
 
