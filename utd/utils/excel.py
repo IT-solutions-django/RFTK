@@ -292,19 +292,19 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         img1 = Image(img_stream)
         img1.width = 70
-        img1.height = 40
+        img1.height = 37
         sheet.add_image(img1, f"AD{start_table_row + len(formset_data) + 14}")
 
         img_stream2 = BytesIO(image_data)
         img2 = Image(img_stream2)
         img2.width = 70
-        img2.height = 40
+        img2.height = 37
         sheet.add_image(img2, f"AD{start_table_row + len(formset_data) + 21}")
 
         img_stream3 = BytesIO(image_data)
         img3 = Image(img_stream3)
         img3.width = 70
-        img3.height = 40
+        img3.height = 37
         sheet.add_image(img3, f"AZ{start_table_row + len(formset_data) + 3}")
 
     for row in sheet.iter_rows():
