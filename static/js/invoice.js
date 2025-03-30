@@ -759,3 +759,30 @@ $(document).ready(function () {
         }
     });
 });
+
+$(document).ready(function() {
+    const fieldVisibilityConfig = {
+        "Договор поставки товара": ["id_time_supply", "id_strength_supply", "id_replace_price_supply", "id_transition_time", "id_fine"],
+        "null": []
+    };
+
+    function updateFieldVisibility(selectedValue) {
+        $('[data-visibility-control]').each(function() {
+            const fieldId = $(this).attr('id');
+            $(this).attr('type', 'hidden').hide();
+            $(`label[for="${fieldId}"]`).hide();
+        });
+
+        const fieldsToShow = fieldVisibilityConfig[selectedValue] || fieldVisibilityConfig["null"];
+        fieldsToShow.forEach(fieldId => {
+            $(`#${fieldId}`).attr('type', 'text').show();
+            $(`label[for="${fieldId}"]`).show();
+        });
+    }
+
+    $('#id_sample').on('change.select2', function() {
+        updateFieldVisibility($(this).val());
+    });
+
+    updateFieldVisibility($('#id_sample').val());
+});

@@ -29415,6 +29415,10 @@ aside {
     filter: invert(48%) sepia(88%) saturate(746%) hue-rotate(15deg);
 }
 
+button i {
+    pointer-events: none!important;
+}
+
 
 
 

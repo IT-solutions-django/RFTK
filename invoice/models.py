@@ -663,3 +663,73 @@ class RkoDocument(models.Model):
     class Meta:
         verbose_name = "РКО"
         verbose_name_plural = "РКО"
+
+
+class ReconciliationDocumentTable(models.Model):
+    name_operation_org = models.TextField(verbose_name='Наименование операции, документы по данным организации')
+    debit_org = models.CharField(max_length=50, verbose_name='Дебет (организация)')
+    loan_org = models.CharField(max_length=50, verbose_name='Кредит (организация)')
+
+    name_operation_counterparty = models.TextField(verbose_name='Наименование операции, документы по данным контрагента', null=True, blank=True)
+    debit_counterparty = models.CharField(max_length=50, verbose_name='Дебет (контрагент)', null=True, blank=True)
+    loan_counterparty = models.CharField(max_length=50, verbose_name='Кредит (контрагент)', null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Таблица для документа акт сверки взаиморасчетов"
+        verbose_name_plural = "Таблица для документа акт сверки взаиморасчетов"
+
+    def __str__(self):
+        return self.name_operation_org
+
+
+class ReconciliationDocument(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             help_text='Выберите пользователя')
+    name = models.CharField(max_length=150, verbose_name='Акт сверки №')
+    date = models.DateField(verbose_name='Дата создания')
+    organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
+    counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Контрагент',
+                                     related_name='as_counterparty_reconciliation')
+    period_from = models.DateField(verbose_name='Период с', null=True, blank=True)
+    period_by = models.DateField(verbose_name='Период по', null=True, blank=True)
+    balance_debit = models.CharField(max_length=150, verbose_name='Дебетовое сальдо', null=True, blank=True)
+    balance_loan = models.CharField(max_length=150, verbose_name='Кредитовое сальдо', null=True, blank=True)
+    place_of_act = models.CharField(max_length=150, verbose_name='Место подписания акта', null=True, blank=True)
+    table_product = models.ManyToManyField(ReconciliationDocumentTable, verbose_name='Таблица товаров')
+
+    class Meta:
+        verbose_name = "Акт сверки взаиморасчетов"
+        verbose_name_plural = "Акт сверки взаиморасчетов"
+
+    def __str__(self):
+        return f'{self.name} от {self.date}'
+
+
+class AgreementDocument(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             help_text='Выберите пользователя')
+    name = models.CharField(max_length=150, verbose_name='Договор №')
+    date = models.DateField(verbose_name='Дата создания')
+    organization = models.ForeignKey(InformationOrganization, on_delete=models.CASCADE, verbose_name='Организация')
+    bank_organization = models.ForeignKey(BankDetailsOrganization, on_delete=models.CASCADE,
+                                          verbose_name='Банк организации', help_text='Выберите банк организации',
+                                          null=True, blank=True)
+    counterparty = models.ForeignKey(Buyer, on_delete=models.CASCADE, verbose_name='Покупатль',
+                                     related_name='as_counterparty_agreement')
+    bank_counterparty = models.ForeignKey(BankDetailsBuyer, on_delete=models.CASCADE, verbose_name='Банк покупателя',
+                                          null=True, blank=True)
+    sample = models.CharField(max_length=100, verbose_name='Шаблон')
+    time_supply = models.TextField(verbose_name='Поставка товара в течении', null=True, blank=True)
+    strength_supply = models.TextField(verbose_name='Поставка товара осуществляется силами', null=True, blank=True)
+    replace_price_supply = models.TextField(verbose_name='Согласие об изменении стоимости в течение', null=True, blank=True)
+    transition_time = models.TextField(verbose_name='Право собственности переходит в момент подписания', null=True, blank=True)
+    fine = models.TextField(verbose_name='Штраф за не поставку товара за каждый день просрочки', null=True, blank=True)
+    is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
+
+    class Meta:
+        verbose_name = "Договор/Документ"
+        verbose_name_plural = "Договор/Документ"
+
+    def __str__(self):
+        return f'{self.name} от {self.date}'
+

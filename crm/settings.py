@@ -49,7 +49,9 @@ INSTALLED_APPS = [
     'power_attorney',
     'sales_receipt',
     'pko',
-    'rko'
+    'rko',
+    'reconciliation',
+    'agreement'
 ]
 
 MIDDLEWARE = [

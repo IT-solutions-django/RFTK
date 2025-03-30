@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Договор поставки № {{ name }}</title>
+
+</head>
+<body>
+<div style="font-size:9pt">
+<div style="text-align:center"><strong><span style="font-size:15pt">Договор поставки товара № <span>{{ name }}</span></span></strong></div>
+
+<table border="0" cellpadding="0" cellspacing="0" style="margin-top:10px; width:100%">
+	<tbody>
+		<tr>
+			<td style="text-align:left; width:50%"><span></span></td>
+			<td style="text-align:right; font-size: 15px;"><span>{{ date }}</span></td>
+		</tr>
+	</tbody>
+</table>
+
+
+<div style="text-align:center"><strong><span style="font-size:12pt">1. Предмет договора</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">1.1. Поставщик обязуется поставлять, а Покупатель обязуется принимать и оплачивать продукцию, вид, количество, ассортимент, комплектность, характеристики, цена и иные данные которой указаны в Приложениях, которые являются неотъемлемой частью настоящего Договора. В дальнейшем поставляемая продукция именуется Товаром.</p>
+
+<p style="text-align:left; font-size: 15px;">1.2. Поставщик обязуется поставлять Товар, качество которого соответствует утвержденным требованиям, стандартам, сертификатам и другим документам, определяющими требования к качеству Товара.</p>
+
+<p style="text-align:left; font-size: 15px;">1.3. Поставщик гарантирует соблюдение мер предосторожности при транспортировке и хранении Товара с целью сохранения его пригодности к дальнейшему использованию и полезных качеств.</p>
+
+<p style="text-align:left; font-size: 15px;">1.4. Вместе с товаром Поставщик обязуется передать Покупателю документы, устанавливающие требования к качеству Товара, а также иные сопутствующие документы, прилагаемые к Товару его производителем.</p>
+
+<p style="text-align:left; font-size: 15px;">1.5. Поставщик гарантирует, что поставляемый Товар не находится под арестом, не является предметом залога и не обременен иными правами третьих лиц.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">2. Сроки и порядок поставки</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">2.1. Поставка Товара осуществляется партиями на основании заявок Покупателя и при наличии соответствующего Товара на складе Поставщика.</p>
+
+<p style="text-align:left; font-size: 15px;">2.2. Заявка направляется Покупателем в адрес Поставщика по факсу / телефону / электронной почте / в виде электронного документа, подписанного квалифицированной электронной подписью.</p>
+
+<p style="text-align:left; font-size: 15px;">2.3. Покупатель обязан указать в заявке наименование, количество, ассортимент Товара.</p>
+
+<p style="text-align:left; font-size: 15px;">2.4. После получения от Покупателя заявки, Поставщик направляет в его адрес счет для оплаты партии Товара.</p>
+
+<p style="text-align:left; font-size: 15px;">2.5. Счет направляется Поставщиком в адрес покупателя по факсу / телефону / электронной почте / в виде электронного документа, подписанного квалифицированной электронной подписью.</p>
+
+<p style="text-align:left; font-size: 15px;">2.6. Поставка товара осуществляется Поставщиком в течение <span>{{ time_supply }}</span> с момента оплаты Покупателем счета, указанного в <strong>п. 2.4</strong> настоящего Договора, при условии наличия соответствующего Товара на складе Поставщика. В противном случае срок поставки Товара оговаривается и устанавливается Приложениями, которые являются неотъемлемой частью настоящего Договора.</p>
+
+<p style="text-align:left; font-size: 15px;">2.7. Поставка товара осуществляется силами <span>{{ strength_supply }}</span>.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">3. Цена договора</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">3.1. Стоимость Товара устанавливается в Приложениях, которые являются неотъемлемой частью настоящего Договора.</p>
+
+<p style="text-align:left; font-size: 15px;">3.2. Стоимость Товара, указанная в <strong>п. 3.1</strong> настоящего Договора может быть изменена.</p>
+
+<p style="margin-left:20px; text-align:left; font-size: 15px;">3.2.1. При изменении стоимости Товара Поставщик обязан предложить Покупателю новую цену путем направления в его адрес предложения о согласовании новой стоимости Товара.</p>
+
+<p style="margin-left:20px; text-align:left; font-size: 15px;">3.2.2. Покупатель обязуется в течение <span>{{ replace_price_supply }}</span> со дня получения предложения об изменении стоимости Товара направить в адрес Поставщика сообщение о согласии или несогласии с предложенным изменением стоимости Товара.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">4. Условия оплаты</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">4.1. Оплата стоимости Товара производится Покупателем путем перечисления денежных средств на расчетный счет Поставщика.</p>
+
+<p style="text-align:left; font-size: 15px;">4.2. Поставщик обязуется выставить на имя покупателя счет на оплату Товара, а Покупатель обязуется внести на основании этого счета полную стоимость Товара, определяемой в соответствии с <strong>п. 3.1</strong> настоящего Договора.</p>
+
+<div style="text-align:center; font-size: 15px;"><strong><span style="font-size:12pt">5. Передача и приемка Товара</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">5.1. Приемка Товара осуществляется одновременно с проверкой количества, качества и ассортимента Товара.</p>
+
+<p style="text-align:left; font-size: 15px;">5.2. Уполномоченный представитель Покупателя обязан подписать товарную накладную, которая подтверждает приемку Товара, за исключением случаев, установленных в <strong>п. 5.3</strong> настоящего Договора.</p>
+
+<p style="text-align:left; font-size: 15px;">5.3. В случае обнаружения при приемке недостатков, брака или несоответствия Товара характеристикам, указанным в Приложениях к настоящему Договору, лица, осуществляющие прием-передачу Товара обязаны составить и подписать акт об обнаружении недостатков товара.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">6. Момент перехода права собственности на товар и рисков</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">6.1. Право собственности на Товар переходит от Поставщика к Покупателю в момент подписания <span>{{ transition_time }}</span> накладной, подтверждающей приемку товара.</p>
+
+<p style="text-align:left; font-size: 15px;">6.2. Риск случайной гибели или случайного повреждения Товара переходит к Покупателю с момента перехода к нему права собственности на Товар.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">7. Срок действия договора</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">7.1. Настоящий Договор вступает в силу с момента его подписания Поставщиком и Покупателем и действует в течение одного календарного года. Если не один из участников договора не изъявил желание о его расторжении, договор считается пролонгированным на следующий календарный год.</p>
+
+<p style="text-align:left; font-size: 15px;">7.2. Стороны вправе изменить срок действия настоящего Договора путем заключения соответствующего дополнительного соглашения.</p>
+
+<div style="text-align:center; font-size: 15px;"><strong><span style="font-size:12pt">8. Ответственность сторон</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">8.1. В случае если Товар не был поставлен Поставщиком в сроки, указанные в <strong>п.&nbsp;2.6</strong> настоящего Договора, Поставщик уплачивает Покупателю штраф в размере <span>{{ fine }}</span>, определяемой в соответствии с <strong>п.&nbsp;3.1</strong> настоящего Договора, за каждый день просрочки.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">9. Форс-мажор</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">9.1. Ни одна из Сторон не несет ответственности за полное или частичное неисполнение обязательств по Настоящему договору, если это явилось следствием обстоятельств непреодолимой силы, а именно: пожар, землетрясение, наводнение, иные стихийные бедствия, забастовки, военные действия, действий органов государственной власти и местного самоуправления.</p>
+
+<p style="text-align:left; font-size: 15px;">9.2. Сторона, для которой наступили обстоятельства, указанные в <strong>п.&nbsp;9.1</strong> настоящего Договора, должна немедленно известить другую сторону о наступлении таковых.</p>
+
+<p style="text-align:left; font-size: 15px;">9.3. Если обстоятельства, указанные в <strong>п.9.1</strong> настоящего Договора, будут продолжаться более 6 месяцев, каждая Сторона имеет право отказаться от дальнейшего исполнения обязательств по настоящему договору, и в этом случае ни одна из Сторон не будет иметь права требовать от другой Стороны возмещения возможных убытков.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">10. Споры и разногласия</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">10.1. Все споры и разногласия по настоящему договору будут разрешаться путем переговоров на основе действующего законодательства и обычаев делового оборота.</p>
+
+<p style="text-align:left; font-size: 15px;">10.2. При неурегулировании спорных вопросов в процессе переговоров споры разрешаются в суде в порядке, установленном действующим законодательством.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">11. Конфиденциальность</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">11.1. В течение срока действия настоящего Договора, а также в течение 12 месяцев после его прекращения Стороны не должны предоставлять или разглашать иным способом конфиденциальную информацию, полученную в результате совместной деятельности, равно как и не должны недобросовестно использовать такую информацию для того, чтобы самим конкурировать друг с другом.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">12. Дополнительные условия и заключительные положения</span></strong></div>
+
+<p style="text-align:left; font-size: 15px;">12.1. Все изменения и дополнения к настоящему Договору являются его неотъемлемыми частями и действительны, если совершены в той же форме, что и настоящий договор, и подписаны обеими Сторонами или надлежаще уполномоченными на то представителями Сторон.</p>
+
+<p style="text-align:left; font-size: 15px;">12.2. Настоящий Договор составлен в двух экземплярах: по одному экземпляру для Поставщика и Покупателя. Каждый экземпляр имеет равную юридическую силу. Факсимильная копия (скан-копия) договора, с подписью и печатью сторон, имеет силу оригинала.</p>
+
+<p style="text-align:left; font-size: 15px;">12.3. Все уведомления и сообщения в рамках исполнения настоящего Договора должны направляться в письменной форме c уведомлением о вручении и описью вложения.</p>
+
+<p style="text-align:left; font-size: 15px;">12.4. Во всем остальном, не предусмотренном настоящим договором, Стороны будут руководствоваться действующим законодательством РФ.</p>
+
+<div style="text-align:center"><strong><span style="font-size:12pt">Реквизиты и подписи сторон</span></strong></div>
+
+<table border="0" cellpadding="0" cellspacing="0" style="margin-top:10px; width:100%">
+	<tbody>
+		<tr>
+			<td style="text-align:center; width:48%"><strong>ПОСТАВЩИК</strong></td>
+			<td style="border-right:1px solid #000000; width:2%">&nbsp;</td>
+			<td style="width:2%">&nbsp;</td>
+			<td style="text-align:center"><strong>ПОКУПАТЕЛЬ</strong></td>
+		</tr>
+		<tr>
+			<td style="vertical-align:top; font-size: 15px;"><span>{{ organization.naming }}</span><br />
+			Адрес: <span>{% if organization.address %}{{ organization.address }}{% endif %}</span><br />
+			ИНН/КПП: <span>{{ organization.inn }}</span>/<span>{% if organization.kpp %}{{ organization.kpp }}{% endif %}</span><br />
+			Банковские реквизиты:<br />
+			р/с: <span>{% if bank_organization.current_account %}{{ bank_organization.current_account }}{% endif %}</span><br />
+			<span>{{ bank_organization.naming }}</span> <span>{% if bank_organization.correspondent_account %}{{ bank_organization.correspondent_account }}{% endif %}</span> <span>{{ bank_organization.bic }}</span><br />
+				{% if organization.phone %}тел.: <span>{{ organization.phone }}{% endif %}</span>{% if organization.fax %}, факс.: <span>{{ organization.fax }}</span>{% endif %}</td>
+			<td style="border-right:1px solid #000000">&nbsp;</td>
+			<td>&nbsp;</td>
+			<td style="vertical-align:top; font-size: 15px;"><span>{{ counterparty.naming }}</span><br />
+			Адрес: <span>{% if counterparty.address %}{{ counterparty.address }}{% endif %}</span><br />
+			ИНН/КПП: <span>{{ counterparty.inn }}</span>/<span>{% if counterparty.kpp %}{{ counterparty.kpp }}{% endif %}</span><br />
+			Банковские реквизиты:<br />
+			р/с: <span>{% if bank_counterparty.current_account %}{{ bank_counterparty.current_account }}{% endif %}</span><br />
+			<span>{{ bank_counterparty.naming }}</span> <span>{% if bank_counterparty.correspondent_account %}{{ bank_counterparty.correspondent_account }}{% endif %}</span> <span>{{ bank_counterparty.bic }}</span><br />
+			{% if counterparty.phone %}тел.: <span>{{ counterparty.phone }}</span>{% endif %}</td>
+		</tr>
+		<tr>
+			<td style="text-align:center; font-size: 15px;"><span>{% if organization.position_at_work %}{{ organization.position_at_work }}{% endif %}</span> <span>{% if organization.supervisor %}{{ organization.supervisor }}{% endif %}</span></td>
+			<td style="border-right:1px solid #000000">&nbsp;</td>
+			<td>&nbsp;</td>
+			<td style="text-align:center; font-size: 15px;"><span>{{ counterparty.naming }}</span></td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid #000000; height:40px; text-align:center; vertical-align:bottom; position: relative;"><span style="bottom: -13px; position: absolute; left: 50%; transform: translateX(-50%);">{print_sign_director}</span></td>
+			<td style="border-right:1px solid #000000">&nbsp;</td>
+			<td>&nbsp;</td>
+			<td style="border-bottom:1px solid #000000; text-align:center">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="height:10px; text-align:center"><span style="font-size:9px"><sup>(подпись)</sup></span></td>
+			<td style="border-right:1px solid #000000">&nbsp;</td>
+			<td>&nbsp;</td>
+			<td style="text-align:center"><span style="font-size:9px"><sup>(подпись)</sup></span></td>
+		</tr>
+		<tr>
+			<td style="text-align:center;">
+				<div style="margin-top: -15px; text-align: center;">{print_stamp}</div>
+			</td>
+			<td style="border-right:1px solid #000000">&nbsp;</td>
+			<td>&nbsp;</td>
+			<td style="text-align:center">М.П.</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</body>
+</html>

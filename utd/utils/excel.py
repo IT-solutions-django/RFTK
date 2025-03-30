@@ -279,9 +279,9 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         img1.height = 43 * 2.83
 
         if len(formset_data) == 1:
-            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 20}")
+            sheet.add_image(img1, f"AI{start_table_row + len(formset_data) + 20}")
         else:
-            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 25}")
+            sheet.add_image(img1, f"AI{start_table_row + len(formset_data) + 25}")
 
     if data['organization'].signature and data['is_stamp']:
         image_file = data['organization'].signature

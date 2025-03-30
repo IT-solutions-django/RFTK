@@ -1,3 +1,4 @@
+from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -7,7 +8,7 @@ from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, Counter
     InvoiceDocumentForm, InvoiceDocumentTableFormSet
 from invoice.models import InformationOrganization, Buyer, InvoiceDocument, BankDetailsOrganization, BankDetailsBuyer, \
     InvoiceDocumentTable, UtdDocument, VatInvoiceDocument, CommercialOfferDocument, OutlayDocument, Ks2Document, \
-    Ks3Document, ActServiceDocument, PowerAttorneyDocument, SalesReceiptDocument, PkoDocument, RkoDocument
+    Ks3Document, ActServiceDocument, PowerAttorneyDocument, SalesReceiptDocument, PkoDocument, RkoDocument, ReconciliationDocument, AgreementDocument
 from utd.forms import UtdDocumentForm, UtdDocumentTableFormSet
 from vat_invoice.forms import VatInvoiceDocumentForm
 import requests
@@ -33,6 +34,10 @@ from pko.forms import PkoDocumentForm
 from pko.utils.excel import create_pko_excel
 from rko.forms import RkoDocumentForm
 from rko.utils.excel import create_rko_excel
+from reconciliation.forms import ReconciliationDocumentForm, ReconciliationDocumentTableFormSet
+from reconciliation.utils.excel import create_reconciliation_excel
+from agreement.forms import AgreementDocumentForm
+from agreement.utils.excel import create_agreement_excel
 
 
 def register_view(request):
@@ -349,7 +354,22 @@ def edit_document(request, id_doc, doc_type):
             'template': 'rko_document_form_new.html',
             'excel': create_rko_excel,
             'redirect': 'rko_document'
-        }
+        },
+        'reconciliation': {
+            'model': ReconciliationDocument,
+            'form': ReconciliationDocumentForm,
+            'formset': ReconciliationDocumentTableFormSet,
+            'template': 'reconciliation_form_new.html',
+            'excel': create_reconciliation_excel,
+            'redirect': 'reconciliation_document'
+        },
+        'agreement': {
+            'model': AgreementDocument,
+            'form': AgreementDocumentForm,
+            'template': 'agreement_document_form_new.html',
+            'excel': create_agreement_excel,
+            'redirect': 'agreement_document'
+        },
     }
 
     if doc_type not in document_mapping:
@@ -433,6 +453,14 @@ def edit_document(request, id_doc, doc_type):
                     "code_company": form.cleaned_data['organization'].code_company,
                 }
                 response = excel(form.cleaned_data, organization_data, formset_data, True)
+            elif doc_type == 'agreement':
+                context = form.cleaned_data
+                html_string = render_to_string('supply_contract.html', context)
+
+                organization = context['organization']
+                is_stamp = context['is_stamp']
+
+                response = excel(html_string, organization, is_stamp, True)
             else:
                 response = excel(form.cleaned_data, formset_data, True)
             return response
@@ -451,6 +479,14 @@ def edit_document(request, id_doc, doc_type):
                 "code_company": form.cleaned_data['organization'].code_company,
             }
             return excel(form.cleaned_data, organization_data, formset_data, True, True)
+        elif doc_type == 'agreement':
+            context = form.cleaned_data
+            html_string = render_to_string('supply_contract.html', context)
+
+            organization = context['organization']
+            is_stamp = context['is_stamp']
+
+            return excel(html_string, organization, is_stamp)
         else:
             return excel(form.cleaned_data, formset_data, True, True)
     return render(request, template_name, {
@@ -468,7 +504,7 @@ def find_company_by_inn(request):
     if not inn:
         return JsonResponse({"success": False, "error": "ИНН не указан"}, status=400)
 
-    fns_url = f"https://api-fns.ru/api/egr?req={inn}&key=98843b355dc4b54850fd0237db59abd77fa5237c"
+    fns_url = f"https://api-fns.ru/api/egr?req={inn}&key=0e1ed851511ec34bdc069ef66f1278e6495d646a"
     response = requests.get(fns_url)
 
     if response.status_code == 200:
@@ -669,14 +705,25 @@ def print_document(request, doc_type, document_id):
             'model': RkoDocument,
             'form': RkoDocumentForm,
             'excel': create_rko_excel,
-        }
+        },
+        'reconciliation': {
+            'model': ReconciliationDocument,
+            'form': ReconciliationDocumentForm,
+            'formset': ReconciliationDocumentTableFormSet,
+            'excel': create_reconciliation_excel,
+        },
+        'agreement': {
+            'model': AgreementDocument,
+            'form': AgreementDocumentForm,
+            'excel': create_agreement_excel,
+        },
     }
 
     document = get_object_or_404(models_doc_type[doc_type]['model'], id=document_id)
 
     form = models_doc_type[doc_type]['form'](instance=document)
 
-    if doc_type not in ['pko', 'rko']:
+    if doc_type not in ['pko', 'rko', 'agreement']:
         formset = models_doc_type[doc_type]['formset'](queryset=document.table_product.all())
     else:
         formset = []
@@ -702,5 +749,13 @@ def print_document(request, doc_type, document_id):
             "code_company": form_data['organization'].code_company,
         }
         return models_doc_type[doc_type]['excel'](form_data, organization_data, formset_data, True, True)
+
+    elif doc_type == 'agreement':
+        html_string = render_to_string('supply_contract.html', form_data)
+
+        organization = form_data['organization']
+        is_stamp = form_data['is_stamp']
+
+        return models_doc_type[doc_type]['excel'](html_string, organization, is_stamp)
 
     return models_doc_type[doc_type]['excel'](form_data, formset_data, True, True)

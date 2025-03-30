@@ -32,6 +32,8 @@ from power_attorney.views import PowerAttorneyDocumentCreateView, power_attorney
 from sales_receipt.views import SalesReceiptDocumentCreateView, sales_receipt_document
 from pko.views import PkoDocumentCreateView, pko_document
 from rko.views import RkoDocumentCreateView, rko_document
+from reconciliation.views import ReconciliationCreateView, reconciliation_document
+from agreement.views import AgreementDocumentCreateView, agreement_document
 from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete
 from django.conf import settings
 from django.conf.urls.static import static
@@ -64,6 +66,10 @@ urlpatterns = [
     path('pko_document/', pko_document, name='pko_document'),
     path('rko/', RkoDocumentCreateView.as_view(), name='rko'),
     path('rko_document/', rko_document, name='rko_document'),
+    path('reconciliation/', ReconciliationCreateView.as_view(), name='reconciliation'),
+    path('reconciliation_document/', reconciliation_document, name='reconciliation_document'),
+    path('agreement/', AgreementDocumentCreateView.as_view(), name='agreement'),
+    path('agreement_document/', agreement_document, name='agreement_document'),
     path('add-organization/', add_organization, name='add_organization'),
     path('add_organization_with_bank/', add_organization_with_bank, name='add_organization_with_bank'),
     path('add-counterparty/', add_counterparty, name='add_counterparty'),
