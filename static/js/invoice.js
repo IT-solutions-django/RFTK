@@ -533,13 +533,34 @@ document.getElementById("findByINN").addEventListener("click", function() {
     fetch(`/find-company/?inn=${inn}`)
         .then(response => response.json())
         .then(data => {
+            document.getElementById("id_organization-naming").value = "";
+            document.getElementById("id_organization-kpp").value = "";
+            document.getElementById("id_organization-ogrn").value = "";
+            document.getElementById("id_organization-address").value = "";
+            document.getElementById("id_organization-position_at_work").value = "";
+            document.getElementById("id_organization-supervisor").value = "";
             if (data.success) {
-                document.getElementById("id_organization-naming").value = data.name;
-                document.getElementById("id_organization-kpp").value = data.kpp;
-                document.getElementById("id_organization-ogrn").value = data.ogrn;
-                document.getElementById("id_organization-address").value = data.address;
-                document.getElementById("id_organization-position_at_work").value = data.position_at_work;
-                document.getElementById("id_organization-supervisor").value = data.supervisor;
+                if (data.type == 'Юридическое лицо') {
+                    document.getElementById("id_organization-naming").value = data.name;
+                    document.getElementById("id_organization-kpp").value = data.kpp;
+                    document.getElementById("id_organization-ogrn").value = data.ogrn;
+                    document.getElementById("id_organization-address").value = data.address;
+                    document.getElementById("id_organization-position_at_work").value = data.position_at_work;
+                    document.getElementById("id_organization-supervisor").value = data.supervisor;
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrn";
+                    }
+                }
+                else {
+                    document.getElementById("id_organization-naming").value = data.name;
+                    document.getElementById("id_organization-ogrn").value = data.ogrn;
+                    document.getElementById("id_organization-address").value = data.address;
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrnip";
+                    }
+                }
 
             } else {
                 alert("Организация не найдена");
@@ -594,11 +615,31 @@ document.getElementById("findByINNCounterparty").addEventListener("click", funct
     fetch(`/find-company/?inn=${inn}`)
         .then(response => response.json())
         .then(data => {
+            document.getElementById("id_counterparty-naming").value = "";
+            document.getElementById("id_counterparty-kpp").value = "";
+            document.getElementById("id_counterparty-ogrn").value = "";
+            document.getElementById("id_counterparty-address").value = "";
             if (data.success) {
-                document.getElementById("id_counterparty-naming").value = data.name;
-                document.getElementById("id_counterparty-kpp").value = data.kpp;
-                document.getElementById("id_counterparty-ogrn").value = data.ogrn;
-                document.getElementById("id_counterparty-address").value = data.address;
+                if (data.type == 'Юридическое лицо') {
+                    document.getElementById("id_counterparty-naming").value = data.name;
+                    document.getElementById("id_counterparty-kpp").value = data.kpp;
+                    document.getElementById("id_counterparty-ogrn").value = data.ogrn;
+                    document.getElementById("id_counterparty-address").value = data.address;
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrn";
+                    }
+                }
+                else {
+                    document.getElementById("id_counterparty-naming").value = data.name;
+                    document.getElementById("id_counterparty-ogrn").value = data.ogrn;
+                    document.getElementById("id_counterparty-address").value = data.address;
+                    const type_selection = document.getElementById("type_selection");
+                    if (type_selection) {
+                        document.getElementById("type_selection").value = "ogrnip";
+                    }
+                }
+
 
             } else {
                 alert("Организация не найдена");
