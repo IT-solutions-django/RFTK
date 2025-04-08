@@ -1,11 +1,10 @@
 from django import forms
-from invoice.models import AgreementDocument, InformationOrganization, BankDetailsOrganization, Buyer, BankDetailsBuyer
+from invoice.models import AgreementDocument, InformationOrganization, BankDetailsOrganization, Buyer, BankDetailsBuyer, TemplateDocument
 
 
 class AgreementDocumentForm(forms.ModelForm):
-    SAMPLE_CHOICES = [
-        ('Договор поставки товара', 'Договор поставки товара'),
-
+    SAMPLE_CHOICES = [('', 'Выберите шаблон')] + [
+        (obj.title, obj.title) for obj in TemplateDocument.objects.all()
     ]
 
     sample = forms.ChoiceField(
@@ -52,16 +51,11 @@ class AgreementDocumentForm(forms.ModelForm):
     class Meta:
         model = AgreementDocument
         fields = '__all__'
-        exclude = ['user']
+        exclude = ['user', 'dop_field']
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'time_supply': forms.TextInput(attrs={'class': 'form-control', 'type': 'hidden', 'data-visibility-control': 'true'}),
-            'strength_supply': forms.TextInput(attrs={'class': 'form-control', 'type': 'hidden', 'data-visibility-control': 'true'}),
-            'replace_price_supply': forms.TextInput(attrs={'class': 'form-control', 'type': 'hidden', 'data-visibility-control': 'true'}),
-            'transition_time': forms.TextInput(attrs={'class': 'form-control', 'type': 'hidden', 'data-visibility-control': 'true'}),
-            'fine': forms.TextInput(attrs={'class': 'form-control', 'type': 'hidden', 'data-visibility-control': 'true'}),
         }
 
     def __init__(self, *args, **kwargs):

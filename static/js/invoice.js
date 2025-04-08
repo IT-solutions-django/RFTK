@@ -802,28 +802,56 @@ $(document).ready(function () {
 });
 
 $(document).ready(function() {
-    const fieldVisibilityConfig = {
-        "Договор поставки товара": ["id_time_supply", "id_strength_supply", "id_replace_price_supply", "id_transition_time", "id_fine"],
-        "null": []
-    };
-
-    function updateFieldVisibility(selectedValue) {
-        $('[data-visibility-control]').each(function() {
-            const fieldId = $(this).attr('id');
-            $(this).attr('type', 'hidden').hide();
-            $(`label[for="${fieldId}"]`).hide();
-        });
-
-        const fieldsToShow = fieldVisibilityConfig[selectedValue] || fieldVisibilityConfig["null"];
-        fieldsToShow.forEach(fieldId => {
-            $(`#${fieldId}`).attr('type', 'text').show();
-            $(`label[for="${fieldId}"]`).show();
-        });
-    }
-
     $('#id_sample').on('change.select2', function() {
-        updateFieldVisibility($(this).val());
+        var sampleId = $(this).val();
+
+        if (!sampleId) return;
+
+        $.ajax({
+            url: '/get_labels/',
+            data: { sample_id: sampleId },
+            success: function(response) {
+                updateFields(response.labels);
+            },
+            error: function(xhr, status, error) {
+                console.error('Ошибка запроса:', error);
+            }
+        });
     });
 
-    updateFieldVisibility($('#id_sample').val());
+    var initialSampleId = $('#id_sample').val();
+    if (initialSampleId) {
+        $('#id_sample').trigger('change.select2');
+        const nameDocument = document.getElementById("id_name");
+        fetchSavedValues(nameDocument.value);
+    }
 });
+
+function updateFields(labels) {
+    $('#new_fields_container').empty();
+
+    labels.forEach(function(label) {
+        var fieldHtml = `
+            <div class="form-group">
+                <label for="dop_id_${label.id}">${label.name}</label>
+                <input type="text" name="${label.code}" id="dop_id_${label.id}" class="form-control">
+            </div>
+        `;
+        $('#new_fields_container').append(fieldHtml);
+    });
+}
+
+function fetchSavedValues(sampleId) {
+    $.ajax({
+        url: '/get_saved_values/',
+        data: { sample_id: sampleId },
+        success: function(response) {
+            Object.entries(response.values).forEach(([fieldCode, value]) => {
+                $(`input[name="${fieldCode}"]`).val(value);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Ошибка при загрузке сохранённых данных:', error);
+        }
+    });
+}

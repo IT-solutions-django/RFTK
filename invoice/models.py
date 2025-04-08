@@ -719,12 +719,8 @@ class AgreementDocument(models.Model):
     bank_counterparty = models.ForeignKey(BankDetailsBuyer, on_delete=models.CASCADE, verbose_name='Банк покупателя',
                                           null=True, blank=True)
     sample = models.CharField(max_length=100, verbose_name='Шаблон')
-    time_supply = models.TextField(verbose_name='Поставка товара в течении', null=True, blank=True)
-    strength_supply = models.TextField(verbose_name='Поставка товара осуществляется силами', null=True, blank=True)
-    replace_price_supply = models.TextField(verbose_name='Согласие об изменении стоимости в течение', null=True, blank=True)
-    transition_time = models.TextField(verbose_name='Право собственности переходит в момент подписания', null=True, blank=True)
-    fine = models.TextField(verbose_name='Штраф за не поставку товара за каждый день просрочки', null=True, blank=True)
     is_stamp = models.BooleanField(verbose_name='Добавить печать и подпись', null=True, blank=True, default=False)
+    dop_field = models.ManyToManyField('ValueLabel', null=True, blank=True, verbose_name='Доп.поля')
 
     class Meta:
         verbose_name = "Договор/Документ"
@@ -733,3 +729,39 @@ class AgreementDocument(models.Model):
     def __str__(self):
         return f'{self.name} от {self.date}'
 
+
+class TemplateDocument(models.Model):
+    title = models.CharField(max_length=255, verbose_name='Название шаблона')
+    content = models.TextField(verbose_name='Содержание документа')
+    labels = models.ManyToManyField('LabelTemplateDocument', null=True, blank=True, verbose_name='Метки в документе')
+
+    class Meta:
+        verbose_name = "Шаблон для документа/договора"
+        verbose_name_plural = "Шаблоны для документов/договоров"
+
+    def __str__(self):
+        return self.title
+
+
+class LabelTemplateDocument(models.Model):
+    label_code = models.CharField(max_length=500, verbose_name='Метка')
+    label_desc = models.CharField(max_length=500, verbose_name='Комментарий к метке')
+
+    class Meta:
+        verbose_name = "Метка для шаблона"
+        verbose_name_plural = "Метки для шаблонов"
+
+    def __str__(self):
+        return f'{self.label_code} | {self.label_desc}'
+
+
+class ValueLabel(models.Model):
+    label = models.ForeignKey(LabelTemplateDocument, on_delete=models.CASCADE, verbose_name='Метка')
+    value = models.TextField(verbose_name='Значение метки')
+
+    class Meta:
+        verbose_name = "Значение метки"
+        verbose_name_plural = "Значения меток"
+
+    def __str__(self):
+        return f'{self.label.label_code} | {self.value}'

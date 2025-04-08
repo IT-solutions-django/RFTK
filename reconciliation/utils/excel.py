@@ -147,13 +147,25 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     formatted_date = date_obj.strftime("%d %m %Y").split(' ')
     sheet['BH16'] = f'Сальдо {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]}'
 
-    sheet['AH16'] = f'{data["balance_debit"]}'
+    if data["balance_debit"]:
+        sheet['AH16'] = f'{data["balance_debit"]}'
+    else:
+        sheet['AH16'] = "-"
 
-    sheet['AS16'] = f'{data["balance_loan"]}'
+    if data["balance_loan"]:
+        sheet['AS16'] = f'{data["balance_loan"]}'
+    else:
+        sheet['AS16'] = "-"
 
-    sheet['CJ16'] = f'{data["balance_loan"]}'
+    if data["balance_loan"]:
+        sheet['CJ16'] = f'{data["balance_loan"]}'
+    else:
+        sheet['CJ16'] = "-"
 
-    sheet['CU16'] = f'{data["balance_debit"]}'
+    if data["balance_debit"]:
+        sheet['CU16'] = f'{data["balance_debit"]}'
+    else:
+        sheet['CU16'] = "-"
 
     start_table_row = 16
     sum_debit_org = 0
@@ -165,13 +177,17 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
 
     for idx, table_data in enumerate(formset_data, 1):
 
-        sum_debit_org += int(table_data['debit_org'])
+        if table_data['debit_org']:
+            sum_debit_org += int(table_data['debit_org'])
 
-        sum_loan_org += int(table_data['loan_org'])
+        if table_data['loan_org']:
+            sum_loan_org += int(table_data['loan_org'])
 
-        sum_debit_counterparty += int(table_data['debit_counterparty'])
+        if table_data['debit_counterparty']:
+            sum_debit_counterparty += int(table_data['debit_counterparty'])
 
-        sum_loan_counterparty += int(table_data['loan_counterparty'])
+        if table_data['loan_counterparty']:
+            sum_loan_counterparty += int(table_data['loan_counterparty'])
 
         sheet[f'A{start_table_row + idx}'] = f'{idx + 1}'
 
@@ -210,17 +226,31 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     formatted_date = date_obj.strftime("%d %m %Y").split(' ')
     sheet[f'E{start_table_row + len(formset_data) + 2}'] = f'Сальдо на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]}'
 
-    if sum_loan_org > sum_debit_org:
-        sheet[f'AS{start_table_row + len(formset_data) + 2}'] = f'{sum_loan_org - sum_debit_org + int(data["balance_debit"])}'
+    if sum_loan_org >= sum_debit_org:
+        if data['balance_debit']:
+            sheet[f'AS{start_table_row + len(formset_data) + 2}'] = f'{sum_loan_org - sum_debit_org + int(data.get("balance_debit", 0))}'
+        else:
+            sheet[
+                f'AS{start_table_row + len(formset_data) + 2}'] = f'{sum_loan_org - sum_debit_org}'
         sheet[
             f'AH{start_table_row + len(formset_data) + 2}'] = ''
-        total_sum_org = sum_loan_org - sum_debit_org + int(data["balance_debit"])
+        if data['balance_debit']:
+            total_sum_org = sum_loan_org - sum_debit_org + int(data.get("balance_debit", 0))
+        else:
+            total_sum_org = sum_loan_org - sum_debit_org
     else:
-        sheet[
-            f'AH{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_debit_org - sum_loan_org - int(data["balance_debit"]))}'
+        if data['balance_debit']:
+            sheet[
+                f'AH{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_debit_org - sum_loan_org - int(data.get("balance_debit", 0)))}'
+        else:
+            sheet[
+                f'AH{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_debit_org - sum_loan_org)}'
         sheet[
             f'AS{start_table_row + len(formset_data) + 2}'] = ''
-        total_sum_org = abs(sum_debit_org - sum_loan_org - int(data["balance_debit"]))
+        if data['balance_debit']:
+            total_sum_org = abs(sum_debit_org - sum_loan_org - int(data.get("balance_debit", 0)))
+        else:
+            total_sum_org = abs(sum_debit_org - sum_loan_org)
 
     date_str = str(data['period_by'])
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
@@ -228,30 +258,45 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     sheet[
         f'BH{start_table_row + len(formset_data) + 2}'] = f'Сальдо на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]}'
 
-    if sum_debit_counterparty > sum_loan_counterparty:
-        sheet[
-            f'CJ{start_table_row + len(formset_data) + 2}'] = f'{sum_debit_counterparty - sum_loan_counterparty + int(data["balance_debit"])}'
+    if sum_debit_counterparty >= sum_loan_counterparty:
+        if data['balance_debit']:
+            sheet[
+                f'CJ{start_table_row + len(formset_data) + 2}'] = f'{sum_debit_counterparty - sum_loan_counterparty + int(data.get("balance_debit", 0))}'
+        else:
+            sheet[
+                f'CJ{start_table_row + len(formset_data) + 2}'] = f'{sum_debit_counterparty - sum_loan_counterparty}'
         sheet[
             f'CU{start_table_row + len(formset_data) + 2}'] = ''
-        total_sum_counterparty = sum_debit_counterparty - sum_loan_counterparty + int(data["balance_debit"])
+        if data['balance_debit']:
+            total_sum_counterparty = sum_debit_counterparty - sum_loan_counterparty + int(data.get("balance_debit", 0))
+        else:
+            total_sum_counterparty = sum_debit_counterparty - sum_loan_counterparty
     else:
-        sheet[
-            f'CU{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_loan_counterparty - sum_debit_counterparty - int(data["balance_debit"]))}'
+        if data['balance_debit']:
+            sheet[
+                f'CU{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_loan_counterparty - sum_debit_counterparty - int(data.get("balance_debit", 0)))}'
+        else:
+            sheet[
+                f'CU{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_loan_counterparty - sum_debit_counterparty)}'
         sheet[
             f'CJ{start_table_row + len(formset_data) + 2}'] = ''
-        total_sum_counterparty = abs(sum_loan_counterparty - sum_debit_counterparty - int(data["balance_debit"]))
+        if data['balance_debit']:
+            total_sum_counterparty = abs(sum_loan_counterparty - sum_debit_counterparty - int(data.get("balance_debit", 0)))
+        else:
+            total_sum_counterparty = abs(
+                sum_loan_counterparty - sum_debit_counterparty)
 
     sheet[f'A{start_table_row + len(formset_data) + 4}'] = f'По данным {data["organization"].naming}'
 
     sheet[f'BE{start_table_row + len(formset_data) + 4}'] = f'По данным {data["counterparty"].naming}'
 
-    if sum_loan_org > sum_debit_org:
+    if sum_loan_org >= sum_debit_org:
         sheet[f'A{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["counterparty"].naming} {total_sum_org} руб.'
     else:
         sheet[
             f'A{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["organization"].naming} {total_sum_org} руб.'
 
-    if sum_debit_counterparty > sum_loan_counterparty:
+    if sum_debit_counterparty >= sum_loan_counterparty:
         sheet[f'BE{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["counterparty"].naming} {total_sum_counterparty} руб.'
     else:
         sheet[

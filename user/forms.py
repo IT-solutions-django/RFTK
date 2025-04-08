@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
 
 from .models import CustomUser
+from invoice.models import TemplateDocument
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -58,3 +59,13 @@ class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
         model = CustomUser
         fields = ['username', 'password']
+
+
+class TemplateDocumentForm(forms.ModelForm):
+    class Meta:
+        model = TemplateDocument
+        fields = ['title', 'content']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'id': 'editor'})
+        }

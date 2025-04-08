@@ -3,12 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, TemplateDocumentForm
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm, \
     InvoiceDocumentForm, InvoiceDocumentTableFormSet
 from invoice.models import InformationOrganization, Buyer, InvoiceDocument, BankDetailsOrganization, BankDetailsBuyer, \
     InvoiceDocumentTable, UtdDocument, VatInvoiceDocument, CommercialOfferDocument, OutlayDocument, Ks2Document, \
-    Ks3Document, ActServiceDocument, PowerAttorneyDocument, SalesReceiptDocument, PkoDocument, RkoDocument, ReconciliationDocument, AgreementDocument
+    Ks3Document, ActServiceDocument, PowerAttorneyDocument, SalesReceiptDocument, PkoDocument, RkoDocument, ReconciliationDocument, AgreementDocument, LabelTemplateDocument, TemplateDocument, ValueLabel
 from utd.forms import UtdDocumentForm, UtdDocumentTableFormSet
 from vat_invoice.forms import VatInvoiceDocumentForm
 import requests
@@ -454,11 +454,122 @@ def edit_document(request, id_doc, doc_type):
                 }
                 response = excel(form.cleaned_data, organization_data, formset_data, True)
             elif doc_type == 'agreement':
-                context = form.cleaned_data
+                template_name = form.cleaned_data.get('sample')
+                template_sample = TemplateDocument.objects.filter(title=template_name).first()
+                labels = template_sample.labels.all()
+
+                list_value_dop_field = []
+
+                for label in labels:
+                    label_code = request.POST.get(f'{label.label_code}')
+                    if label_code:
+                        value_label, created = ValueLabel.objects.update_or_create(
+                            label=label,
+                            value=label_code,
+                            defaults={
+                                'value': label_code,
+                            }
+                        )
+                        if created:
+                            value_label.save()
+
+                        list_value_dop_field.append(value_label)
+
+                document.dop_field.clear()
+                document.dop_field.add(*list_value_dop_field)
+
+                context = {
+                    'title': template_sample.title,
+                    'content': template_sample.content
+                }
+
                 html_string = render_to_string('supply_contract.html', context)
 
-                organization = context['organization']
-                is_stamp = context['is_stamp']
+                dop_fields = document.dop_field.all()
+
+                for label in labels:
+                    value_label = dop_fields.filter(label=label).first()
+                    if value_label:
+                        html_string = html_string.replace(label.label_code, value_label.value)
+
+                for label in labels:
+                    if label.label_code == '{date_doc}':
+                        html_string = html_string.replace(label.label_code, str(form.cleaned_data['date']))
+                    elif label.label_code == '{number_doc}':
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['name'])
+                    elif label.label_code == '{name}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['organization'].naming)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{address}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['organization'].address)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{inn}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].inn)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{kpp}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].kpp)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{ogrn}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].ogrn)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{phone}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].phone)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{bank_schet}':
+                        if form.cleaned_data['bank_organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_organization'].namimg)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{bank_bik}':
+                        if form.cleaned_data['bank_organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_organization'].bic)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{bank_korr}':
+                        if form.cleaned_data['bank_organization']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data[
+                                'bank_organization'].correspondent_account)
+                        else:
+                            html_string = html_string.replace(label.label_code,
+                                                              '')
+                    elif label.label_code == '{org_caption_director}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['organization'].position_at_work)
+                        else:
+                            html_string = html_string.replace(label.label_code,
+                                                              '')
+                    elif label.label_code == '{org_director}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['organization'].supervosor)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{org_buh}':
+                        if form.cleaned_data['organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['organization'].accountant)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+
+                organization = form.cleaned_data['organization']
+                is_stamp = form.cleaned_data['is_stamp']
 
                 response = excel(html_string, organization, is_stamp, True)
             else:
@@ -480,11 +591,119 @@ def edit_document(request, id_doc, doc_type):
             }
             return excel(form.cleaned_data, organization_data, formset_data, True, True)
         elif doc_type == 'agreement':
-            context = form.cleaned_data
+            template_name = form.cleaned_data.get('sample')
+            template_sample = TemplateDocument.objects.filter(title=template_name).first()
+            labels = template_sample.labels.all()
+
+            list_value_dop_field = []
+
+            for label in labels:
+                label_code = request.POST.get(f'{label.label_code}')
+                if label_code:
+                    value_label, created = ValueLabel.objects.update_or_create(
+                        label=label,
+                        value=label_code,
+                        defaults={
+                            'value': label_code,
+                        }
+                    )
+                    if created:
+                        value_label.save()
+
+                    list_value_dop_field.append(value_label)
+
+            document.dop_field.clear()
+            document.dop_field.add(*list_value_dop_field)
+
+            context = {
+                'title': template_sample.title,
+                'content': template_sample.content
+            }
+
             html_string = render_to_string('supply_contract.html', context)
 
-            organization = context['organization']
-            is_stamp = context['is_stamp']
+            dop_fields = document.dop_field.all()
+
+            for label in labels:
+                value_label = dop_fields.filter(label=label).first()
+                if value_label:
+                    html_string = html_string.replace(label.label_code, value_label.value)
+
+            for label in labels:
+                if label.label_code == '{date_doc}':
+                    html_string = html_string.replace(label.label_code, str(form.cleaned_data['date']))
+                elif label.label_code == '{number_doc}':
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['name'])
+                elif label.label_code == '{name}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].naming)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{address}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].address)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{inn}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].inn)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{kpp}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].kpp)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{ogrn}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].ogrn)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{phone}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].phone)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{bank_schet}':
+                    if form.cleaned_data['bank_organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_organization'].namimg)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{bank_bik}':
+                    if form.cleaned_data['bank_organization']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['bank_organization'].bic)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{bank_korr}':
+                    if form.cleaned_data['bank_organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_organization'].correspondent_account)
+                    else:
+                        html_string = html_string.replace(label.label_code,
+                                                          '')
+                elif label.label_code == '{org_caption_director}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['organization'].position_at_work)
+                    else:
+                        html_string = html_string.replace(label.label_code,
+                                                          '')
+                elif label.label_code == '{org_director}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['organization'].supervosor)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{org_buh}':
+                    if form.cleaned_data['organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['organization'].accountant)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+
+            organization = form.cleaned_data['organization']
+            is_stamp = form.cleaned_data['is_stamp']
 
             return excel(html_string, organization, is_stamp)
         else:
@@ -648,7 +867,7 @@ def inn_autocomplete(request):
 
     if response.status_code == 200:
         results = response.json().get("suggestions", [])
-        suggestions = [{"value": item["value"], "inn": item["data"]["inn"]} for item in results]
+        suggestions = [{"value": item["value"], "inn": item["data"]["inn"]} for item in results if item["data"]["state"]["status"] == 'ACTIVE']
         return JsonResponse({"suggestions": suggestions})
 
     return JsonResponse({"suggestions": []})
@@ -797,7 +1016,92 @@ def print_document(request, doc_type, document_id):
         return models_doc_type[doc_type]['excel'](form_data, organization_data, formset_data, True, True)
 
     elif doc_type == 'agreement':
-        html_string = render_to_string('supply_contract.html', form_data)
+        template_name = form_data['sample']
+        template_sample = TemplateDocument.objects.filter(title=template_name).first()
+
+        labels = template_sample.labels.all()
+
+        context = {
+            'title': template_sample.title,
+            'content': template_sample.content
+        }
+
+        html_string = render_to_string('supply_contract.html', context)
+
+        dop_fields = document.dop_field.all()
+
+        for label in labels:
+            value_label = dop_fields.filter(label=label).first()
+            if value_label:
+                html_string = html_string.replace(label.label_code, value_label.value)
+
+        for label in labels:
+            if label.label_code == '{date_doc}':
+                html_string = html_string.replace(label.label_code, str(form_data['date']))
+            elif label.label_code == '{number_doc}':
+                html_string = html_string.replace(label.label_code, form_data['name'])
+            elif label.label_code == '{name}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{address}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].address)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{inn}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].inn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{kpp}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].kpp)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{ogrn}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].ogrn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{phone}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].phone)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_schet}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].namimg)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_bik}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].bic)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_korr}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].correspondent_account)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_caption_director}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].position_at_work)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_director}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].supervosor)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{org_buh}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].accountant)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
 
         organization = form_data['organization']
         is_stamp = form_data['is_stamp']
@@ -805,3 +1109,56 @@ def print_document(request, doc_type, document_id):
         return models_doc_type[doc_type]['excel'](html_string, organization, is_stamp)
 
     return models_doc_type[doc_type]['excel'](form_data, formset_data, True, True)
+
+
+def add_template_document(request):
+    labels = LabelTemplateDocument.objects.all()
+
+    if request.method == 'POST':
+        form = TemplateDocumentForm(request.POST)
+        if form.is_valid():
+            template_document = form.save(commit=False)
+
+            template_document.save()
+
+            for label in labels:
+                if label.label_code in form.cleaned_data['content']:
+                    template_document.labels.add(label)
+
+            template_document.save()
+
+            return redirect('agreement_document')
+    else:
+        form = TemplateDocumentForm()
+
+    return render(request, 'add_template_document.html', {'form': form, 'labels': labels})
+
+
+def get_labels(request):
+    not_labels = ['{date_doc}', '{number_doc}', '{name}', '{address}', '{inn}', '{kpp}', '{ogrn}', '{phone}', '{bank_schet}', '{bank_bik}', '{bank_korr}', '{org_caption_director}', '{org_director}', '{org_buh}']
+
+    sample_id = request.GET.get('sample_id')
+    if sample_id:
+        document = TemplateDocument.objects.filter(title=sample_id).first()
+
+        labels_data = [{'id': label.id, 'name': label.label_desc, 'code': label.label_code} for label in document.labels.all() if label.label_code not in not_labels]
+
+        return JsonResponse({'labels': labels_data})
+    else:
+        return JsonResponse({'labels': []})
+
+
+def get_value_labels(request):
+    document_name = request.GET.get('sample_id')
+    if not document_name:
+        return JsonResponse({}, status=400)
+
+    try:
+        document = AgreementDocument.objects.get(name=document_name)
+        labels = document.dop_field.all()
+        saved_values = {
+            label.label.label_code: label.value for label in labels
+        }
+        return JsonResponse({"values": saved_values})
+    except AgreementDocument.DoesNotExist:
+        return JsonResponse({}, status=404)

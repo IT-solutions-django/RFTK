@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView
-from invoice.models import AgreementDocument
+from invoice.models import AgreementDocument, TemplateDocument, ValueLabel
 from .forms import AgreementDocumentForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
@@ -33,6 +33,19 @@ class AgreementDocumentCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        template_name = form.cleaned_data.get('sample')
+        template_sample = TemplateDocument.objects.filter(title=template_name).first()
+        labels = template_sample.labels.all()
+
+        list_value_dop_field = []
+
+        for label in labels:
+            label_code = self.request.POST.get(f'{label.label_code}')
+            if label_code:
+                value_label = ValueLabel(label=label, value=label_code)
+                value_label.save()
+                list_value_dop_field.append(value_label)
+
         document_name = form.cleaned_data.get('name')
         document_date = form.cleaned_data.get('date')
         existing_document = AgreementDocument.objects.filter(name=document_name, date=document_date)
@@ -41,17 +54,99 @@ class AgreementDocumentCreateView(LoginRequiredMixin, CreateView):
             self.object.pk = existing_document.first().pk
             self.object.user = self.request.user
             self.object.save()
+            self.object.dop_field.add(*list_value_dop_field)
         else:
             self.object = form.save(commit=False)
             self.object.user = self.request.user
             self.object.save()
+            self.object.dop_field.add(*list_value_dop_field)
 
-        context = form.cleaned_data
+        context = {
+            'title': template_sample.title,
+            'content': template_sample.content
+        }
 
+        # context = form.cleaned_data
+        #
         html_string = render_to_string('supply_contract.html', context)
 
-        organization = context['organization']
-        is_stamp = context['is_stamp']
+        dop_fields = self.object.dop_field.all()
+
+        for label in labels:
+            value_label = dop_fields.filter(label=label).first()
+            if value_label:
+                html_string = html_string.replace(label.label_code, value_label.value)
+
+        for label in labels:
+            if label.label_code == '{date_doc}':
+                html_string = html_string.replace(label.label_code, str(form.cleaned_data['date']))
+            elif label.label_code == '{number_doc}':
+                html_string = html_string.replace(label.label_code, form.cleaned_data['name'])
+            elif label.label_code == '{name}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{address}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].address)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{inn}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].inn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{kpp}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].kpp)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{ogrn}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].ogrn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{phone}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].phone)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_schet}':
+                if form.cleaned_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['bank_organization'].namimg)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_bik}':
+                if form.cleaned_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['bank_organization'].bic)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_korr}':
+                if form.cleaned_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['bank_organization'].correspondent_account)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_caption_director}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].position_at_work)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_director}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].supervosor)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{org_buh}':
+                if form.cleaned_data['organization']:
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].accountant)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+
+        organization = form.cleaned_data['organization']
+        is_stamp = form.cleaned_data['is_stamp']
 
         if self.request.POST.get("download_pdf") == "true":
             response = create_agreement_excel(html_string, organization, is_stamp, True)
