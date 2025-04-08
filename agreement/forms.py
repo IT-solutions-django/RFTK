@@ -3,12 +3,12 @@ from invoice.models import AgreementDocument, InformationOrganization, BankDetai
 
 
 class AgreementDocumentForm(forms.ModelForm):
-    SAMPLE_CHOICES = [('', 'Выберите шаблон')] + [
-        (obj.title, obj.title) for obj in TemplateDocument.objects.all()
-    ]
+    # SAMPLE_CHOICES = [('', 'Выберите шаблон')] + [
+    #     (obj.title, obj.title) for obj in TemplateDocument.objects.all()
+    # ]
 
     sample = forms.ChoiceField(
-        choices=SAMPLE_CHOICES,
+        choices=[],
         widget=forms.Select(attrs={'class': 'form-select select2'}),
         label='Шаблон',
         required=True
@@ -61,6 +61,10 @@ class AgreementDocumentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
+
+        self.fields['sample'].choices = [('', 'Выберите шаблон')] + [
+            (obj.title, obj.title) for obj in TemplateDocument.objects.all()
+        ]
 
         if request:
             self.fields['organization'].queryset = InformationOrganization.objects.filter(user=request.user)
