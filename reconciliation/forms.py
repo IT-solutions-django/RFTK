@@ -50,7 +50,7 @@ class ReconciliationDocumentTableForm(forms.ModelForm):
         widgets = {
             'name_operation_org': forms.Textarea(attrs={'class': 'form-control', 'required': 'required', 'style': 'height: 90px;'}),
             'debit_org': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'loan_org': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'loan_org': forms.TextInput(attrs={'class': 'form-control'}),
             'name_operation_counterparty': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 90px;'}),
             'debit_counterparty': forms.TextInput(attrs={'class': 'form-control'}),
             'loan_counterparty': forms.TextInput(attrs={'class': 'form-control'}),

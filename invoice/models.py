@@ -668,7 +668,7 @@ class RkoDocument(models.Model):
 class ReconciliationDocumentTable(models.Model):
     name_operation_org = models.TextField(verbose_name='Наименование операции, документы по данным организации')
     debit_org = models.CharField(max_length=50, verbose_name='Дебет (организация)')
-    loan_org = models.CharField(max_length=50, verbose_name='Кредит (организация)')
+    loan_org = models.CharField(max_length=50, verbose_name='Кредит (организация)', null=True, blank=True)
 
     name_operation_counterparty = models.TextField(verbose_name='Наименование операции, документы по данным контрагента', null=True, blank=True)
     debit_counterparty = models.CharField(max_length=50, verbose_name='Дебет (контрагент)', null=True, blank=True)

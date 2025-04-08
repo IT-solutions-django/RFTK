@@ -20,7 +20,7 @@ def create_agreement_excel(html, organization, is_stamp, download_pdf=False):
     #     html = html.replace('{print_stamp}', 'М.П.')
     #     html = html.replace('{print_sign_director}', '')
 
-    convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
+    convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
 
     with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as temp_html:
         temp_html.write(html)

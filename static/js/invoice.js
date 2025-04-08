@@ -301,14 +301,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (event.target.classList.contains('add-row')) {
-            addNewRow();
+            addNewRow(event.target);
         }
     });
 
-    function addNewRow() {
+    function addNewRow(button) {
         var formsetBody = document.getElementById('formset-body');
         var firstRow = formsetBody.querySelector('tr');
         var newRow = firstRow.cloneNode(true);
+
+        var currentRow = button.closest('tr');
 
         var inputs = newRow.querySelectorAll('input');
         inputs.forEach(function (input) {
@@ -320,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             textarea.value = '';
         });
 
-        formsetBody.appendChild(newRow);
+        currentRow.insertAdjacentElement('afterend', newRow);
         updateManagementForm();
     }
 

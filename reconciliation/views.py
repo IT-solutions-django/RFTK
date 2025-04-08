@@ -99,7 +99,7 @@ def reconciliation_document(request):
     if date_to:
         documents = documents.filter(date__lte=parse_date(date_to))
 
-    paginator = Paginator(documents, 10)
+    paginator = Paginator(documents, 50)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 

@@ -176,6 +176,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     total_sum_counterparty = 0
 
     for idx, table_data in enumerate(formset_data, 1):
+        sheet.row_dimensions[start_table_row + idx].height = 25
 
         if table_data['debit_org']:
             sum_debit_org += int(table_data['debit_org'])
@@ -226,7 +227,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     formatted_date = date_obj.strftime("%d %m %Y").split(' ')
     sheet[f'E{start_table_row + len(formset_data) + 2}'] = f'Сальдо на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]}'
 
-    if sum_loan_org >= sum_debit_org:
+    if sum_loan_org > sum_debit_org:
         if data['balance_debit']:
             sheet[f'AS{start_table_row + len(formset_data) + 2}'] = f'{sum_loan_org - sum_debit_org + int(data.get("balance_debit", 0))}'
         else:
@@ -238,7 +239,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
             total_sum_org = sum_loan_org - sum_debit_org + int(data.get("balance_debit", 0))
         else:
             total_sum_org = sum_loan_org - sum_debit_org
-    else:
+    elif sum_loan_org <= sum_debit_org:
         if data['balance_debit']:
             sheet[
                 f'AH{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_debit_org - sum_loan_org - int(data.get("balance_debit", 0)))}'
@@ -271,7 +272,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
             total_sum_counterparty = sum_debit_counterparty - sum_loan_counterparty + int(data.get("balance_debit", 0))
         else:
             total_sum_counterparty = sum_debit_counterparty - sum_loan_counterparty
-    else:
+    elif sum_debit_counterparty < sum_loan_counterparty:
         if data['balance_debit']:
             sheet[
                 f'CU{start_table_row + len(formset_data) + 2}'] = f'{abs(sum_loan_counterparty - sum_debit_counterparty - int(data.get("balance_debit", 0)))}'
@@ -290,15 +291,15 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
 
     sheet[f'BE{start_table_row + len(formset_data) + 4}'] = f'По данным {data["counterparty"].naming}'
 
-    if sum_loan_org >= sum_debit_org:
+    if sum_loan_org > sum_debit_org:
         sheet[f'A{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["counterparty"].naming} {total_sum_org} руб.'
-    else:
+    elif sum_loan_org <= sum_debit_org:
         sheet[
             f'A{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["organization"].naming} {total_sum_org} руб.'
 
     if sum_debit_counterparty >= sum_loan_counterparty:
         sheet[f'BE{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["counterparty"].naming} {total_sum_counterparty} руб.'
-    else:
+    elif sum_debit_counterparty < sum_loan_counterparty:
         sheet[
             f'BE{start_table_row + len(formset_data) + 5}'] = f'на {formatted_date[0]}.{formatted_date[1]}.{formatted_date[2]} задолженность в пользу {data["organization"].naming} {total_sum_counterparty} руб.'
 
@@ -359,7 +360,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     #         sheet.row_dimensions[row[0].row].height = 20
 
     if pdf:
-        convertapi.api_credentials = 'secret_K6wBgPb3icOrsjW5'
+        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
 
         temp_excel_path = "reconciliation/utils/invoice.xlsx"
         temp_modified_pdf_path = "reconciliation/utils/invoice_modified.pdf"
