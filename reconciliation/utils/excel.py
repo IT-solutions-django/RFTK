@@ -176,7 +176,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     total_sum_counterparty = 0
 
     for idx, table_data in enumerate(formset_data, 1):
-        sheet.row_dimensions[start_table_row + idx].height = 25
+        sheet.row_dimensions[start_table_row + idx].height = 35
 
         if table_data['debit_org']:
             sum_debit_org += int(table_data['debit_org'])
