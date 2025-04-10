@@ -268,7 +268,7 @@
         submitButton.disabled = true;
         submitButton.textContent = 'Сохранение...';
 
-        fetch('/add_labels/', {
+        fetch('http://103.74.95.216/add_labels/', {
             method: 'POST',
             body: formData,
             headers: {
