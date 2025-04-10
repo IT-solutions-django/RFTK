@@ -219,6 +219,19 @@
         <br>
         <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
+
+                <form method="post" id="form-new-label">
+                  {% csrf_token %}
+                  <div class="card mb-4 p-3 mt-5">
+                    <h3 class="mb-5">Создать новую метку</h3>
+                    {{ form_2.label_code.label }}<br>
+                    {{ form_2.label_code }}<br><br>
+
+                    {{ form_2.label_desc.label }}<br>
+                    {{ form_2.label_desc }}<br>
+                    <button type="submit" class="btn btn-primary w-25" id="button-new-label">Сохранить</button>
+                  </div>
+                </form>
                 </div>
           </div>
       </div>
@@ -239,6 +252,76 @@
                 });
             });
         });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#form-new-label');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitButton = document.getElementById('button-new-label');
+        const originalButtonText = submitButton.textContent;
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Сохранение...';
+
+        fetch('/add_labels/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Метка успешно создана!');
+                form.reset();
+
+                const newLabelHtml = `
+                    <div class="form-group col-md-6">
+                        <span>${data.label.label_desc}</span>
+                        <span class="word-button mb-4">${data.label.label_code}</span>
+                    </div>
+                `;
+
+                const wordButtons = document.getElementById('wordButtons');
+                const row = wordButtons.querySelector('.row');
+
+                row.insertAdjacentHTML('beforeend', newLabelHtml);
+
+            } else {
+                // Ошибки валидации
+                if (data.errors) {
+                    let errorMessage = 'Ошибки при заполнении формы:\n';
+                    for (const field in data.errors) {
+                        errorMessage += `- ${data.errors[field].join(', ')}\n`;
+                    }
+                    alert(errorMessage);
+                } else {
+                    alert('Произошла ошибка при создании метки');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при отправке формы');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        });
+    });
+});
     </script>
 </body>
 </html>

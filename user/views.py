@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, TemplateDocumentForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, TemplateDocumentForm, LabelTemplateForm
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm, \
     InvoiceDocumentForm, InvoiceDocumentTableFormSet
 from invoice.models import InformationOrganization, Buyer, InvoiceDocument, BankDetailsOrganization, BankDetailsBuyer, \
@@ -1130,8 +1130,25 @@ def add_template_document(request):
             return redirect('agreement_document')
     else:
         form = TemplateDocumentForm()
+        form_2 = LabelTemplateForm()
 
-    return render(request, 'add_template_document.html', {'form': form, 'labels': labels})
+    return render(request, 'add_template_document.html', {'form': form, 'labels': labels, 'form_2': form_2})
+
+
+def add_labels(request):
+    if request.method == 'POST':
+        form = LabelTemplateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({
+                'success': True,
+                'label': {
+                    'label_desc': form.cleaned_data['label_desc'],
+                    'label_code': form.cleaned_data['label_code']
+                }
+            })
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
 
 
 def get_labels(request):

@@ -13,6 +13,7 @@ from io import BytesIO
 import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import math
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
@@ -175,8 +176,15 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     total_sum_org = 0
     total_sum_counterparty = 0
 
+    max_symbol_line = 15
+
+    height_line = 10
+
     for idx, table_data in enumerate(formset_data, 1):
-        sheet.row_dimensions[start_table_row + idx].height = 35
+        len_name_org = math.ceil(len(table_data['name_operation_org']) / max_symbol_line)
+        len_name_cou = math.ceil(len(table_data['name_operation_counterparty']) / max_symbol_line)
+
+        sheet.row_dimensions[start_table_row + idx].height = max(len_name_org, len_name_cou) * height_line
 
         if table_data['debit_org']:
             sum_debit_org += int(table_data['debit_org'])

@@ -34,7 +34,7 @@ from pko.views import PkoDocumentCreateView, pko_document
 from rko.views import RkoDocumentCreateView, rko_document
 from reconciliation.views import ReconciliationCreateView, reconciliation_document
 from agreement.views import AgreementDocumentCreateView, agreement_document
-from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels
+from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels, add_labels
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -94,7 +94,8 @@ urlpatterns = [
     path('document/<str:doc_type>/<int:document_id>/print/', views.print_document, name='print_document'),
     path('add_template_document/', add_template_document, name='add-template-document'),
     path('get_labels/', get_labels, name='get-labels'),
-    path('get_saved_values/', get_value_labels, name='get-value-labels')
+    path('get_saved_values/', get_value_labels, name='get-value-labels'),
+    path('add_labels/', add_labels, name='add_labels')
 ]
 
 if settings.DEBUG:
