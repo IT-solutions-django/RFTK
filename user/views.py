@@ -780,9 +780,9 @@ def find_company_by_inn(request):
                 company_info = result["suggestions"][0]["data"]
                 if company_info["opf"]["short"] not in 'ИП':
                     name_company = result["suggestions"][0]["value"]
-                    address = company_info["address"].get("value", "")
-                    position_at_work = company_info["management"].get("post", "")
-                    supervisor = company_info["management"].get("name", "")
+                    address = company_info.get("address", {}).get("value", "")
+                    position_at_work = company_info.get("management", {}).get("post", "")
+                    supervisor = company_info.get("management", {}).get("name", "")
                     return JsonResponse({
                                     "success": True,
                                     "type": "Юридическое лицо",

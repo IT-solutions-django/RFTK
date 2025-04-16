@@ -13,6 +13,7 @@ from io import BytesIO
 import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import uuid
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
@@ -317,9 +318,10 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         temp_excel_path = "utd/utils/invoice.xlsx"
         temp_modified_pdf_path = "utd/utils/invoice_modified.pdf"
-        temp_excel_count = "utd/utils/count_page_excel.xlsx"
+        temp_excel_count = f"utd/utils/count_page_excel_{uuid.uuid4().hex}.xlsx"
 
         workbook.save(temp_excel_count)
+        workbook.close()
 
         temp_pdf_path_count = convertapi.convert('pdf', {
             'File': temp_excel_count,
@@ -336,6 +338,7 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
             sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
 
         workbook.save(temp_excel_path)
+        workbook.close()
 
         temp_pdf_path = convertapi.convert('pdf', {
             'File': temp_excel_path,
