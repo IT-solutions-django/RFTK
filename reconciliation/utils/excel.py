@@ -368,7 +368,7 @@ def create_reconciliation_excel(data, formset_data, pdf=False, watch_document=Fa
     #         sheet.row_dimensions[row[0].row].height = 20
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "reconciliation/utils/invoice.xlsx"
         temp_modified_pdf_path = "reconciliation/utils/invoice_modified.pdf"

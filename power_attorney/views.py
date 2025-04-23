@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView
 from invoice.models import PowerAttorneyDocument, PowerAttorneyDocumentTable
-from .forms import PowerAttorneyDocumentForm, PowerAttorneyDocumentTableFormSet
+from .forms import PowerAttorneyDocumentForm, PowerAttorneyDocumentTableFormSet, BankOrganizationForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
 from power_attorney.utils.excel import create_power_attorney_excel
@@ -28,6 +28,7 @@ class PowerAttorneyDocumentCreateView(LoginRequiredMixin, CreateView):
         context['bank_form'] = BankDetailsOrganizationForm(prefix='bank')
         context['counterparty_form'] = CounterpartyForm(prefix='counterparty')
         context['counterparty_bank_form'] = BankCounterpartyForm(prefix='counterparty_bank')
+        context['bank_org'] = BankOrganizationForm(prefix='bank_org')
         context['formset'] = PowerAttorneyDocumentTableFormSet(queryset=PowerAttorneyDocumentTable.objects.none())
 
         return context

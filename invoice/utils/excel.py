@@ -135,6 +135,8 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         nds = 0
 
     for idx, table_data in enumerate(formset_data, 1):
+        sheet.row_dimensions[start_table_row + idx].height = 25
+
         total_sum += table_data["amount"]
 
         sheet[f'A{start_table_row + idx}'] = f'{idx}'
@@ -145,7 +147,7 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         if table_data["discount"]:
             sheet[f'CG{start_table_row + idx}'] = f'{table_data["discount"]}'
         else:
-            sheet[f'CG{start_table_row + idx}'] = ''
+            sheet[f'CG{start_table_row + idx}'] = 'Без скидки'
 
         sheet[f'CN{start_table_row + idx}'] = f'{table_data["amount"]}'
 
@@ -185,7 +187,7 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         sheet.add_image(img1, f"BY{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "invoice/utils/invoice.xlsx"
         temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"

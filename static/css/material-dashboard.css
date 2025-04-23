@@ -29214,6 +29214,14 @@ pre[class*=language-] {
     height: 38px !important;
 }
 
+#id_bank_org-bic {
+    height: 36px !important;
+}
+
+#id_bank_coun-bic {
+    height: 36px !important;
+}
+
 #findByBIK {
     height: 38px !important;
 }

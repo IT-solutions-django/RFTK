@@ -14,6 +14,9 @@ import locale
 from PyPDF2 import PdfReader, PdfWriter
 import os
 import uuid
+import math
+import re
+from openpyxl.worksheet.pagebreak import Break
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
@@ -92,6 +95,10 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     #     if row[0].row in [7, 9, 10, 11, 12]:
     #         sheet.row_dimensions[row[0].row].height = 22
 
+    if len(formset_data) > 1:
+        for row_idx in range(42, sheet.max_row, 42):
+            sheet.row_breaks.append(Break(id=row_idx))
+
     start_col = 208
     num_cols = 790
 
@@ -143,13 +150,37 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     total_sum_nds = 0
     total_sum_with_nds = 0
 
+    max_symbol_line = 25
+    max_symbol_line_address = 35
+
+    height_line = 10
+
     if int(data['nds']) > 0:
         nds = int(data['nds'])
     else:
         nds = 0
 
+    if data['organization']:
+        len_address = math.ceil(len(data['organization'].address) / max_symbol_line_address)
+        if len_address != 0:
+            sheet.row_dimensions[7].height = len_address * height_line
+
+    if data["shipper"]:
+        len_shipper = math.ceil((len(data["shipper"].naming) + len(data["shipper"].address)) / max_symbol_line)
+        if len_shipper != 0:
+            sheet.row_dimensions[9].height = len_shipper * height_line
+
+    if data["consignee"]:
+        len_consignee = math.ceil((len(data["consignee"].naming) + len(data["consignee"].address)) / max_symbol_line)
+        if len_consignee != 0:
+            sheet.row_dimensions[10].height = len_consignee * height_line
+
     for idx, table_data in enumerate(formset_data, 1):
-        sheet.row_dimensions[start_table_row + idx].height = 20
+        # sheet.row_dimensions[start_table_row + idx].height = 20
+        len_name = math.ceil(len(table_data['name']) / max_symbol_line)
+
+        if len_name != 0:
+            sheet.row_dimensions[start_table_row + idx].height = len_name * height_line
 
         total_sum += table_data["amount"]
 
@@ -280,9 +311,9 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         img1.height = 43 * 2.83
 
         if len(formset_data) == 1:
-            sheet.add_image(img1, f"AJ{start_table_row + len(formset_data) + 18}")
+            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 20}")
         else:
-            sheet.add_image(img1, f"AJ{start_table_row + len(formset_data) + 25}")
+            sheet.add_image(img1, f"A{start_table_row + len(formset_data) + 20}")
 
     if data['organization'].signature and data['is_stamp']:
         image_file = data['organization'].signature
@@ -314,7 +345,7 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
             sheet.row_dimensions[row[0].row].height = 20
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "utd/utils/invoice.xlsx"
         temp_modified_pdf_path = "utd/utils/invoice_modified.pdf"
@@ -325,6 +356,7 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         temp_pdf_path_count = convertapi.convert('pdf', {
             'File': temp_excel_count,
+            'Scale': '93'
         }, from_format='xls').save_files('utd/utils')[0]
 
         reader_count = PdfReader(temp_pdf_path_count)
@@ -332,16 +364,17 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
         workbook = openpyxl.load_workbook(temp_excel_count)
         sheet = workbook["УПД"]
-        if len(formset_data) == 1:
-            sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'1'
-        else:
-            sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
+        # if len(formset_data) == 1:
+        #     sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'1'
+        # else:
+        sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
 
         workbook.save(temp_excel_path)
         workbook.close()
 
         temp_pdf_path = convertapi.convert('pdf', {
             'File': temp_excel_path,
+            'Scale': '93'
         }, from_format='xls').save_files('utd/utils')[0]
 
         reader = PdfReader(temp_pdf_path)

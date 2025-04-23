@@ -118,7 +118,7 @@ def create_rko_excel(data, formset_data, pdf=False, watch_document=False):
         sheet.add_image(img2, "P42")
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "rko/utils/invoice.xlsx"
         temp_modified_pdf_path = "rko/utils/invoice_modified.pdf"

@@ -227,7 +227,7 @@ def create_ks3_excel(data, formset_data, pdf=False, watch_document=False):
         sheet.add_image(img1, f"BB{start_table_row + len(formset_data) + 9}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "ks_3/utils/invoice.xlsx"
         temp_modified_pdf_path = "ks_3/utils/invoice_modified.pdf"

@@ -567,6 +567,74 @@ def edit_document(request, id_doc, doc_type):
                                                               form.cleaned_data['organization'].accountant)
                         else:
                             html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{bank_address}':
+                        if form.cleaned_data['bank_organization']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_organization'].location)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_name}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['counterparty'].naming)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_inn}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].inn)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_kpp}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].kpp)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_ogrn}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].ogrn)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_address}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['counterparty'].address)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_phone}':
+                        if form.cleaned_data['counterparty']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].phone)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_bank_name}':
+                        if form.cleaned_data['bank_counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_counterparty'].naming)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_bank_bic}':
+                        if form.cleaned_data['bank_counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_counterparty'].bic)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_bank_address}':
+                        if form.cleaned_data['bank_counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_counterparty'].location)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_bank_schet}':
+                        if form.cleaned_data['bank_counterparty']:
+                            html_string = html_string.replace(label.label_code,
+                                                              form.cleaned_data['bank_counterparty'].current_account)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
+                    elif label.label_code == '{partner_bank_korr}':
+                        if form.cleaned_data['bank_counterparty']:
+                            html_string = html_string.replace(label.label_code, form.cleaned_data[
+                                'bank_counterparty'].correspondent_account)
+                        else:
+                            html_string = html_string.replace(label.label_code, '')
 
                 organization = form.cleaned_data['organization']
                 is_stamp = form.cleaned_data['is_stamp']
@@ -699,6 +767,71 @@ def edit_document(request, id_doc, doc_type):
                     if form.cleaned_data['organization']:
                         html_string = html_string.replace(label.label_code,
                                                           form.cleaned_data['organization'].accountant)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{bank_address}':
+                    if form.cleaned_data['bank_organization']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_organization'].location)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_name}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].naming)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_inn}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].inn)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_kpp}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].kpp)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_ogrn}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].ogrn)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_address}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].address)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_phone}':
+                    if form.cleaned_data['counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['counterparty'].phone)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_bank_name}':
+                    if form.cleaned_data['bank_counterparty']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_counterparty'].naming)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_bank_bic}':
+                    if form.cleaned_data['bank_counterparty']:
+                        html_string = html_string.replace(label.label_code, form.cleaned_data['bank_counterparty'].bic)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_bank_address}':
+                    if form.cleaned_data['bank_counterparty']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_counterparty'].location)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_bank_schet}':
+                    if form.cleaned_data['bank_counterparty']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_counterparty'].current_account)
+                    else:
+                        html_string = html_string.replace(label.label_code, '')
+                elif label.label_code == '{partner_bank_korr}':
+                    if form.cleaned_data['bank_counterparty']:
+                        html_string = html_string.replace(label.label_code,
+                                                          form.cleaned_data['bank_counterparty'].correspondent_account)
                     else:
                         html_string = html_string.replace(label.label_code, '')
 
@@ -1102,6 +1235,66 @@ def print_document(request, doc_type, document_id):
                     html_string = html_string.replace(label.label_code, form_data['organization'].accountant)
                 else:
                     html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_address}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].location)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_name}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_inn}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].inn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_kpp}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].kpp)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_ogrn}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].ogrn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_address}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].address)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_phone}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].phone)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_name}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_bic}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].bic)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_address}':
+                if form.cleaned_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].location)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_schet}':
+                if form.cleaned_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].current_account)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_korr}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].correspondent_account)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
 
         organization = form_data['organization']
         is_stamp = form_data['is_stamp']
@@ -1152,7 +1345,7 @@ def add_labels(request):
 
 
 def get_labels(request):
-    not_labels = ['{date_doc}', '{number_doc}', '{name}', '{address}', '{inn}', '{kpp}', '{ogrn}', '{phone}', '{bank_schet}', '{bank_bik}', '{bank_korr}', '{org_caption_director}', '{org_director}', '{org_buh}']
+    not_labels = ['{date_doc}', '{number_doc}', '{name}', '{address}', '{inn}', '{kpp}', '{ogrn}', '{phone}', '{bank_schet}', '{bank_bik}', '{bank_korr}', '{org_caption_director}', '{org_director}', '{org_buh}', '{bank_address}', '{partner_name}', '{partner_inn}', '{partner_kpp}', '{partner_ogrn}', '{partner_address}', '{partner_phone}', '{partner_bank_name}', '{partner_bank_bic}', '{partner_bank_address}', '{partner_bank_schet}', '{partner_bank_korr}']
 
     sample_id = request.GET.get('sample_id')
     if sample_id:
@@ -1179,3 +1372,20 @@ def get_value_labels(request):
         return JsonResponse({"values": saved_values})
     except AgreementDocument.DoesNotExist:
         return JsonResponse({}, status=404)
+
+
+def search_counterparty(request):
+    query = request.GET.get('q', '')
+    if query:
+        results = Buyer.objects.filter(
+            naming__icontains=query
+        ) | Buyer.objects.filter(
+            inn__icontains=query
+        )
+        data = [{
+            'id': c.id,
+            'naming': c.naming,
+            'inn': c.inn
+        } for c in results]
+        return JsonResponse(data, safe=False)
+    return JsonResponse([], safe=False)

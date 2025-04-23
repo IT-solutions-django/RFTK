@@ -243,7 +243,10 @@
             <div class="card-header">
                 Контрагенты
             </div>
-            <ul class="list-group list-group-flush">
+          <div class="card-body">
+            <input type="text" id="counterpartySearch" class="form-control search-document-input" placeholder="Поиск контрагента..." autocomplete="off">
+        </div>
+            <ul id="counterpartyList" class="list-group list-group-flush">
                 {% for counterparty in counterparties %}
                 <li class="list-group-item">
                     <a style="text-decoration: none; color: black;" href="{% url 'edit_counterparty' counterparty.id %}">{{ counterparty.naming }}. ИНН: {{ counterparty.inn }}</a>
@@ -267,6 +270,47 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{% static 'js/material-dashboard.min.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('counterpartySearch');
+    const counterpartyList = document.getElementById('counterpartyList');
+
+    const originalListHTML = counterpartyList.innerHTML;
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+
+        if (searchTerm.length >= 2) {
+            fetch(`/api/search-counterparty/?q=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    counterpartyList.innerHTML = '';
+
+                    if (data.length > 0) {
+                        data.forEach(counterparty => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.innerHTML = `<a style="text-decoration: none; color: black;" href="/edit_counterparty/${counterparty.id}">${counterparty.naming}. ИНН: ${counterparty.inn}</a>`;
+                            counterpartyList.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = 'Контрагенты не найдены';
+                        counterpartyList.appendChild(li);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при поиске:', error);
+                });
+        } else if (searchTerm.length === 0) {
+            counterpartyList.innerHTML = originalListHTML;
+        }
+    });
+});
+</script>
+
 </body>
 
 </html>

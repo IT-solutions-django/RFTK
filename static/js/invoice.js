@@ -387,6 +387,10 @@ $(document).ready(function() {
     $('#id_organization').on('change.select2', function() {
         let organizationId = $(this).val();
         let $bankSelect = $('#id_bank_organization');
+        let $consigneeSelect = $('#id_shipper');
+        if ($consigneeSelect.length > 0) {
+            $consigneeSelect.val(organizationId).trigger('change.select2');
+        }
 
         if ($bankSelect.length === 0) {
             return;
@@ -415,6 +419,10 @@ $(document).ready(function() {
     $('#id_counterparty').on('change.select2', function() {
         let organizationId = $(this).val();
         let $bankSelect = $('#id_bank_counterparty');
+        let $consigneeSelect = $('#id_consignee');
+        if ($consigneeSelect.length > 0) {
+            $consigneeSelect.val(organizationId).trigger('change.select2');
+        }
 
         if ($bankSelect.length === 0) {
             return;
@@ -857,3 +865,216 @@ function fetchSavedValues(sampleId) {
         }
     });
 }
+
+$(document).ready(function () {
+    $("#id_bank_org-bic").on("input", function () {
+        let query = $(this).val();
+        if (query.length < 3) {
+            $("#bicSuggestionsBank").empty().hide();
+            return;
+        }
+
+        $.ajax({
+            url: "/bank_autocomplete",
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                let suggestions = data.suggestions;
+                let dropdown = $("#bicSuggestionsBank");
+                dropdown.empty();
+
+                if (suggestions.length) {
+                    suggestions.forEach(function (item) {
+                        dropdown.append(
+                            `<div class="dropdown-item dropdown-item-bic-bank" data-inn="${item.inn}">${item.value}</div>`
+                        );
+                    });
+
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            },
+        });
+    });
+
+    $(document).on("click", ".dropdown-item-bic-bank", function () {
+        let inn = $(this).data("inn");
+        $("#id_bank_org-bic").val(inn);
+        $("#bicSuggestionsBank").hide();
+
+        fetch(`/find-bank/?bik=${inn}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_bank_org-naming").value = data.bank_name;
+                document.getElementById("id_bank_org-location").value = data.address;
+                document.getElementById("id_bank_org-correspondent_account").value = data.correspondent_account;
+            } else {
+                alert("Банк не найден");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#bicSuggestionsBank, #id_bank_org-bic").length) {
+            $("#bicSuggestionsBank").hide();
+        }
+    });
+});
+
+
+document.getElementById('bankForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    const organizationSelect = document.getElementById('id_organization');
+    const selectedOrganization = organizationSelect.value;
+
+    if (!selectedOrganization) {
+        alert('Пожалуйста, выберите организацию из списка');
+        return;
+    }
+
+    formData.append('org', selectedOrganization);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.errors) {
+            alert('Ошибка: ' + JSON.stringify(data.errors));
+        } else {
+            let $bankSelect = $('#id_bank_organization');
+            $bankSelect.empty();
+
+            $.each(data.banks, function(index, bank) {
+                $bankSelect.append($('<option>', {
+                    value: bank.id,
+                    text: bank.naming
+                }));
+            });
+
+            $bankSelect.trigger('change.select2');
+
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addBankModal'));
+            modal.hide();
+            this.reset();
+        }
+    })
+    .catch(error => console.error('Ошибка:', error));
+});
+
+
+$(document).ready(function () {
+    $("#id_bank_coun-bic").on("input", function () {
+        let query = $(this).val();
+        if (query.length < 3) {
+            $("#bicSuggestionsBankCoun").empty().hide();
+            return;
+        }
+
+        $.ajax({
+            url: "/bank_autocomplete",
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                let suggestions = data.suggestions;
+                let dropdown = $("#bicSuggestionsBankCoun");
+                dropdown.empty();
+
+                if (suggestions.length) {
+                    suggestions.forEach(function (item) {
+                        dropdown.append(
+                            `<div class="dropdown-item dropdown-item-bic-bank-coun" data-inn="${item.inn}">${item.value}</div>`
+                        );
+                    });
+
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            },
+        });
+    });
+
+    $(document).on("click", ".dropdown-item-bic-bank-coun", function () {
+        let inn = $(this).data("inn");
+        $("#id_bank_coun-bic").val(inn);
+        $("#bicSuggestionsBankCoun").hide();
+
+        fetch(`/find-bank/?bik=${inn}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("id_bank_coun-naming").value = data.bank_name;
+                document.getElementById("id_bank_coun-location").value = data.address;
+                document.getElementById("id_bank_coun-correspondent_account").value = data.correspondent_account;
+            } else {
+                alert("Банк не найден");
+            }
+        })
+        .catch(error => console.error("Ошибка при запросе данных:", error));
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#bicSuggestionsBankCoun, #id_bank_coun-bic").length) {
+            $("#bicSuggestionsBankCoun").hide();
+        }
+    });
+});
+
+
+document.getElementById('bankCounForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    const organizationSelect = document.getElementById('id_counterparty');
+    const selectedOrganization = organizationSelect.value;
+
+    if (!selectedOrganization) {
+        alert('Пожалуйста, выберите организацию из списка');
+        return;
+    }
+
+    formData.append('org', selectedOrganization);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.errors) {
+            alert('Ошибка: ' + JSON.stringify(data.errors));
+        } else {
+            let $bankSelect = $('#id_bank_counterparty');
+            $bankSelect.empty();
+
+            $.each(data.banks, function(index, bank) {
+                $bankSelect.append($('<option>', {
+                    value: bank.id,
+                    text: bank.naming
+                }));
+            });
+
+            $bankSelect.trigger('change.select2');
+
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addBankCounModal'));
+            modal.hide();
+            this.reset();
+        }
+    })
+    .catch(error => console.error('Ошибка:', error));
+});

@@ -154,7 +154,7 @@ def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=
         sheet.add_image(img1, f"B{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "commercial_offer/utils/invoice.xlsx"
         temp_modified_pdf_path = "commercial_offer/utils/invoice_modified.pdf"

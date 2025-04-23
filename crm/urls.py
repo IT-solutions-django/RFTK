@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from invoice.views import InvoiceDocumentCreateView, add_organization, add_counterparty, pdf, get_banks, \
     generate_invoice_excel, get_banks_counterparty, add_organization_with_bank, add_counterparty_with_bank, \
-    invoice_document, main
+    invoice_document, main, add_bank_org, add_bank_coun
 from user import views
 from utd.views import UtdDocumentCreateView, utd_document
 from vat_invoice.views import VatInvoiceDocumentCreateView, vat_invoice_document
@@ -95,7 +95,10 @@ urlpatterns = [
     path('add_template_document/', add_template_document, name='add-template-document'),
     path('get_labels/', get_labels, name='get-labels'),
     path('get_saved_values/', get_value_labels, name='get-value-labels'),
-    path('add_labels/', add_labels, name='add_labels')
+    path('add_labels/', add_labels, name='add_labels'),
+    path('add_bank_org/', add_bank_org, name='add_bank_org'),
+    path('add_bank_coun/', add_bank_coun, name='add_bank_coun'),
+    path('api/search-counterparty/', views.search_counterparty, name='search_counterparty'),
 ]
 
 if settings.DEBUG:

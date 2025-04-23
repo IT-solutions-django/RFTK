@@ -149,7 +149,7 @@ def create_sales_receipt_excel(data, formset_data, pdf=False, watch_document=Fal
         sheet.add_image(img1, f"J{start_table_row + len(formset_data) + 6}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "sales_receipt/utils/invoice.xlsx"
         temp_modified_pdf_path = "sales_receipt/utils/invoice_modified.pdf"

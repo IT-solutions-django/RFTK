@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from .models import InvoiceDocument, InvoiceDocumentTable, BankDetailsOrganization, InformationOrganization, Buyer, \
     BankDetailsBuyer
 from .forms import InvoiceDocumentForm, OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, \
-    BankCounterpartyForm, InvoiceDocumentTableFormSet
+    BankCounterpartyForm, InvoiceDocumentTableFormSet, BankOrganizationForm, BankCounForm
 from django.shortcuts import redirect, render
 from invoice.utils.excel import create_invoice_excel
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,6 +30,8 @@ class InvoiceDocumentCreateView(LoginRequiredMixin, CreateView):
         context['bank_form'] = BankDetailsOrganizationForm(prefix='bank')
         context['counterparty_form'] = CounterpartyForm(prefix='counterparty')
         context['counterparty_bank_form'] = BankCounterpartyForm(prefix='counterparty_bank')
+        context['bank_org'] = BankOrganizationForm(prefix='bank_org')
+        context['bank_coun'] = BankCounForm(prefix='bank_coun')
         context['formset'] = InvoiceDocumentTableFormSet(queryset=InvoiceDocumentTable.objects.none())
 
         return context
@@ -262,3 +264,53 @@ def invoice_document(request):
 
 def main(request):
     return render(request, 'main.html')
+
+
+def add_bank_org(request):
+    if request.method == 'POST':
+        organization_id = request.POST.get('org')
+
+        if organization_id:
+            organization_id = int(organization_id)
+        else:
+            return JsonResponse({'errors': 'Не выбрана организация'})
+
+        organization = InformationOrganization.objects.filter(id=organization_id).first()
+
+        if not organization:
+            return JsonResponse({'errors': 'Не найдена организация'})
+
+        form = BankOrganizationForm(request.POST, prefix='bank_org')
+        if form.is_valid():
+            bank = form.save(commit=False)
+            bank.organization = organization
+            bank.save()
+
+            return JsonResponse({'banks': [{'id': bank.id, 'naming': bank.naming}]})
+        else:
+            return JsonResponse({'errors': form.errors})
+
+
+def add_bank_coun(request):
+    if request.method == 'POST':
+        organization_id = request.POST.get('org')
+
+        if organization_id:
+            organization_id = int(organization_id)
+        else:
+            return JsonResponse({'errors': 'Не выбрана организация'})
+
+        organization = Buyer.objects.filter(id=organization_id).first()
+
+        if not organization:
+            return JsonResponse({'errors': 'Не найдена организация'})
+
+        form = BankCounterpartyForm(request.POST, prefix='bank_coun')
+        if form.is_valid():
+            bank = form.save(commit=False)
+            bank.organization = organization
+            bank.save()
+
+            return JsonResponse({'banks': [{'id': bank.id, 'naming': bank.naming}]})
+        else:
+            return JsonResponse({'errors': form.errors})

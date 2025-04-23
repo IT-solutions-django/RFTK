@@ -83,3 +83,83 @@ class AgreementDocumentForm(forms.ModelForm):
             if counterparty_id:
                 self.fields['bank_counterparty'].queryset = BankDetailsBuyer.objects.filter(
                     organization_id=counterparty_id)
+
+
+class BankOrganizationForm(forms.ModelForm):
+    class Meta:
+        model = BankDetailsOrganization
+        fields = '__all__'
+        exclude = ['organization']
+
+        widgets = {
+            'bic': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
+                       'title': 'БИК может содержать только цифры'}),
+            'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
+            'location': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list_bank'}),
+            'correspondent_account': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
+                       'title': 'Кор.счет может содержать только цифры'}),
+            'current_account': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет', 'pattern': '[0-9]+',
+                       'title': 'Расчетный счет может содержать только цифры'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = ''
+            field.required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if any(cleaned_data.values()):
+            required_fields = ['bic', 'naming', 'location', 'correspondent_account', 'current_account']
+            missing_fields = [field for field in required_fields if not cleaned_data.get(field)]
+
+            if missing_fields:
+                raise forms.ValidationError("Все поля банковских данных обязательны, если хотя бы одно заполнено.")
+
+        return cleaned_data
+
+
+class BankCounForm(forms.ModelForm):
+    class Meta:
+        model = BankDetailsBuyer
+        fields = '__all__'
+        exclude = ['organization']
+
+        widgets = {
+            'bic': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите БИК банка', 'pattern': '[0-9]+',
+                       'title': 'БИК может содержать только цифры'}),
+            'naming': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите название банка'}),
+            'location': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите адрес', 'list': 'address_list_bank'}),
+            'correspondent_account': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите кор.счет', 'pattern': '[0-9]+',
+                       'title': 'Кор.счет может содержать только цифры'}),
+            'current_account': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Введите расчетный счет', 'pattern': '[0-9]+',
+                       'title': 'Расчетный счет может содержать только цифры'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = ''
+            field.required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if any(cleaned_data.values()):
+            required_fields = ['bic', 'naming', 'location', 'correspondent_account', 'current_account']
+            missing_fields = [field for field in required_fields if not cleaned_data.get(field)]
+
+            if missing_fields:
+                raise forms.ValidationError("Все поля банковских данных обязательны, если хотя бы одно заполнено.")
+
+        return cleaned_data

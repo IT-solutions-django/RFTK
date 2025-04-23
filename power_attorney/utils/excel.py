@@ -251,7 +251,7 @@ def create_power_attorney_excel(data, formset_data, pdf=False, watch_document=Fa
             sheet.row_dimensions[row[0].row].height = 22
 
     if pdf:
-        convertapi.api_credentials = 'secret_wBUU4YjxTpfeIPwA'
+        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
 
         temp_excel_path = "power_attorney/utils/invoice.xlsx"
         temp_modified_pdf_path = "power_attorney/utils/invoice_modified.pdf"
