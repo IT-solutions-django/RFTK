@@ -17,6 +17,7 @@ import uuid
 import math
 import re
 from openpyxl.worksheet.pagebreak import Break
+import pdfplumber
 
 months_russian = [
     'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
@@ -94,10 +95,9 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     # for row in sheet.iter_rows():
     #     if row[0].row in [7, 9, 10, 11, 12]:
     #         sheet.row_dimensions[row[0].row].height = 22
-
-    if len(formset_data) > 1:
-        for row_idx in range(42, sheet.max_row, 42):
-            sheet.row_breaks.append(Break(id=row_idx))
+    # if len(formset_data) > 1:
+    #     for row_idx in range(42, sheet.max_row, 42):
+    #         sheet.row_breaks.append(Break(id=row_idx))
 
     start_col = 208
     num_cols = 790
@@ -123,13 +123,22 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
 
     sheet['AP6'] = data['organization'].naming
     sheet['AP7'] = data['organization'].address
-    sheet['AP8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
+    if data["organization"].kpp:
+        sheet['AP8'] = f'{data["organization"].inn} / {data["organization"].kpp}'
+    else:
+        sheet['AP8'] = f'{data["organization"].inn}'
     if data["shipper"]:
-        sheet['AP9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
+        if data["organization"].id == data["shipper"].id:
+            sheet['AP9'] = f'он же'
+        else:
+            sheet['AP9'] = f'{data["shipper"].naming}, {data["shipper"].address}'
     else:
         sheet['AP9'] = ''
     if data["consignee"]:
-        sheet['AP10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
+        if data["counterparty"].id == data["consignee"].id:
+            sheet['AP10'] = f'он же'
+        else:
+            sheet['AP10'] = f'{data["consignee"].naming}, {data["consignee"].address}'
     else:
         sheet['AP10'] = ''
     sheet['AT11'] = data['payment_document']
@@ -138,7 +147,10 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     if data["counterparty"]:
         sheet['DL6'] = f'{data["counterparty"].naming}'
         sheet['DL7'] = f'{data["counterparty"].address}'
-        sheet['DL8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
+        if data["counterparty"].kpp:
+            sheet['DL8'] = f'{data["counterparty"].inn} / {data["counterparty"].kpp}'
+        else:
+            sheet['DL8'] = f'{data["counterparty"].inn}'
     else:
         sheet['DL6'] = ''
         sheet['DL7'] = ''
@@ -153,7 +165,8 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
     max_symbol_line = 25
     max_symbol_line_address = 35
 
-    height_line = 10
+    height_line = 9
+    height_line_table = 10
 
     if int(data['nds']) > 0:
         nds = int(data['nds'])
@@ -161,26 +174,36 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         nds = 0
 
     if data['organization']:
-        len_address = math.ceil(len(data['organization'].address) / max_symbol_line_address)
+        len_address_org = math.ceil(len(data['organization'].address) / max_symbol_line_address)
+        len_address_coun = math.ceil(len(data['counterparty'].address) / max_symbol_line_address)
+
+        len_address = max(len_address_org, len_address_coun)
+
         if len_address != 0:
             sheet.row_dimensions[7].height = len_address * height_line
 
     if data["shipper"]:
-        len_shipper = math.ceil((len(data["shipper"].naming) + len(data["shipper"].address)) / max_symbol_line)
-        if len_shipper != 0:
-            sheet.row_dimensions[9].height = len_shipper * height_line
+        if sheet['AP9'].value == 'он же' or sheet['AP9'].value == '':
+            sheet.row_dimensions[9].height = 12
+        else:
+            len_shipper = math.ceil((len(data["shipper"].naming) + len(data["shipper"].address)) / max_symbol_line)
+            if len_shipper != 0:
+                sheet.row_dimensions[9].height = len_shipper * height_line
 
     if data["consignee"]:
-        len_consignee = math.ceil((len(data["consignee"].naming) + len(data["consignee"].address)) / max_symbol_line)
-        if len_consignee != 0:
-            sheet.row_dimensions[10].height = len_consignee * height_line
+        if sheet['AP10'].value == 'он же' or sheet['AP10'].value == '':
+            sheet.row_dimensions[9].height = 12
+        else:
+            len_consignee = math.ceil((len(data["consignee"].naming) + len(data["consignee"].address)) / max_symbol_line)
+            if len_consignee != 0:
+                sheet.row_dimensions[10].height = len_consignee * height_line
 
     for idx, table_data in enumerate(formset_data, 1):
         # sheet.row_dimensions[start_table_row + idx].height = 20
         len_name = math.ceil(len(table_data['name']) / max_symbol_line)
 
         if len_name != 0:
-            sheet.row_dimensions[start_table_row + idx].height = len_name * height_line
+            sheet.row_dimensions[start_table_row + idx].height = len_name * height_line_table
 
         total_sum += table_data["amount"]
 
@@ -354,10 +377,75 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         workbook.save(temp_excel_count)
         workbook.close()
 
-        temp_pdf_path_count = convertapi.convert('pdf', {
-            'File': temp_excel_count,
-            'Scale': '93'
-        }, from_format='xls').save_files('utd/utils')[0]
+        if len(formset_data) > 1:
+            temp_pdf_path_count = convertapi.convert('pdf', {
+                'File': temp_excel_count,
+                'Scale': '100'
+            }, from_format='xls').save_files('utd/utils')[0]
+        else:
+            temp_pdf_path_count = convertapi.convert('pdf', {
+                'File': temp_excel_count,
+                'Scale': '93'
+            }, from_format='xls').save_files('utd/utils')[0]
+
+        with pdfplumber.open(temp_pdf_path_count) as pdf:
+            last_page = pdf.pages[-1]
+            text = last_page.extract_text()
+            if text:
+                lines = text.split('\n')
+                line_count = len(lines)
+            else:
+                line_count = 0
+
+        if line_count == 1:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 7)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 2:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 6)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 3:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 5)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 4:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 4)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 5:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 3)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 6:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 2)
+
+            workbook_cells.save(temp_excel_count)
+        elif line_count == 7:
+            workbook_cells = Workbook(temp_excel_count)
+            worksheet_cells = workbook_cells.worksheets[0]
+
+            worksheet_cells.cells.insert_rows(0, 1)
+
+            workbook_cells.save(temp_excel_count)
 
         reader_count = PdfReader(temp_pdf_path_count)
         pages_count = len(reader_count.pages)
@@ -367,15 +455,43 @@ def create_utd_excel(data, formset_data, pdf=False, watch_document=False):
         # if len(formset_data) == 1:
         #     sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'1'
         # else:
-        sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
+        if line_count == 1:
+            sheet[f"A{start_table_row + 7 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 2:
+            sheet[f"A{start_table_row + 6 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 3:
+            sheet[f"A{start_table_row + 5 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 4:
+            sheet[f"A{start_table_row + 4 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 5:
+            sheet[f"A{start_table_row + 3 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 6:
+            sheet[f"A{start_table_row + 2 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        elif line_count == 7:
+            sheet[f"A{start_table_row + 1 + len(formset_data) + 6}"] = f'{pages_count}'
+            workbook.remove(workbook["Evaluation Warning"])
+        else:
+            sheet[f"A{start_table_row + len(formset_data) + 6}"] = f'{pages_count}'
 
         workbook.save(temp_excel_path)
         workbook.close()
 
-        temp_pdf_path = convertapi.convert('pdf', {
-            'File': temp_excel_path,
-            'Scale': '93'
-        }, from_format='xls').save_files('utd/utils')[0]
+        if len(formset_data) > 1:
+            temp_pdf_path = convertapi.convert('pdf', {
+                'File': temp_excel_path,
+                'Scale': '100'
+            }, from_format='xls').save_files('utd/utils')[0]
+        else:
+            temp_pdf_path = convertapi.convert('pdf', {
+                'File': temp_excel_path,
+                'Scale': '93'
+            }, from_format='xls').save_files('utd/utils')[0]
 
         reader = PdfReader(temp_pdf_path)
         writer = PdfWriter()
