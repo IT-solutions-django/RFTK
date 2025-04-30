@@ -1,6 +1,7 @@
 from django import forms
 from invoice.models import Ks2Document, Ks2DocumentTable, InformationOrganization, Buyer
 from django.forms import modelformset_factory
+from datetime import date
 
 
 class Ks2DocumentForm(forms.ModelForm):
@@ -61,7 +62,7 @@ class Ks2DocumentForm(forms.ModelForm):
             'view_okdp': forms.TextInput(attrs={'class': 'form-control'}),
             'number_agreement': forms.TextInput(attrs={'class': 'form-control'}),
             'price_outlay': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
             'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'date_agreement': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),

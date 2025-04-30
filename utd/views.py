@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
-from invoice.models import UtdDocument, UtdDocumentTable
+from invoice.models import UtdDocument, UtdDocumentTable, InformationOrganization, Buyer
 from .forms import UtdDocumentForm, UtdDocumentTableFormSet
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
@@ -94,8 +94,10 @@ def utd_document(request):
     query = request.GET.get('q', '')
     date_from = request.GET.get('date_from', '')
     date_to = request.GET.get('date_to', '')
+    org_param = request.GET.get('filter_org', '')
+    coun_param = request.GET.get('filter_coun', '')
 
-    documents = UtdDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+    documents = UtdDocument.objects.select_related('organization', 'counterparty').prefetch_related('table_product').filter(user=request.user)
 
     if query:
         documents = documents.filter(name__icontains=query)
@@ -104,8 +106,17 @@ def utd_document(request):
         documents = documents.filter(date__gte=parse_date(date_from))
     if date_to:
         documents = documents.filter(date__lte=parse_date(date_to))
+    if org_param:
+        documents = documents.filter(organization=org_param)
+    if coun_param:
+        documents = documents.filter(counterparty=coun_param)
 
-    paginator = Paginator(documents, 50)
+    if request.GET.get('cnt_page_paginator', ''):
+        cnt_page = int(request.GET.get('cnt_page_paginator'))
+    else:
+        cnt_page = 20
+
+    paginator = Paginator(documents, cnt_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
@@ -115,5 +126,9 @@ def utd_document(request):
         document.delete()
         return redirect('utd_document')
 
+    organizations = InformationOrganization.objects.filter(user=request.user)
+
+    counterparty = Buyer.objects.filter(user=request.user)
+
     return render(request, 'utd_document_new.html',
-                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to, 'current_page': page_obj.number, 'total_pages': paginator.num_pages, 'organizations': organizations, 'counterparty':  counterparty})

@@ -29252,8 +29252,7 @@ pre[class*=language-] {
 }
 
 .add-row, .remove-row {
-    margin-top: 16px;
-    margin-left: 10px;
+
 }
 
 .select2-selection {
@@ -29368,26 +29367,29 @@ th {
 }
 
 .add-row {
-    border-radius: 50%!important;
-    background-color: green!important;
-    border: 1px solid green!important;
-    color: white!important;
+    color: green!important;
+    border: none!important;
 }
 
 .add-row:hover {
-    background-color: green!important;
-}
-
-.add-row:active {
-    border-color: orange!important;
+    border: none!important;
+    background-color: white!important;
 }
 
 .remove-row {
-    border-radius: 50%!important;
+    border: none!important;
+    color: red!important;
+    background-color: white!important;
+}
+
+.remove-row:hover {
+    border: none!important;
+    background-color: white!important;
 }
 
 .remove-row:active {
-    border-color: orange!important;
+     border: none!important;
+     background-color: white!important;
 }
 
 aside {
@@ -29427,7 +29429,65 @@ button i {
     pointer-events: none!important;
 }
 
+.form-check-input {
+    width: 20px!important;
+    height: 20px!important;
+}
 
+
+.add-row:active {
+    border: none!important;
+    background-color: white!important;
+}
+
+.pagination {
+    justify-content: center;
+    border: 1px solid #FA980B;
+    background-color: #F8F8F8;
+    border-radius: 15px;
+    padding: 12px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.pagination-page {
+    text-decoration: none;
+    padding: 8px 12px;
+    margin-right: 5px;
+    border-radius: 8px;
+}
+
+.pagination-page:hover {
+    outline: 1px solid orange;
+    background-color: orange;
+    color: white!important;
+}
+
+.pagination-page.active {
+    font-weight: bold;
+    background-color: #FA980B;
+    color: white!important;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+select {
+  border: 1px solid orange;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #f5f5f5;
+  outline: none; /* Убирает синюю рамку при фокусе */
+}
+
+/* Для лучшего UX можно добавить альтернативный стиль при фокусе */
+select:focus {
+  border-color: orange; /* Изменяем цвет рамки при фокусе */
+  box-shadow: none; /* Мягкое свечение */
+}
+
+.filter_org, .filter_coun {
+  height: 35px;
+}
 
 
 /*# sourceMappingURL=dashboard-free.css.map */

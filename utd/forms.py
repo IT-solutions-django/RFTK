@@ -1,6 +1,7 @@
 from django import forms
 from invoice.models import UtdDocumentTable, UtdDocument, InformationOrganization, Buyer
 from django.forms import modelformset_factory
+from datetime import date
 
 
 class UtdDocumentForm(forms.ModelForm):
@@ -11,8 +12,8 @@ class UtdDocumentForm(forms.ModelForm):
     ]
 
     TYPE_DOCUMENT_CHOICES = [
-        ('Счет-фактура и передаточный документ(акт)', 'Счет-фактура и передаточный документ(акт)'),
-        ('Передаточный документ(акт)', 'Передаточный документ(акт)')
+        ('Счет-фактура и передаточный документ(акт)', '1 - Счет-фактура и передаточный документ(акт)'),
+        ('Передаточный документ(акт)', '2 - Передаточный документ(акт)')
     ]
 
     NDS_CHOICES = [
@@ -101,7 +102,7 @@ class UtdDocumentForm(forms.ModelForm):
             'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
             'shipment_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'date_of_receipt': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
             'shipping_document': forms.TextInput(

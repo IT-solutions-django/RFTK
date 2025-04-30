@@ -35,22 +35,31 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'invoice_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Счет</span>
           </a>
+                <a href="{% url 'invoice' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'utd_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">УПД</span>
           </a>
+                <a href="{% url 'utd' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'vat_invoice_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Счет-фактура</span>
           </a>
+                <a href="{% url 'vat-invoice' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
 <!--        <li class="nav-item">-->
 <!--          <a class="nav-link text-dark" href="{% url 'packing-list' %}">-->
@@ -59,73 +68,121 @@
 <!--          </a>-->
 <!--        </li>-->
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'commercial_offer_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Коммерческое предложение</span>
+            <span class="nav-link-text ms-1">КП</span>
           </a>
+                <a href="{% url 'commercial-offer' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'outlay_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Смета</span>
           </a>
+                <a href="{% url 'outlay' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'ks_2_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">КС-2</span>
           </a>
+                  <a href="{% url 'ks-2' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'ks_3_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">КС-3</span>
           </a>
+                  <a href="{% url 'ks-3' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
-          <a class="nav-link text-dark" href="{% url 'act_service_document' %}">
+              <div class="d-flex align-items-center justify-content-between">
+          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'act_service_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Акт оказания услуг</span>
           </a>
+               <a href="{% url 'act-service' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'power_attorney_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Доверенность</span>
           </a>
+                  <a href="{% url 'power-attorney' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'sales_receipt_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Товарный чек</span>
           </a>
+                  <a href="{% url 'sales-receipt' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'pko_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">ПКО</span>
           </a>
+                  <a href="{% url 'pko' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'rko_document' %}">
+              <div class="d-flex align-items-center justify-content-between">
+          <a class="nav-link text-dark" href="{% url 'rko_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">РКО</span>
           </a>
+                  <a href="{% url 'rko' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
-        <li class="nav-item">
+          <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'reconciliation_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Акт сверки взаиморасчетов</span>
+            <span class="nav-link-text ms-1">Акт сверки</span>
           </a>
+                  <a href="{% url 'reconciliation' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
-        <li class="nav-item">
+          <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'agreement_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Договор/Документ</span>
           </a>
+                  <a href="{% url 'agreement' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
         <li class="nav-item mt-3">
-          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Account pages</h6>
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Сервисы</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url 'profile' %}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Организации</span>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url 'profile' %}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Контрагенты</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Личный кабинет</h6>
         </li>
         <li class="nav-item">
           <a class="nav-link text-dark" href="{% url 'profile' %}">

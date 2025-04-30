@@ -2,6 +2,7 @@ from django import forms
 from invoice.models import CommercialOfferDocument, CommercialOfferDocumentTable, InformationOrganization, Buyer
 from django.forms import modelformset_factory
 from django.core.exceptions import ValidationError
+from datetime import date
 
 
 class CommercialOfferDocumentForm(forms.ModelForm):
@@ -60,7 +61,7 @@ class CommercialOfferDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
             'naming': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
         }

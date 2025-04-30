@@ -1,5 +1,6 @@
 from django import forms
 from invoice.models import AgreementDocument, InformationOrganization, BankDetailsOrganization, Buyer, BankDetailsBuyer, TemplateDocument
+from datetime import date
 
 
 class AgreementDocumentForm(forms.ModelForm):
@@ -55,7 +56,7 @@ class AgreementDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
         }
 
     def __init__(self, *args, **kwargs):

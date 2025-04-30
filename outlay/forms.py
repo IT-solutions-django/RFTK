@@ -1,5 +1,6 @@
 from django import forms
 from invoice.models import OutlayDocument, InformationOrganization, Buyer
+from datetime import date
 
 
 class OutlayDocumentForm(forms.ModelForm):
@@ -59,7 +60,7 @@ class OutlayDocumentForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'number_outlay': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
             'base': forms.TextInput(attrs={'class': 'form-control'}),
             'work_time': forms.TextInput(attrs={'class': 'form-control'}),
             'name_construction': forms.TextInput(attrs={'class': 'form-control'}),

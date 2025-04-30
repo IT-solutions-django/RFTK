@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,22 +36,31 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'invoice_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Счет</span>
           </a>
+                <a href="{% url 'invoice' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'utd_document' %}">
+            <div class="d-flex align-items-center justify-content-between">
+          <a class="nav-link text-dark" href="{% url 'utd_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">УПД</span>
           </a>
+                <a href="{% url 'utd' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'vat_invoice_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Счет-фактура</span>
           </a>
+                <a href="{% url 'vat-invoice' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
 <!--        <li class="nav-item">-->
 <!--          <a class="nav-link text-dark" href="{% url 'packing-list' %}">-->
@@ -59,73 +69,121 @@
 <!--          </a>-->
 <!--        </li>-->
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'commercial_offer_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Коммерческое предложение</span>
+            <span class="nav-link-text ms-1">КП</span>
           </a>
+                <a href="{% url 'commercial-offer' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
         <li class="nav-item">
+            <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'outlay_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Смета</span>
           </a>
+                <a href="{% url 'outlay' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+            </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'ks_2_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">КС-2</span>
           </a>
+                  <a href="{% url 'ks-2' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'ks_3_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">КС-3</span>
           </a>
+                  <a href="{% url 'ks-3' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
-          <a class="nav-link text-dark" href="{% url 'act_service_document' %}">
+              <div class="d-flex align-items-center justify-content-between">
+          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'act_service_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Акт оказания услуг</span>
           </a>
+               <a href="{% url 'act-service' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'power_attorney_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Доверенность</span>
           </a>
+                  <a href="{% url 'power-attorney' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'sales_receipt_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Товарный чек</span>
           </a>
+                  <a href="{% url 'sales-receipt' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'pko_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">ПКО</span>
           </a>
+                  <a href="{% url 'pko' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
           <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'rko_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">РКО</span>
           </a>
+                  <a href="{% url 'rko' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
-        <li class="nav-item">
+          <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'reconciliation_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Акт сверки взаиморасчетов</span>
+            <span class="nav-link-text ms-1">Акт сверки</span>
           </a>
+                  <a href="{% url 'reconciliation' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
-        <li class="nav-item">
+          <li class="nav-item">
+              <div class="d-flex align-items-center justify-content-between">
           <a class="nav-link text-dark" href="{% url 'agreement_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Договор/Документ</span>
           </a>
+                  <a href="{% url 'agreement' %}" class="me-3"><i class="fa-duotone fa-solid fa-plus" style="color: orange;"></i></a>
+              </div>
         </li>
         <li class="nav-item mt-3">
-          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Account pages</h6>
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Сервисы</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url 'profile' %}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Организации</span>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url 'profile' %}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Контрагенты</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder" style="color: #FA980B!important;">Личный кабинет</h6>
         </li>
         <li class="nav-item">
           <a class="nav-link text-dark" href="{% url 'profile' %}">
@@ -178,39 +236,65 @@
     <!-- End Navbar -->
     <div class="container-fluid py-2">
       <form method="get" class="p-3 bg-light rounded shadow-sm">
+          <h5 class="mb-3">Фильтр/Поиск</h5>
     <div class="row g-2 align-items-center">
         <!-- Поле поиска -->
         <div class="col-md-3">
-          <label class="form-label mb-0">Номер документа</label>
-            <input type="text" name="q" value="{{ query }}" placeholder="Поиск по номеру"
+            <input type="text" name="q" value="{{ query }}" placeholder="Поиск по названию"
                    class="form-control search-document-input" />
         </div>
 
         <!-- Поля даты -->
         <div class="col-md-3">
-          <label class="form-label mb-0">Дата от</label>
-            <input type="date" name="date_from" value="{{ date_from }}" class="form-control search-document-input" />
+            <input type="date" name="date_from" value="{{ date_from }}" class="form-control search-document-input"/>
         </div>
 
         <div class="col-md-3">
-            <label class="form-label mb-0">Дата до</label>
             <input type="date" name="date_to" value="{{ date_to }}" class="form-control search-document-input" />
         </div>
 
+        <div class="d-flex row mt-3 g-2" style="margin-left: 0!important; row-gap: 15px;">
+        <div class="col-md-4 px-0">
+            <select name="filter_org" class="filter_org">
+                <option value="">Организация</option>
+                {% for org in organizations %}
+                <option value="{{ org.id }}" {% if request.GET.filter_org == org.id|stringformat:"s" %} selected {% endif %}>{{ org.naming }} (ИНН: {{ org.inn }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+            <div class="col-md-4 px-0">
+            <select name="filter_coun" class="filter_coun">
+                <option value="">Контрагент</option>
+                {% for org in counterparty %}
+                <option value="{{ org.id }}" {% if request.GET.filter_coun == org.id|stringformat:"s" %} selected {% endif %}>{{ org.naming }} (ИНН: {{ org.inn }})</option>
+                {% endfor %}
+            </select>
+        </div>
+            </div>
+
         <!-- Кнопка поиска -->
         <div class="col-md-12 mt-4">
-            <button type="submit" class="search-document-button">🔍 Найти</button>
+            <button type="submit" class="search-document-button">Применить</button>
           <a href="{{ request.path }}" class="ms-4" style="color: red;">Сбросить</a>
         </div>
     </div>
 </form>
 
       <div class="row">
-        <div class="col-md-7 mt-4">
+        <div class="col-md-12 mt-4">
           <div class="card">
             <div class="row pb-0 px-3 mt-3">
               <div class="col-6 d-flex align-items-center">
                 <h6 class="mb-0">Документы</h6>
+                  <form method="get" class="ms-3">
+                  <select name="cnt_page_paginator" onchange="this.form.submit()">
+                      <option value="20" {% if request.GET.cnt_page_paginator == '20' %} selected {% endif %}>20</option>
+                      <option value="10" {% if request.GET.cnt_page_paginator == '10' %} selected {% endif %}>10</option>
+                      <option value="50" {% if request.GET.cnt_page_paginator == '50' %} selected {% endif %}>50</option>
+                      <option value="100" {% if request.GET.cnt_page_paginator == '100' %} selected {% endif %}>100</option>
+                  </select>
+                  </form>
               </div>
               <div class="col-6 text-end">
                 <a class="btn bg-gradient-dark mb-0" href="{% url 'utd' %}"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Создать новый документ</a>
@@ -219,18 +303,51 @@
             <div class="card-body pt-4 p-3">
               <ul class="list-group">
                 {% for document in page_obj %}
-                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg" style="flex-wrap: wrap;">
                   <div class="d-flex flex-column">
-                    <a href="{% url 'edit_document' document.id 'utd' %}" class="mb-3 text-sm" style="font-size: 18px !important; font-weight: 600 !important;">УПД №{{ document.name }}</a>
+                    <a href="{% url 'edit_document' document.id 'utd' %}" class="mb-3 text-sm" style="font-size: 18px !important; font-weight: 600 !important;">УПД №{{ document.name }} от {{ document.date|date:"j E Y" }}</a>
                     <span class="mb-2 text-xs">Дата создания: <span class="text-dark font-weight-bold ms-sm-2">{{ document.date|date:"j E Y" }}</span></span>
                     <span class="mb-2 text-xs">Огранизация: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.organization.naming }}</span></span>
-                    <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }}</span></span>
-                    <form method="POST" action="{% url 'print_document' 'utd' document.id %}" style="margin-top: 35px;">
+                    <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }} (ИНН: {{ document.counterparty.inn }})</span></span>
+                      <table class="table table-bordered document-table" style="margin-top: 35px;" id="table-{{ document.id }}" data-vat-rate="{{ document.nds }}">
+                <thead>
+                    <tr>
+                        <th style="width: 190px; min-width: 190px;">Наименование</th>
+                        <th style="width: 100px; min-width: 100px;">Количество</th>
+                        <th style="width: 100px; min-width: 100px;">Цена</th>
+                        <th style="width: 100px; min-width: 100px;">Сумма</th>
+                    </tr>
+                </thead>
+                          <tbody id="formset-body">
+                          {% for product in document.table_product.all %}
+                          <tr class="form-row">
+                              <td style="color: black;">{{ product.name }}</td>
+                              <td style="color: black;" class="quantity">{{ product.quantity }}</td>
+                              <td style="color: black;" class="price">{{ product.price }}</td>
+                              <td style="color: black;" class="amount-cell">{{ product.amount|add_nds:document.nds }}</td>
+                          </tr>
+                          {% endfor %}
+                          <tr>
+                                <td colspan="3" style="text-align: right; font-weight: bold; color: black;">Итого:</td>
+                                <td id="total-amount" style="font-weight: bold; color: black;">0</td>
+                            </tr>
+                          {% if document.nds != -1 and document.nds != 0 %}
+                            <tr class="vat-row">
+                                <td colspan="3" style="text-align: right; color: black; font-weight: bold;">НДС ({{ document.nds }}%):</td>
+                                <td class="total-vat" style="color: black; font-weight: bold;">0</td>
+                            </tr>
+                            {% endif %}
+                          </tbody>
+                    </table>
+                    <div class="d-flex align-items-center" style="margin-top: 35px; gap: 20px;">
+                    <form method="POST" action="{% url 'print_document' 'utd' document.id %}" class="d-flex align-items-center">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-link" name="print_document" value="true" onclick="this.form.target='preview'"><i class="material-symbols-rounded text-sm me-2 " style="font-size: 14px!important; margin-left: -17px;">print</i>Печать документа</button>
+                      <button type="submit" class="btn btn-link" name="print_document" value="true" onclick="this.form.target='preview'" style="margin: 0!important; padding: 0!important;"><i class="material-symbols-rounded text-sm me-2 " style="font-size: 14px!important;">print</i>Печать документа</button>
                   </form>
+                    <a href="{% url 'copy_document' document.id 'utd' %}" class="text-sm"><i class="material-symbols-rounded">content_copy</i>Копировать</a>
+                      </div>
                   </div>
-                  <div class="ms-auto text-end">
+                  <div class="text-end">
                     <form method="post" class="d-inline">
                       {% csrf_token %}
                             <input type="hidden" name="document_id" value="{{ document.id }}">
@@ -251,6 +368,35 @@
         </div>
 
       </div>
+        <div class="mt-3 pagination">
+    {% if current_page > 1 %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ current_page|add:-1 }}" class="pagination-page">Предыдущая</a>
+    {% endif %}
+
+    <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page=1" class="pagination-page {% if current_page == 1 %}active{% endif %}">1</a>
+
+    {% if current_page > 4 %}
+        <span class="pagination-page">...</span>
+    {% endif %}
+
+    {% for page in page_range %}
+        {% if page > 1 and page < total_pages %}
+            <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ page }}" class="pagination-page {% if page == current_page %}active{% endif %}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages|add:-3 %}
+        <span class="pagination-page">...</span>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ total_pages }}" class="pagination-page {% if current_page == total_pages %}active{% endif %}">{{ total_pages }}</a>
+    {% endif %}
+
+    {% if current_page < total_pages %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ current_page|add:1 }}" class="pagination-page">Следующая</a>
+    {% endif %}
+</div>
 
     </div>
   </main>
@@ -261,6 +407,75 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{% static 'js/material-dashboard.min.js' %}"></script>
+
+<script>
+
+function calculateAllTotals() {
+    // Находим все таблицы с классом document-table
+    const tables = document.querySelectorAll('.document-table');
+
+    // Для каждой таблицы считаем сумму
+    tables.forEach(table => {
+        let total = 0;
+        const amountCells = table.querySelectorAll('.amount-cell');
+
+        amountCells.forEach(cell => {
+            const rawValue = cell.textContent.trim();
+            // Меняем запятую на точку и удаляем пробелы (для чисел типа "1 000,50")
+            const cleanValue = rawValue.replace(/\s+/g, '').replace(/,/g, '.');
+            const value = parseFloat(cleanValue) || 0; // → 31.5
+            total += value;
+        });
+
+
+        const totalCell = table.querySelector('#total-amount');
+        if (totalCell) {
+            totalCell.textContent = total.toFixed(1);
+        }
+
+    });
+}
+
+document.addEventListener('DOMContentLoaded', calculateAllTotals);
+
+</script>
+
+  <script>
+      function calculateAllVAT() {
+    const tables = document.querySelectorAll('.document-table');
+
+    tables.forEach(table => {
+        let totalVAT = 0; // Общая сумма НДС
+
+        const vatRate = parseFloat(table.dataset.vatRate) || 0;
+
+
+        const rows = table.querySelectorAll('.form-row');
+        rows.forEach(row => {
+
+            const quantity = parseFloat(row.querySelector('.quantity').textContent.replace(/\s+/g, '').replace(/,/g, '.')) || 0;
+            const price = parseFloat(row.querySelector('.price').textContent.replace(/\s+/g, '').replace(/,/g, '.')) || 0;
+
+
+            const amountWithoutVAT = quantity * price;
+            const vat = (amountWithoutVAT * vatRate) / 100;
+
+
+
+
+            totalVAT += vat;
+        });
+
+        if (vatRate != 0 & vatRate != -1) {
+            table.querySelector('.total-vat').textContent = totalVAT.toFixed(2);
+        }
+
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', calculateAllVAT);
+  </script>
 </body>
 
 </html>

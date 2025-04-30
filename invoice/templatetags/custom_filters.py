@@ -16,3 +16,17 @@ def add_attr(field, css):
 @register.filter
 def is_required(field):
     return field.field.required
+
+
+@register.filter(name='add_nds')
+def add_nds(amount, nds_rate):
+
+    try:
+        amount = float(amount)
+        nds_rate = float(nds_rate)
+    except (TypeError, ValueError):
+        return amount
+
+    if nds_rate not in (0, -1):
+        return amount * (1 + nds_rate / 100)
+    return amount

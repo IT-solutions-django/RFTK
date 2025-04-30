@@ -1,6 +1,7 @@
 from django import forms
 from invoice.models import SalesReceiptDocument, SalesReceiptDocumentTable, InformationOrganization, Buyer
 from django.forms import modelformset_factory
+from datetime import date
 
 
 class SalesReceiptDocumentForm(forms.ModelForm):
@@ -36,7 +37,7 @@ class SalesReceiptDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
 
         }
 

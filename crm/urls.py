@@ -34,7 +34,7 @@ from pko.views import PkoDocumentCreateView, pko_document
 from rko.views import RkoDocumentCreateView, rko_document
 from reconciliation.views import ReconciliationCreateView, reconciliation_document
 from agreement.views import AgreementDocumentCreateView, agreement_document
-from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels, add_labels
+from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels, add_labels, copy_document
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -87,6 +87,7 @@ urlpatterns = [
     path('edit_organization/<int:id_org>', views.edit_organization, name='edit_organization'),
     path('edit_counterparty/<int:id_org>', views.edit_counterparty, name='edit_counterparty'),
     path('edit_document/<int:id_doc>/<str:doc_type>/', views.edit_document, name='edit_document'),
+    path('copy_document/<int:id_doc>/<str:doc_type>/', copy_document, name='copy_document'),
     path("find-company/", find_company_by_inn, name="find-company"),
     path("find-bank/", find_bank_by_bik, name="find-bank"),
     path('inn_autocomplete/', inn_autocomplete, name='inn_autocomplete'),

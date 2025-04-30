@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import convertapi
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -169,7 +171,7 @@ def create_outlay_excel(data, formset_data, pdf=False, watch_document=False):
         sheet.add_image(img1, f"BE{start_table_row + len(formset_data) + 11}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
+        convertapi.api_credentials = 'secret_BJVUgKzV7vvvWN1m'
 
         temp_excel_path = "outlay/utils/invoice.xlsx"
         temp_modified_pdf_path = "outlay/utils/invoice_modified.pdf"
@@ -194,11 +196,13 @@ def create_outlay_excel(data, formset_data, pdf=False, watch_document=False):
             writer.write(output_pdf)
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
+            filename = f'Смета №{data["number_outlay"]} от {data["date"]}.pdf'
+            encoded_filename = quote(filename)
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=outlay.pdf"
+                response["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
             else:
-                response["Content-Disposition"] = "attachment; filename=outlay.pdf"
+                response["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

@@ -1389,3 +1389,34 @@ def search_counterparty(request):
         } for c in results]
         return JsonResponse(data, safe=False)
     return JsonResponse([], safe=False)
+
+
+def copy_document(request, id_doc, doc_type):
+    original_object = UtdDocument.objects.get(id=id_doc)
+
+    new_object = UtdDocument(
+        user=original_object.user,
+        name=f'{original_object.name} (Копия)',
+        date=original_object.date,
+        payment_document=original_object.payment_document,
+        organization=original_object.organization,
+        shipper=original_object.shipper,
+        counterparty=original_object.counterparty,
+        consignee=original_object.consignee,
+        shipping_document=original_object.shipping_document,
+        state_ID_contract=original_object.state_ID_contract,
+        basis_for_transfer=original_object.basis_for_transfer,
+        data_transportation=original_object.data_transportation,
+        shipment_date=original_object.shipment_date,
+        date_of_receipt=original_object.date_of_receipt,
+        type_document=original_object.type_document,
+        currency=original_object.currency,
+        nds=original_object.nds,
+        is_stamp=original_object.is_stamp
+    )
+
+    new_object.save()
+
+    new_object.table_product.set(original_object.table_product.all())
+
+    return redirect(f'/edit_document/{new_object.id}/utd/')

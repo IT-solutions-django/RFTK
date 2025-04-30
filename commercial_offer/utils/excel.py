@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import convertapi
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -154,7 +156,7 @@ def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=
         sheet.add_image(img1, f"B{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
+        convertapi.api_credentials = 'secret_BJVUgKzV7vvvWN1m'
 
         temp_excel_path = "commercial_offer/utils/invoice.xlsx"
         temp_modified_pdf_path = "commercial_offer/utils/invoice_modified.pdf"
@@ -179,11 +181,13 @@ def create_commercial_offer_excel(data, formset_data, pdf=False, watch_document=
             writer.write(output_pdf)
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
+            filename = f'КП №{data["name"]} от {data["date"]}.pdf'
+            encoded_filename = quote(filename)
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=commercial_offer.pdf"
+                response["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
             else:
-                response["Content-Disposition"] = "attachment; filename=commercial_offer.pdf"
+                response["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

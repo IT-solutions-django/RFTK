@@ -2,6 +2,7 @@ from django import forms
 from .models import (InvoiceDocument, InformationOrganization, BankDetailsOrganization, Buyer,
                      BankDetailsBuyer, InvoiceDocumentTable)
 from django.forms import modelformset_factory
+from datetime import date
 
 
 class InvoiceDocumentForm(forms.ModelForm):
@@ -92,7 +93,7 @@ class InvoiceDocumentForm(forms.ModelForm):
             'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
             'purpose_of_payment': forms.TextInput(
                 attrs={'placeholder': 'Например, Авансовый платёж', 'class': 'form-control'}),
             'payment_for': forms.TextInput(

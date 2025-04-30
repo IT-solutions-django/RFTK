@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import convertapi
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -187,7 +189,7 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
         sheet.add_image(img1, f"BY{start_table_row + len(formset_data) + 7}")
 
     if pdf:
-        convertapi.api_credentials = 'secret_omNCSVvj1fl5oFYe'
+        convertapi.api_credentials = 'secret_BJVUgKzV7vvvWN1m'
 
         temp_excel_path = "invoice/utils/invoice.xlsx"
         temp_modified_pdf_path = "invoice/utils/invoice_modified.pdf"
@@ -220,11 +222,13 @@ def create_invoice_excel(data, organization_data, formset_data, pdf=False, watch
             writer.write(output_pdf)
 
         with open(temp_modified_pdf_path, "rb") as pdf_file:
+            filename = f'Счет на оплату №{data["name"]} от {data["date"]}.pdf'
+            encoded_filename = quote(filename)
             response = HttpResponse(pdf_file.read(), content_type="application/pdf")
             if watch_document:
-                response["Content-Disposition"] = "inline; filename=invoice.pdf"
+                response["Content-Disposition"] = f"inline; filename*=UTF-8''{encoded_filename}"
             else:
-                response["Content-Disposition"] = "attachment; filename=invoice.pdf"
+                response["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
 
         os.remove(temp_excel_path)
         os.remove(temp_pdf_path)

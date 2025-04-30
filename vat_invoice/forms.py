@@ -1,5 +1,6 @@
 from django import forms
 from invoice.models import VatInvoiceDocument, InformationOrganization, Buyer
+from datetime import date
 
 
 class VatInvoiceDocumentForm(forms.ModelForm):
@@ -82,7 +83,7 @@ class VatInvoiceDocumentForm(forms.ModelForm):
             'is_stamp'
         ]
         widgets = {
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
             'shipping_document': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'state_ID_contract': forms.TextInput(

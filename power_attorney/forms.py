@@ -3,6 +3,7 @@ from invoice.models import PowerAttorneyDocument, PowerAttorneyDocumentTable, In
     BankDetailsBuyer
 from django.forms import modelformset_factory
 from invoice.models import BankDetailsOrganization
+from datetime import date
 
 
 class PowerAttorneyDocumentForm(forms.ModelForm):
@@ -33,7 +34,7 @@ class PowerAttorneyDocumentForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
             'validity_period': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'date_issue': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'to_receive_from': forms.TextInput(attrs={'class': 'form-control'}),
