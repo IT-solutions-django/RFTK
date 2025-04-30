@@ -119,6 +119,7 @@ def utd_document(request):
     paginator = Paginator(documents, cnt_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+    page_range = list(paginator.page_range)
 
     if request.method == 'POST' and 'delete_document' in request.POST:
         document_id = request.POST.get('document_id')
@@ -131,4 +132,4 @@ def utd_document(request):
     counterparty = Buyer.objects.filter(user=request.user)
 
     return render(request, 'utd_document_new.html',
-                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to, 'current_page': page_obj.number, 'total_pages': paginator.num_pages, 'organizations': organizations, 'counterparty':  counterparty})
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to, 'current_page': page_obj.number, 'total_pages': paginator.num_pages, 'organizations': organizations, 'counterparty':  counterparty, 'page_range': page_range})
