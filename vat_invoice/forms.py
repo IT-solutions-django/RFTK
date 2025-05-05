@@ -85,11 +85,11 @@ class VatInvoiceDocumentForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
             'shipping_document': forms.TextInput(
-                attrs={'class': 'form-control'}),
+                attrs={'class': 'form-control w-md-50'}),
             'state_ID_contract': forms.TextInput(
-                attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
+                attrs={'class': 'form-control w-md-50'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'payment_document': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
         }
         labels = {
             'name': 'Счет-фактура №',

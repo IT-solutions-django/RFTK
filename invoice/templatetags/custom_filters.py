@@ -23,7 +23,9 @@ def add_nds(amount, nds_rate):
 
     try:
         amount = float(amount)
+        print(amount)
         nds_rate = float(nds_rate)
+        print(nds_rate)
     except (TypeError, ValueError):
         return amount
 

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реестр Счет-фактура</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Реестр Счет-фактура</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Документ</th>
+                <th>Организация</th>
+                <th>Контрагент</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for utd in utd_documents_all %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{ utd.name }}</td>
+                <td>{{ utd.organization.naming }}. ИНН: {{ utd.organization.inn }}</td>
+                <td>{{ utd.counterparty.naming }}. ИНН: {{ utd.counterparty.inn }}</td>
+                <td>{{ utd.document_sum }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

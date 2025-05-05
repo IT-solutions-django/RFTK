@@ -27,49 +27,49 @@ class UtdDocumentForm(forms.ModelForm):
 
     nds = forms.ChoiceField(
         choices=NDS_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         label='НДС',
         required=False
     )
 
     type_document = forms.ChoiceField(
         choices=TYPE_DOCUMENT_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         label='Тип документа',
         required=False
     )
 
     currency = forms.ChoiceField(
         choices=CURRENCY_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         label='Валюта',
         required=False
     )
 
     organization = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         empty_label='Организация',
         label='Организация',
         required=True
     )
     counterparty = forms.ModelChoiceField(
         queryset=Buyer.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         empty_label='Контрагент',
         label='Контрагент',
         required=True
     )
     consignee = forms.ModelChoiceField(
         queryset=Buyer.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         empty_label='Грузополучатель',
         label='Грузополучатель',
         required=False
     )
     shipper = forms.ModelChoiceField(
         queryset=InformationOrganization.objects.none(),
-        widget=forms.Select(attrs={'class': 'form-select select2'}),
+        widget=forms.Select(attrs={'class': 'form-select select2 w-md-50'}),
         empty_label='Грузоотправитель',
         label='Грузоотправитель',
         required=False
@@ -103,16 +103,16 @@ class UtdDocumentForm(forms.ModelForm):
         ]
         widgets = {
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
-            'shipment_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
-            'date_of_receipt': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'shipment_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25'}),
+            'date_of_receipt': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25'}),
             'shipping_document': forms.TextInput(
-                attrs={'class': 'form-control'}),
+                attrs={'class': 'form-control w-md-50'}),
             'state_ID_contract': forms.TextInput(
-                attrs={'class': 'form-control'}),
-            'basis_for_transfer': forms.TextInput(attrs={'class': 'form-control'}),
-            'data_transportation': forms.TextInput(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'payment_document': forms.TextInput(attrs={'class': 'form-control'}),
+                attrs={'class': 'form-control w-md-50'}),
+            'basis_for_transfer': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'data_transportation': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'payment_document': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
         }
         labels = {
             'name': 'УПД №',

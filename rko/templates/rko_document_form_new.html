@@ -9,6 +9,8 @@
   <title>
     Создать новый рко | RFTK
   </title>
+    <link rel="icon" type="image/png" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/favicon-32x32.png' %}" sizes="32x32" />
+    <link rel="manifest" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/site.webmanifest' %}" />
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <!-- Nucleo Icons -->
@@ -114,7 +116,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'act_service_document' %}">
+          <a class="nav-link text-dark" href="{% url 'act_service_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Акт оказания услуг</span>
           </a>
@@ -150,7 +152,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link text-dark" href="{% url 'rko_document' %}">
+          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'rko_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">РКО</span>
           </a>
@@ -435,7 +437,7 @@
 
 
         <div class="d-flex justify-content-start" style="margin-top: 7px;">
-            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview'">Сохранить</button>
+            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview_' + Date.now()">Сохранить</button>
             <button type="submit" class="btn btn-success" onclick="setDownloadExcel()">Excel</button>
             <input type="hidden" name="download_excel" id="download_excel" value="false">
             <button type="submit" class="btn btn-info" onclick="setDownloadPdf()" style="margin-left: 7px;">PDF</button>

@@ -54,18 +54,18 @@ class Ks2DocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'name_construction': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'name_construction': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'address_construction': forms.TextInput(
-                attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
-            'name_object': forms.TextInput(attrs={'class': 'form-control'}),
-            'view_okdp': forms.TextInput(attrs={'class': 'form-control'}),
-            'number_agreement': forms.TextInput(attrs={'class': 'form-control'}),
-            'price_outlay': forms.TextInput(attrs={'class': 'form-control'}),
+                attrs={'class': 'form-control w-md-50', 'id': 'id_address', 'list': 'address_list'}),
+            'name_object': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'view_okdp': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'number_agreement': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'price_outlay': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'date_agreement': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'date_agreement': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
 
         }
 

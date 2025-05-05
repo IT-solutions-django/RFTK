@@ -23,14 +23,14 @@ class RkoDocumentForm(forms.ModelForm):
         exclude = ['user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'payer': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport': forms.TextInput(attrs={'class': 'form-control'}),
-            'account_debit': forms.TextInput(attrs={'class': 'form-control'}),
-            'account_loan': forms.TextInput(attrs={'class': 'form-control'}),
-            'summa': forms.TextInput(attrs={'class': 'form-control'}),
-            'base': forms.TextInput(attrs={'class': 'form-control'}),
-            'annex': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'payer': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'passport': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'account_debit': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'account_loan': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'summa': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'base': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'annex': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
         }
 

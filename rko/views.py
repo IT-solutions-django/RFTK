@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView
-from invoice.models import RkoDocument
+from invoice.models import RkoDocument, InformationOrganization, Buyer
 from .forms import RkoDocumentForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
@@ -8,6 +9,7 @@ from rko.utils.excel import create_rko_excel
 from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
 from django.utils.dateparse import parse_date
+from rko.utils.rko_registry_pdf import create_rko_registry_pdf
 
 
 class RkoDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -64,6 +66,9 @@ def rko_document(request):
     query = request.GET.get('q', '')
     date_from = request.GET.get('date_from', '')
     date_to = request.GET.get('date_to', '')
+    org_param = request.GET.get('filter_org', '')
+    coun_param = request.GET.get('filter_coun', '')
+    sort_param = request.GET.get('sort', '')
 
     documents = RkoDocument.objects.select_related('organization').filter(user=request.user)
 
@@ -74,10 +79,32 @@ def rko_document(request):
         documents = documents.filter(date__gte=parse_date(date_from))
     if date_to:
         documents = documents.filter(date__lte=parse_date(date_to))
+    if org_param:
+        documents = documents.filter(organization=org_param)
+    if coun_param:
+        documents = documents.filter(counterparty=coun_param)
 
-    paginator = Paginator(documents, 10)
+    if request.GET.get('cnt_page_paginator', ''):
+        cnt_page = int(request.GET.get('cnt_page_paginator'))
+    else:
+        cnt_page = 20
+
+    if sort_param:
+        if sort_param == 'date_document_new':
+            documents = documents.order_by('-date')
+        elif sort_param == 'date_document_old':
+            documents = documents.order_by('date')
+        elif sort_param == 'name_document_new':
+            documents = documents.order_by('name')
+        elif sort_param == 'name_document_old':
+            documents = documents.order_by('-name')
+    else:
+        documents = documents.order_by('-date')
+
+    paginator = Paginator(documents, cnt_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+    page_range = list(paginator.page_range)
 
     if request.method == 'POST' and 'delete_document' in request.POST:
         document_id = request.POST.get('document_id')
@@ -85,5 +112,22 @@ def rko_document(request):
         document.delete()
         return redirect('rko_document')
 
+    organizations = InformationOrganization.objects.filter(user=request.user)
+
+    counterparty = Buyer.objects.filter(user=request.user)
+
     return render(request, 'rko_document_new.html',
-                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to, 'current_page': page_obj.number, 'total_pages': paginator.num_pages, 'organizations': organizations, 'counterparty':  counterparty, 'page_range': page_range})
+
+
+def rko_registry(request):
+    utd_documents_all = RkoDocument.objects.select_related('organization').filter(user=request.user)
+
+    context = {
+        'utd_documents_all': utd_documents_all
+    }
+
+    html_string = render_to_string('rko_registry.html', context)
+
+    response = create_rko_registry_pdf(html_string)
+    return response

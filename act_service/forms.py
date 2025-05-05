@@ -58,10 +58,10 @@ class ActServiceDocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'payment_for': forms.TextInput(attrs={'class': 'form-control'}),
-            'agreement': forms.TextInput(attrs={'class': 'form-control'}),
+            'payment_for': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'agreement': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
 
         }
 

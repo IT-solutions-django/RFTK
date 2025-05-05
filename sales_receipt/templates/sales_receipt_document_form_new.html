@@ -9,6 +9,8 @@
   <title>
     Создать новый товарный чек | RFTK
   </title>
+    <link rel="icon" type="image/png" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/favicon-32x32.png' %}" sizes="32x32" />
+    <link rel="manifest" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/site.webmanifest' %}" />
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <!-- Nucleo Icons -->
@@ -116,7 +118,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'act_service_document' %}">
+          <a class="nav-link text-dark" href="{% url 'act_service_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Акт оказания услуг</span>
           </a>
@@ -134,7 +136,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link text-dark" href="{% url 'sales_receipt_document' %}">
+          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'sales_receipt_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Товарный чек</span>
           </a>
@@ -398,6 +400,7 @@
                 <thead>
                     <tr>
                         <th style="width: 30px; min-width: 30px;">#</th>
+                        <th style="width: 30px; min-width: 30px;"></th>
                         <th style="width: 100px; min-width: 100px;">Артикул</th>
                         <th style="width: 190px; min-width: 190px;">Наименование</th>
                         <th style="width: 100px; min-width: 100px;">Единица измерения</th>
@@ -412,6 +415,17 @@
                         <tr class="form-row">
                             <td class="row-number">{{ forloop.counter }}</td>
                             {{ form.id }}
+                            <td>
+                                <button type="button" class="btn  drag-handle" title="Перетащить">
+                                    <i class="fas fa-arrows-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-success add-row">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn remove-row">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                            </td>
                             <td>{{ form.article_number }}</td>
                             <td>{{ form.name }}</td>
                             <td>{{ form.unit_of_measurement }}</td>
@@ -435,15 +449,17 @@
 
             </table>
             </div>
+            <div class="d-flex align-items-center" style="gap: 10px;">
             <button type="button" class="btn btn-primary mb-3 w-md-30 w-sm-100 mt-3" id="duplicate-last-row">
                 <i class="fas fa-copy"></i> Дублировать последнюю строку
             </button>
+                <button type="button" class="btn btn-success mt-3 add-new-last-row" id="add-new-last-row">Добавить строку</button>
+                </div>
             <p><span style="font-weight: 700; font-size: 18px;">Итого:</span> <span style="font-weight: 700; font-size: 18px;" id="total-sum"></span></p>
-            <p><span style="font-weight: 700; font-size: 18px;">Сумма НДС:</span> <span style="font-weight: 700; font-size: 18px;" id="total-nds"></span></p>
         </div>
 
         <div class="d-flex justify-content-start" style="margin-top: 7px;">
-            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview'">Сохранить</button>
+            <button type="submit" class="btn btn-primary" style="margin-right: 7px; background-color:#e91e63;" onclick="resetDownload(); this.form.target='preview_' + Date.now()">Сохранить</button>
             <button type="submit" class="btn btn-success" onclick="setDownloadExcel()">Excel</button>
             <input type="hidden" name="download_excel" id="download_excel" value="false">
             <button type="submit" class="btn btn-info" onclick="setDownloadPdf()" style="margin-left: 7px;">PDF</button>

@@ -1392,31 +1392,628 @@ def search_counterparty(request):
 
 
 def copy_document(request, id_doc, doc_type):
-    original_object = UtdDocument.objects.get(id=id_doc)
+    if doc_type == 'utd':
+        original_object = UtdDocument.objects.get(id=id_doc)
 
-    new_object = UtdDocument(
-        user=original_object.user,
-        name=f'{original_object.name} (Копия)',
-        date=original_object.date,
-        payment_document=original_object.payment_document,
-        organization=original_object.organization,
-        shipper=original_object.shipper,
-        counterparty=original_object.counterparty,
-        consignee=original_object.consignee,
-        shipping_document=original_object.shipping_document,
-        state_ID_contract=original_object.state_ID_contract,
-        basis_for_transfer=original_object.basis_for_transfer,
-        data_transportation=original_object.data_transportation,
-        shipment_date=original_object.shipment_date,
-        date_of_receipt=original_object.date_of_receipt,
-        type_document=original_object.type_document,
-        currency=original_object.currency,
-        nds=original_object.nds,
-        is_stamp=original_object.is_stamp
-    )
+        new_object = UtdDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            payment_document=original_object.payment_document,
+            organization=original_object.organization,
+            shipper=original_object.shipper,
+            counterparty=original_object.counterparty,
+            consignee=original_object.consignee,
+            shipping_document=original_object.shipping_document,
+            state_ID_contract=original_object.state_ID_contract,
+            basis_for_transfer=original_object.basis_for_transfer,
+            data_transportation=original_object.data_transportation,
+            shipment_date=original_object.shipment_date,
+            date_of_receipt=original_object.date_of_receipt,
+            type_document=original_object.type_document,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
 
-    new_object.save()
+        new_object.save()
 
-    new_object.table_product.set(original_object.table_product.all())
+        new_object.table_product.set(original_object.table_product.all())
 
-    return redirect(f'/edit_document/{new_object.id}/utd/')
+        return redirect(f'/edit_document/{new_object.id}/utd/')
+
+    elif doc_type == 'invoice':
+        original_object = InvoiceDocument.objects.get(id=id_doc)
+
+        new_object = InvoiceDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            bank_organization=original_object.bank_organization,
+            counterparty=original_object.counterparty,
+            bank_counterparty=original_object.bank_counterparty,
+            consignee=original_object.consignee,
+            purpose_of_payment=original_object.purpose_of_payment,
+            payment_for=original_object.payment_for,
+            agreement=original_object.agreement,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/invoice/')
+
+    elif doc_type == 'vat_invoice':
+        original_object = VatInvoiceDocument.objects.get(id=id_doc)
+
+        new_object = VatInvoiceDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            payment_document=original_object.payment_document,
+            organization=original_object.organization,
+            shipper=original_object.shipper,
+            counterparty=original_object.counterparty,
+            consignee=original_object.consignee,
+            shipping_document=original_object.shipping_document,
+            state_ID_contract=original_object.state_ID_contract,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/vat_invoice/')
+
+    elif doc_type == 'commercial_offer':
+        original_object = CommercialOfferDocument.objects.get(id=id_doc)
+
+        new_object = CommercialOfferDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            naming=original_object.naming,
+            address=original_object.address,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/commercial_offer/')
+
+    elif doc_type == 'outlay':
+        original_object = OutlayDocument.objects.get(id=id_doc)
+
+        new_object = OutlayDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            number_outlay=original_object.number_outlay,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            base=original_object.base,
+            work_time=original_object.work_time,
+            name_construction=original_object.name_construction,
+            address=original_object.address,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/outlay/')
+
+    elif doc_type == 'ks-2':
+        original_object = Ks2Document.objects.get(id=id_doc)
+
+        new_object = Ks2Document(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            investor=original_object.investor,
+            name_construction=original_object.name_construction,
+            address_construction=original_object.address_construction,
+            name_object=original_object.name_object,
+            view_okdp=original_object.view_okdp,
+            number_agreement=original_object.number_agreement,
+            date_agreement=original_object.date_agreement,
+            price_outlay=original_object.price_outlay,
+            period_from=original_object.period_from,
+            period_by=original_object.period_by,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/ks-2/')
+
+    elif doc_type == 'ks-3':
+        original_object = Ks3Document.objects.get(id=id_doc)
+
+        new_object = Ks3Document(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            investor=original_object.investor,
+            name_construction=original_object.name_construction,
+            address_construction=original_object.address_construction,
+            number_agreement=original_object.number_agreement,
+            date_agreement=original_object.date_agreement,
+            period_from=original_object.period_from,
+            period_by=original_object.period_by,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/ks-3/')
+
+    elif doc_type == 'act_service':
+        original_object = ActServiceDocument.objects.get(id=id_doc)
+
+        new_object = ActServiceDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            payment_for=original_object.payment_for,
+            agreement=original_object.agreement,
+            currency=original_object.currency,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/act_service/')
+
+    elif doc_type == 'power_attorney':
+        original_object = PowerAttorneyDocument.objects.get(id=id_doc)
+
+        new_object = PowerAttorneyDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            bank_organization=original_object.bank_organization,
+            validity_period=original_object.validity_period,
+            to_receive_from=original_object.to_receive_from,
+            according_document=original_object.according_document,
+            person_power=original_object.person_power,
+            passport_series=original_object.passport_series,
+            passport_number=original_object.passport_number,
+            issued_by=original_object.issued_by,
+            date_issue=original_object.date_issue,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/power_attorney/')
+
+    elif doc_type == 'sales_receipt':
+        original_object = SalesReceiptDocument.objects.get(id=id_doc)
+
+        new_object = SalesReceiptDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            currency=original_object.currency,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/sales_receipt/')
+
+    elif doc_type == 'pko':
+        original_object = PkoDocument.objects.get(id=id_doc)
+
+        new_object = PkoDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            payer=original_object.payer,
+            organization=original_object.organization,
+            account_debit=original_object.account_debit,
+            account_loan=original_object.account_loan,
+            summa=original_object.summa,
+            base=original_object.base,
+            annex=original_object.annex,
+            nds=original_object.nds,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        return redirect(f'/edit_document/{new_object.id}/pko/')
+
+    elif doc_type == 'rko':
+        original_object = RkoDocument.objects.get(id=id_doc)
+
+        new_object = RkoDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            payer=original_object.payer,
+            passport=original_object.passport,
+            organization=original_object.organization,
+            account_debit=original_object.account_debit,
+            account_loan=original_object.account_loan,
+            summa=original_object.summa,
+            base=original_object.base,
+            annex=original_object.annex,
+            is_stamp=original_object.is_stamp
+        )
+
+        new_object.save()
+
+        return redirect(f'/edit_document/{new_object.id}/rko/')
+
+    elif doc_type == 'reconciliation':
+        original_object = ReconciliationDocument.objects.get(id=id_doc)
+
+        new_object = ReconciliationDocument(
+            user=original_object.user,
+            name=f'{original_object.name} (Копия)',
+            date=original_object.date,
+            organization=original_object.organization,
+            counterparty=original_object.counterparty,
+            period_from=original_object.period_from,
+            period_by=original_object.period_by,
+            balance_debit=original_object.balance_debit,
+            balance_loan=original_object.balance_loan,
+            place_of_act=original_object.place_of_act
+        )
+
+        new_object.save()
+
+        new_object.table_product.set(original_object.table_product.all())
+
+        return redirect(f'/edit_document/{new_object.id}/reconciliation/')
+
+
+def download_document(request, doc_type, document_id):
+    models_doc_type = {
+        'invoice': {
+            'model': InvoiceDocument,
+            'form': InvoiceDocumentForm,
+            'formset': InvoiceDocumentTableFormSet,
+            'excel': create_invoice_excel
+        },
+        'utd': {
+            'model': UtdDocument,
+            'form': UtdDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'excel': create_utd_excel
+        },
+        'vat_invoice': {
+            'model': VatInvoiceDocument,
+            'form': VatInvoiceDocumentForm,
+            'formset': UtdDocumentTableFormSet,
+            'excel': create_vat_invoice_excel,
+        },
+        'commercial_offer': {
+            'model': CommercialOfferDocument,
+            'form': CommercialOfferDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_commercial_offer_excel,
+        },
+        'outlay': {
+            'model': OutlayDocument,
+            'form': OutlayDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_outlay_excel,
+        },
+        'ks-2': {
+            'model': Ks2Document,
+            'form': Ks2DocumentForm,
+            'formset': Ks2DocumentTableFormSet,
+            'excel': create_ks2_excel,
+        },
+        'ks-3': {
+            'model': Ks3Document,
+            'form': Ks3DocumentForm,
+            'formset': Ks3DocumentTableFormSet,
+            'excel': create_ks3_excel,
+        },
+        'act_service': {
+            'model': ActServiceDocument,
+            'form': ActServiceDocumentForm,
+            'formset': CommercialOfferDocumentTableFormSet,
+            'excel': create_act_service_excel,
+        },
+        'power_attorney': {
+            'model': PowerAttorneyDocument,
+            'form': PowerAttorneyDocumentForm,
+            'formset': PowerAttorneyDocumentTableFormSet,
+            'excel': create_power_attorney_excel,
+        },
+        'sales_receipt': {
+            'model': SalesReceiptDocument,
+            'form': SalesReceiptDocumentForm,
+            'formset': SalesReceiptDocumentTableFormSet,
+            'excel': create_sales_receipt_excel,
+        },
+        'pko': {
+            'model': PkoDocument,
+            'form': PkoDocumentForm,
+            'excel': create_pko_excel,
+        },
+        'rko': {
+            'model': RkoDocument,
+            'form': RkoDocumentForm,
+            'excel': create_rko_excel,
+        },
+        'reconciliation': {
+            'model': ReconciliationDocument,
+            'form': ReconciliationDocumentForm,
+            'formset': ReconciliationDocumentTableFormSet,
+            'excel': create_reconciliation_excel,
+        },
+        'agreement': {
+            'model': AgreementDocument,
+            'form': AgreementDocumentForm,
+            'excel': create_agreement_excel,
+        },
+    }
+
+    document = get_object_or_404(models_doc_type[doc_type]['model'], id=document_id)
+
+    form = models_doc_type[doc_type]['form'](instance=document)
+
+    if doc_type not in ['pko', 'rko', 'agreement']:
+        formset = models_doc_type[doc_type]['formset'](queryset=document.table_product.all())
+    else:
+        formset = []
+
+    form_data = {field.name: getattr(form.instance, field.name) for field in form.instance._meta.get_fields()}
+
+    formset_data = []
+    for form_s in formset:
+        forms_data = {field.name: field.value() for field in form_s}
+        formset_data.append(forms_data)
+
+    if doc_type == 'invoice':
+        organization_data = {
+            "name": form_data['organization'].naming,
+            "inn": form_data['organization'].inn,
+            "kpp": form_data['organization'].kpp,
+            "ogrn": form_data['organization'].ogrn,
+            "address": form_data['organization'].address,
+            "phone": form_data['organization'].phone,
+            "position_at_work": form_data['organization'].position_at_work,
+            "supervisor": form_data['organization'].supervisor,
+            "accountant": form_data['organization'].accountant,
+            "code_company": form_data['organization'].code_company,
+        }
+        return models_doc_type[doc_type]['excel'](form_data, organization_data, formset_data, True, False)
+
+    elif doc_type == 'agreement':
+        template_name = form_data['sample']
+        template_sample = TemplateDocument.objects.filter(title=template_name).first()
+
+        labels = template_sample.labels.all()
+
+        context = {
+            'title': template_sample.title,
+            'content': template_sample.content
+        }
+
+        html_string = render_to_string('supply_contract.html', context)
+
+        dop_fields = document.dop_field.all()
+
+        for label in labels:
+            value_label = dop_fields.filter(label=label).first()
+            if value_label:
+                html_string = html_string.replace(label.label_code, value_label.value)
+
+        for label in labels:
+            if label.label_code == '{date_doc}':
+                html_string = html_string.replace(label.label_code, str(form_data['date']))
+            elif label.label_code == '{number_doc}':
+                html_string = html_string.replace(label.label_code, form_data['name'])
+            elif label.label_code == '{name}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{address}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].address)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{inn}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].inn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{kpp}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].kpp)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{ogrn}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].ogrn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{phone}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].phone)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_schet}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].namimg)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_bik}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].bic)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_korr}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].correspondent_account)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_caption_director}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].position_at_work)
+                else:
+                    html_string = html_string.replace(label.label_code,
+                                                      '')
+            elif label.label_code == '{org_director}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].supervosor)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{org_buh}':
+                if form_data['organization']:
+                    html_string = html_string.replace(label.label_code, form_data['organization'].accountant)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{bank_address}':
+                if form_data['bank_organization']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_organization'].location)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_name}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_inn}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].inn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_kpp}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].kpp)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_ogrn}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].ogrn)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_address}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].address)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_phone}':
+                if form_data['counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['counterparty'].phone)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_name}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].naming)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_bic}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].bic)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_address}':
+                if form.cleaned_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].location)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_schet}':
+                if form.cleaned_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].current_account)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+            elif label.label_code == '{partner_bank_korr}':
+                if form_data['bank_counterparty']:
+                    html_string = html_string.replace(label.label_code, form_data['bank_counterparty'].correspondent_account)
+                else:
+                    html_string = html_string.replace(label.label_code, '')
+
+        organization = form_data['organization']
+        is_stamp = form_data['is_stamp']
+
+        return models_doc_type[doc_type]['excel'](html_string, organization, is_stamp, True)
+
+    return models_doc_type[doc_type]['excel'](form_data, formset_data, True, False)
+
+
+def create_other_document(request, id_doc):
+    document_param = request.GET.get('create-other-document')
+
+    if document_param:
+        if document_param == 'invoice':
+            utd_document = UtdDocument.objects.get(id=id_doc)
+
+            invoice_document = InvoiceDocument(
+                user=request.user,
+                name=utd_document.name,
+                date=utd_document.date,
+                organization=utd_document.organization,
+                counterparty=utd_document.counterparty,
+                consignee=utd_document.consignee,
+                currency=utd_document.currency,
+                nds=utd_document.nds,
+                is_stamp=utd_document.is_stamp
+            )
+
+            invoice_document.save()
+
+            table_product = utd_document.table_product.all()
+
+            for product in table_product:
+                table = InvoiceDocumentTable(
+                    name=product.name,
+                    unit_of_measurement=product.unit_of_measurement,
+                    quantity=product.quantity,
+                    price=product.price,
+                    amount=product.amount
+                )
+                table.save()
+                invoice_document.table_product.add(table)
+
+            return redirect(f'/edit_document/{invoice_document.id}/invoice/')
+
+

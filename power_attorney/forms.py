@@ -33,16 +33,16 @@ class PowerAttorneyDocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'validity_period': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'date_issue': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'to_receive_from': forms.TextInput(attrs={'class': 'form-control'}),
-            'according_document': forms.TextInput(attrs={'class': 'form-control'}),
-            'person_power': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_series': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'issued_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'validity_period': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'date_issue': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'to_receive_from': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'according_document': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'person_power': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'passport_series': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'passport_number': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'issued_by': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
         }
 
     def __init__(self, *args, **kwargs):

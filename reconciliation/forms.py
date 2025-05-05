@@ -26,13 +26,13 @@ class ReconciliationDocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
-            'balance_debit': forms.TextInput(attrs={'class': 'form-control'}),
-            'balance_loan': forms.TextInput(attrs={'class': 'form-control'}),
-            'place_of_act': forms.TextInput(attrs={'class': 'form-control'}),
+            'period_from': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'period_by': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date'}),
+            'balance_debit': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'balance_loan': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'place_of_act': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
         }
 
     def __init__(self, *args, **kwargs):

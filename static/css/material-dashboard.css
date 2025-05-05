@@ -29485,8 +29485,13 @@ select:focus {
   box-shadow: none; /* Мягкое свечение */
 }
 
-.filter_org, .filter_coun {
+.select-sort {
   height: 35px;
+}
+
+.select2-selection {
+    border-color: orange!important;
+    background-color: transparent!important;
 }
 
 

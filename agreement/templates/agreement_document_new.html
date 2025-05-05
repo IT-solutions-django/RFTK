@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,8 +10,13 @@
   <title>
     Договор/Документ | RFTK
   </title>
+    <link rel="icon" type="image/png" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/favicon-32x32.png' %}" sizes="32x32" />
+    <link rel="manifest" href="{% static 'favicons-ee12127f414fa0c96616c436c05f46c6(pr-cy/site.webmanifest' %}" />
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <!-- Nucleo Icons -->
   <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
   <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
@@ -19,6 +25,8 @@
   <!-- Material Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <!-- CSS Files -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link id="pagestyle" href="{% static 'css/material-dashboard.css' %}" rel="stylesheet" />
 </head>
 
@@ -105,7 +113,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'act_service_document' %}">
+          <a class="nav-link text-dark" href="{% url 'act_service_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Акт оказания услуг</span>
           </a>
@@ -159,7 +167,7 @@
         </li>
           <li class="nav-item">
               <div class="d-flex align-items-center justify-content-between">
-          <a class="nav-link text-dark" href="{% url 'agreement_document' %}">
+          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'agreement_document' %}">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
             <span class="nav-link-text ms-1">Договор/Документ</span>
           </a>
@@ -235,39 +243,104 @@
     <!-- End Navbar -->
     <div class="container-fluid py-2">
       <form method="get" class="p-3 bg-light rounded shadow-sm">
+          <h5 class="mb-3">Фильтр/Поиск</h5>
     <div class="row g-2 align-items-center">
         <!-- Поле поиска -->
         <div class="col-md-3">
-          <label class="form-label mb-0">Номер документа</label>
-            <input type="text" name="q" value="{{ query }}" placeholder="Поиск по номеру"
+            <input type="text" name="q" value="{{ query }}" placeholder="Поиск по названию"
                    class="form-control search-document-input" />
         </div>
 
         <!-- Поля даты -->
-        <div class="col-md-3">
-          <label class="form-label mb-0">Дата от</label>
-            <input type="date" name="date_from" value="{{ date_from }}" class="form-control search-document-input" />
+
+        <div class="d-flex row mt-2 g-2">
+            <div class="col-md-2">
+                <label>Дата с</label>
+            <input type="date" name="date_from" value="{{ date_from }}" class="form-control search-document-input"/>
         </div>
 
-        <div class="col-md-3">
-            <label class="form-label mb-0">Дата до</label>
+        <div class="col-md-2">
+             <label>Дата до</label>
             <input type="date" name="date_to" value="{{ date_to }}" class="form-control search-document-input" />
         </div>
+            </div>
+
+        <div class="d-flex row mt-3 g-2" style="margin-left: 0!important; gap: 15px;">
+        <div class="col-md-4 px-0">
+            <label>Организация</label>
+            <select name="filter_org" class="form-select select2">
+                <option value="">Организация</option>
+                {% for org in organizations %}
+                <option value="{{ org.id }}" {% if request.GET.filter_org == org.id|stringformat:"s" %} selected {% endif %}>{{ org.naming }} (ИНН: {{ org.inn }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+            <div class="col-md-4 px-0">
+                <label>Контрагент</label>
+            <select name="filter_coun" class="form-select select2">
+                <option value="">Контрагент</option>
+                {% for org in counterparty %}
+                <option value="{{ org.id }}" {% if request.GET.filter_coun == org.id|stringformat:"s" %} selected {% endif %}>{{ org.naming }} (ИНН: {{ org.inn }})</option>
+                {% endfor %}
+            </select>
+        </div>
+            </div>
 
         <!-- Кнопка поиска -->
         <div class="col-md-12 mt-4">
-            <button type="submit" class="search-document-button">🔍 Найти</button>
+            <button type="submit" class="search-document-button" style="margin-left: 0;">Применить</button>
           <a href="{{ request.path }}" class="ms-4" style="color: red;">Сбросить</a>
         </div>
+        <a href="{% url 'agreement_registry' %}" class="mt-4" onclick="window.open(this.href, 'preview', 'width=1000,height=800'); return false;">
+            <div class="d-flex align-items-center">
+            <i class="material-symbols-rounded opacity-5 me-2">receipt_long</i>
+            <span>Создать реестр</span>
+            </div>
+        </a>
     </div>
 </form>
 
       <div class="row">
-        <div class="col-md-7 mt-4">
+        <div class="col-md-12 mt-4">
+          <form method="get">
+                {% if request.GET.date_from %}
+    <input type="hidden" name="date_from" value="{{ request.GET.date_from }}">
+  {% endif %}
+  {% if request.GET.date_to %}
+    <input type="hidden" name="date_to" value="{{ request.GET.date_to }}">
+  {% endif %}
+  {% if request.GET.filter_org %}
+    <input type="hidden" name="filter_org" value="{{ request.GET.filter_org }}">
+  {% endif %}
+  {% if request.GET.filter_coun %}
+    <input type="hidden" name="filter_coun" value="{{ request.GET.filter_coun }}">
+  {% endif %}
+  {% if request.GET.q %}
+    <input type="hidden" name="q" value="{{ request.GET.q }}">
+  {% endif %}
+  {% if request.GET.cnt_page_paginator %}
+    <input type="hidden" name="cnt_page_paginator" value="{{ request.GET.cnt_page_paginator }}">
+  {% endif %}
+            <select name="sort" class="select-sort mb-3" onchange="this.form.submit()">
+              <option value="date_document_new" {% if request.GET.sort == 'date_document_new' %} selected {% endif %}>Дата документа (сначала новые)</option>
+              <option value="date_document_old" {% if request.GET.sort == 'date_document_old' %} selected {% endif %}>Дата документа (сначала старые)</option>
+              <option value="name_document_new" {% if request.GET.sort == 'name_document_new' %} selected {% endif %}>По названию (А-Я)</option>
+              <option value="name_document_old" {% if request.GET.sort == 'name_document_old' %} selected {% endif %}>По названию (Я-А)</option>
+          </select>
+                </form>
           <div class="card">
             <div class="row pb-0 px-3 mt-3">
               <div class="col-6 d-flex align-items-center">
                 <h6 class="mb-0">Документы</h6>
+                <form method="get" class="ms-3">
+                  <select name="cnt_page_paginator" onchange="this.form.submit()">
+                      <option value="20" {% if request.GET.cnt_page_paginator == '20' %} selected {% endif %}>20</option>
+                      <option value="10" {% if request.GET.cnt_page_paginator == '10' %} selected {% endif %}>10</option>
+                      <option value="50" {% if request.GET.cnt_page_paginator == '50' %} selected {% endif %}>50</option>
+                      <option value="100" {% if request.GET.cnt_page_paginator == '100' %} selected {% endif %}>100</option>
+                  </select>
+                  </form>
               </div>
               <div class="col-6 text-end">
                 <a class="btn bg-gradient-dark mb-0" href="{% url 'agreement' %}"><i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Создать новый документ</a>
@@ -279,22 +352,31 @@
             <div class="card-body pt-4 p-3">
               <ul class="list-group">
                 {% for document in page_obj %}
-                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg" style="flex-wrap: wrap-reverse;">
                   <div class="d-flex flex-column">
-                    <a href="{% url 'edit_document' document.id 'agreement' %}" class="mb-3 text-sm" style="font-size: 18px !important; font-weight: 600 !important;">Договор/Документ №{{ document.name }}</a>
+                    <a href="{% url 'edit_document' document.id 'agreement' %}" class="mb-3 text-sm" style="font-size: 18px !important; font-weight: 600 !important;">Документ №{{ document.name }} от {{ document.date|date:"j E Y" }}</a>
                     <span class="mb-2 text-xs">Дата создания: <span class="text-dark font-weight-bold ms-sm-2">{{ document.date|date:"j E Y" }}</span></span>
                     <span class="mb-2 text-xs">Огранизация: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.organization.naming }}</span></span>
-                    <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }}</span></span>
-                    <form method="POST" action="{% url 'print_document' 'agreement' document.id %}" style="margin-top: 35px;">
+                    <span class="text-xs">Контрагент: <span class="text-dark ms-sm-2 font-weight-bold">{{ document.counterparty.naming }} (ИНН: {{ document.counterparty.inn }})</span></span>
+                    <div class="d-flex align-items-center" style="margin-top: 35px; gap: 20px;">
+                    <form method="POST" action="{% url 'print_document' 'agreement' document.id %}" class="d-flex align-items-center">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-link" name="print_document" value="true" onclick="this.form.target='preview'"><i class="material-symbols-rounded text-sm me-2 " style="font-size: 14px!important; margin-left: -17px;">print</i>Печать документа</button>
+                      <button type="submit" class="btn btn-link" name="print_document" value="true" onclick="this.form.target='preview_{{ document.id }}'" style="margin: 0!important; padding: 0!important;"><i class="material-symbols-rounded text-sm me-2 " >print</i>Печать документа</button>
                   </form>
+
+                      <a href="{% url 'download_document' 'agreement' document.id %}" class="text-sm">
+                        <div class="d-flex align-items-center">
+                        <i class="material-symbols-rounded me-2">file_download</i>
+                            <span>Скачать</span>
+                        </div>
+                    </a>
+                      </div>
                   </div>
-                  <div class="ms-auto text-end">
+                  <div class="text-end">
                     <form method="post" class="d-inline">
                       {% csrf_token %}
                             <input type="hidden" name="document_id" value="{{ document.id }}">
-                            <button type="submit" name="delete_document" class="btn btn-link text-danger text-gradient px-3 mb-0"><i class="material-symbols-rounded text-sm me-2">delete</i>Удалить</button>
+                            <button type="submit" name="delete_document" class="btn btn-link text-danger text-gradient px-3 mb-0" style="padding-left:0!important;"><i class="material-symbols-rounded text-sm me-2">delete</i>Удалить</button>
 
                     </form>
                     <a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit_document' document.id 'agreement' %}"><i class="material-symbols-rounded text-sm me-2">edit</i>Редактировать</a>
@@ -312,6 +394,36 @@
 
       </div>
 
+      <div class="mt-3 pagination">
+    {% if current_page > 1 %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ current_page|add:-1 }}" class="pagination-page">Предыдущая</a>
+    {% endif %}
+
+    <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page=1" class="pagination-page {% if current_page == 1 %}active{% endif %}">1</a>
+
+    {% if current_page > 4 %}
+        <span class="pagination-page">...</span>
+    {% endif %}
+
+    {% for page in page_range %}
+        {% if page > 1 and page < total_pages %}
+            <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ page }}" class="pagination-page {% if page == current_page %}active{% endif %}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages|add:-3 %}
+        <span class="pagination-page">...</span>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ total_pages }}" class="pagination-page {% if current_page == total_pages %}active{% endif %}">{{ total_pages }}</a>
+    {% endif %}
+
+    {% if current_page < total_pages %}
+        <a href="?{% for key, val in request.GET.items %}{% if key != 'page' %}{{ key }}={{ val }}&{% endif %}{% endfor %}page={{ current_page|add:1 }}" class="pagination-page">Следующая</a>
+    {% endif %}
+</div>
+
     </div>
   </main>
 
@@ -321,6 +433,16 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{% static 'js/material-dashboard.min.js' %}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    $('.select2').select2({
+        width: '100%',
+        placeholder: "Выберите значение",
+        allowClear: true
+    });
+});
+</script>
 </body>
 
 </html>

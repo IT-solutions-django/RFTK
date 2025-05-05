@@ -18,23 +18,23 @@ from django.contrib import admin
 from django.urls import path
 from invoice.views import InvoiceDocumentCreateView, add_organization, add_counterparty, pdf, get_banks, \
     generate_invoice_excel, get_banks_counterparty, add_organization_with_bank, add_counterparty_with_bank, \
-    invoice_document, main, add_bank_org, add_bank_coun
+    invoice_document, main, add_bank_org, add_bank_coun, invoice_registry
 from user import views
-from utd.views import UtdDocumentCreateView, utd_document
-from vat_invoice.views import VatInvoiceDocumentCreateView, vat_invoice_document
+from utd.views import UtdDocumentCreateView, utd_document, utd_registry
+from vat_invoice.views import VatInvoiceDocumentCreateView, vat_invoice_document, vat_invoice_registry
 from packing_list.views import PackingListDocumentCreateView
-from commercial_offer.views import CommercialOfferDocumentCreateView, commercial_offer_document
-from outlay.views import OutlayDocumentCreateView, outlay_document
-from ks_2.views import Ks2DocumentCreateView, ks_2_document
-from ks_3.views import Ks3DocumentCreateView, ks_3_document
-from act_service.views import ActServiceDocumentCreateView, act_service_document
-from power_attorney.views import PowerAttorneyDocumentCreateView, power_attorney_document
-from sales_receipt.views import SalesReceiptDocumentCreateView, sales_receipt_document
-from pko.views import PkoDocumentCreateView, pko_document
-from rko.views import RkoDocumentCreateView, rko_document
-from reconciliation.views import ReconciliationCreateView, reconciliation_document
-from agreement.views import AgreementDocumentCreateView, agreement_document
-from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels, add_labels, copy_document
+from commercial_offer.views import CommercialOfferDocumentCreateView, commercial_offer_document, commercial_offer_registry
+from outlay.views import OutlayDocumentCreateView, outlay_document, outlay_registry
+from ks_2.views import Ks2DocumentCreateView, ks_2_document, ks_2_registry
+from ks_3.views import Ks3DocumentCreateView, ks_3_document, ks_3_registry
+from act_service.views import ActServiceDocumentCreateView, act_service_document, act_services_registry
+from power_attorney.views import PowerAttorneyDocumentCreateView, power_attorney_document, power_attorney_registry
+from sales_receipt.views import SalesReceiptDocumentCreateView, sales_receipt_document, sales_receipt_registry
+from pko.views import PkoDocumentCreateView, pko_document, pko_registry
+from rko.views import RkoDocumentCreateView, rko_document, rko_registry
+from reconciliation.views import ReconciliationCreateView, reconciliation_document, reconciliation_registry
+from agreement.views import AgreementDocumentCreateView, agreement_document, agreement_registry
+from user.views import find_company_by_inn, find_bank_by_bik, inn_autocomplete, bank_autocomplete, add_template_document, get_labels, get_value_labels, add_labels, copy_document, download_document, create_other_document
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -93,6 +93,7 @@ urlpatterns = [
     path('inn_autocomplete/', inn_autocomplete, name='inn_autocomplete'),
     path('bank_autocomplete/', bank_autocomplete, name='bank_autocomplete'),
     path('document/<str:doc_type>/<int:document_id>/print/', views.print_document, name='print_document'),
+    path('document/<str:doc_type>/<int:document_id>/download/', download_document, name='download_document'),
     path('add_template_document/', add_template_document, name='add-template-document'),
     path('get_labels/', get_labels, name='get-labels'),
     path('get_saved_values/', get_value_labels, name='get-value-labels'),
@@ -100,6 +101,21 @@ urlpatterns = [
     path('add_bank_org/', add_bank_org, name='add_bank_org'),
     path('add_bank_coun/', add_bank_coun, name='add_bank_coun'),
     path('api/search-counterparty/', views.search_counterparty, name='search_counterparty'),
+    path('create_other_document/<int:id_doc>/', create_other_document, name='create_other_document'),
+    path('utd_registry/', utd_registry, name='utd_registry'),
+    path('invoice_registry/', invoice_registry, name='invoice_registry'),
+    path('vat_invoice_registry/', vat_invoice_registry, name='vat_invoice_registry'),
+    path('commercial_offer_registry/', commercial_offer_registry, name='commercial_offer_registry'),
+    path('outlay_registry/', outlay_registry, name='outlay_registry'),
+    path('ks_2_registry/', ks_2_registry, name='ks_2_registry'),
+    path('ks_3_registry/', ks_3_registry, name='ks_3_registry'),
+    path('act_services_registry/', act_services_registry, name='act_services_registry'),
+    path('power_attorney_registry/', power_attorney_registry, name='power_attorney_registry'),
+    path('sales_receipt_registry/', sales_receipt_registry, name='sales_receipt_registry'),
+    path('pko_registry/', pko_registry, name='pko_registry'),
+    path('rko_registry/', rko_registry, name='rko_registry'),
+    path('reconciliation_registry/', reconciliation_registry, name='reconciliation_registry'),
+    path('agreement_registry/', agreement_registry, name='agreement_registry'),
 ]
 
 if settings.DEBUG:

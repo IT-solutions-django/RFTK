@@ -95,11 +95,11 @@ class InvoiceDocumentForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control w-md-25', 'value': date.today().strftime('%Y-%m-%d')}),
             'purpose_of_payment': forms.TextInput(
-                attrs={'placeholder': 'Например, Авансовый платёж', 'class': 'form-control'}),
+                attrs={'placeholder': 'Например, Авансовый платёж', 'class': 'form-control w-md-50'}),
             'payment_for': forms.TextInput(
-                attrs={'placeholder': 'Опишите, за что производится оплата', 'class': 'form-control'}),
-            'agreement': forms.TextInput(attrs={'placeholder': 'Номер и дата договора', 'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+                attrs={'placeholder': 'Опишите, за что производится оплата', 'class': 'form-control w-md-50'}),
+            'agreement': forms.TextInput(attrs={'placeholder': 'Номер и дата договора', 'class': 'form-control w-md-50'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
         }
         labels = {
             'name': 'Счет на оплату №',

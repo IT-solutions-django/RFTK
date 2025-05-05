@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView
-from invoice.models import AgreementDocument, TemplateDocument, ValueLabel
+from invoice.models import AgreementDocument, TemplateDocument, ValueLabel, InformationOrganization, Buyer
 from .forms import AgreementDocumentForm, BankOrganizationForm, BankCounForm
 from django.urls import reverse_lazy
 from invoice.forms import OrganizationForm, BankDetailsOrganizationForm, CounterpartyForm, BankCounterpartyForm
@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.core.paginator import Paginator
 from django.utils.dateparse import parse_date
 from django.template.loader import render_to_string
+from agreement.utils.agreement_registry_pdf import create_agreement_registry_pdf
 
 
 class AgreementDocumentCreateView(LoginRequiredMixin, CreateView):
@@ -138,7 +139,7 @@ class AgreementDocumentCreateView(LoginRequiredMixin, CreateView):
                                                       '')
             elif label.label_code == '{org_director}':
                 if form.cleaned_data['organization']:
-                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].supervosor)
+                    html_string = html_string.replace(label.label_code, form.cleaned_data['organization'].supervisor)
                 else:
                     html_string = html_string.replace(label.label_code, '')
             elif label.label_code == '{org_buh}':
@@ -222,6 +223,9 @@ def agreement_document(request):
     query = request.GET.get('q', '')
     date_from = request.GET.get('date_from', '')
     date_to = request.GET.get('date_to', '')
+    org_param = request.GET.get('filter_org', '')
+    coun_param = request.GET.get('filter_coun', '')
+    sort_param = request.GET.get('sort', '')
 
     documents = AgreementDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
 
@@ -232,10 +236,32 @@ def agreement_document(request):
         documents = documents.filter(date__gte=parse_date(date_from))
     if date_to:
         documents = documents.filter(date__lte=parse_date(date_to))
+    if org_param:
+        documents = documents.filter(organization=org_param)
+    if coun_param:
+        documents = documents.filter(counterparty=coun_param)
 
-    paginator = Paginator(documents, 50)
+    if request.GET.get('cnt_page_paginator', ''):
+        cnt_page = int(request.GET.get('cnt_page_paginator'))
+    else:
+        cnt_page = 20
+
+    if sort_param:
+        if sort_param == 'date_document_new':
+            documents = documents.order_by('-date')
+        elif sort_param == 'date_document_old':
+            documents = documents.order_by('date')
+        elif sort_param == 'name_document_new':
+            documents = documents.order_by('name')
+        elif sort_param == 'name_document_old':
+            documents = documents.order_by('-name')
+    else:
+        documents = documents.order_by('-date')
+
+    paginator = Paginator(documents, cnt_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+    page_range = list(paginator.page_range)
 
     if request.method == 'POST' and 'delete_document' in request.POST:
         document_id = request.POST.get('document_id')
@@ -243,5 +269,23 @@ def agreement_document(request):
         document.delete()
         return redirect('agreement_document')
 
+    organizations = InformationOrganization.objects.filter(user=request.user)
+
+    counterparty = Buyer.objects.filter(user=request.user)
+
     return render(request, 'agreement_document_new.html',
-                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to})
+                  {'page_obj': page_obj, 'query': query, 'date_from': date_from, 'date_to': date_to, 'current_page': page_obj.number, 'total_pages': paginator.num_pages, 'organizations': organizations, 'counterparty':  counterparty, 'page_range': page_range})
+
+
+def agreement_registry(request):
+    utd_documents_all = AgreementDocument.objects.select_related('organization', 'counterparty').filter(user=request.user)
+
+    context = {
+        'utd_documents_all': utd_documents_all
+    }
+
+    html_string = render_to_string('agreement_registry.html', context)
+
+    response = create_agreement_registry_pdf(html_string)
+
+    return response

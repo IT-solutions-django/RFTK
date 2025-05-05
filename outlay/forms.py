@@ -58,13 +58,13 @@ class OutlayDocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'number_outlay': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'number_outlay': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'base': forms.TextInput(attrs={'class': 'form-control'}),
-            'work_time': forms.TextInput(attrs={'class': 'form-control'}),
-            'name_construction': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
+            'base': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'work_time': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'name_construction': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'address': forms.TextInput(attrs={'class': 'form-control w-md-50', 'id': 'id_address', 'list': 'address_list'}),
         }
         labels = {
             'name': 'Название документа',

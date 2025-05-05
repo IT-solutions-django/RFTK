@@ -60,10 +60,10 @@ class CommercialOfferDocumentForm(forms.ModelForm):
         exclude = ['table_product', 'user']
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
             'date': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control w-md-25', 'type': 'date', 'value': date.today().strftime('%Y-%m-%d')}),
-            'naming': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address', 'list': 'address_list'}),
+            'naming': forms.TextInput(attrs={'class': 'form-control w-md-50'}),
+            'address': forms.TextInput(attrs={'class': 'form-control w-md-50', 'id': 'id_address', 'list': 'address_list'}),
         }
         labels = {
             'name': 'КП №',

@@ -393,13 +393,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        if (event.target.classList.contains('add-new-last-row')) {
+            const lastRow = document.querySelector('#formset-body tr:last-child');
+            const lastAddButton = lastRow.querySelector('.add-row');
+            lastAddButton.click();
+        }
+
         if (event.target.classList.contains('add-row')) {
             addNewRow(event.target);
         }
     });
 
     function calculateTotalSum() {
-        const ndsRate = parseFloat(ndsInput.value) || 0;
+        let ndsRate = 0;
+
+        if (ndsInput) {
+            ndsRate = parseFloat(ndsInput.value) || 0;
+        }
+
         let total = 0;
         let totalNds = 0;
 
@@ -417,9 +428,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        if (document.getElementById('total-sum')) {
+            document.getElementById('total-sum').textContent = total.toFixed(2);
+        }
+        if (document.getElementById('total-nds')) {
+            document.getElementById('total-nds').textContent = totalNds.toFixed(2);
+        }
 
-        document.getElementById('total-sum').textContent = total.toFixed(2);
-        document.getElementById('total-nds').textContent = totalNds.toFixed(2);
     }
 
     function addNewRow(button) {
@@ -680,7 +695,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const ndsInput = document.getElementById("id_nds");
 
     function calculateTotalSum() {
-        const ndsRate = parseFloat(ndsInput.value) || 0;
+        let ndsRate = 0;
+        if (ndsInput) {
+            ndsRate = parseFloat(ndsInput.value) || 0;
+        }
+
         let total = 0;
         let totalNds = 0;
 
@@ -699,8 +718,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-        document.getElementById('total-sum').textContent = total.toFixed(2);
-        document.getElementById('total-nds').textContent = totalNds.toFixed(2);
+        if (document.getElementById('total-sum')) {
+            document.getElementById('total-sum').textContent = total.toFixed(2);
+        }
+        if (document.getElementById('total-nds')) {
+            document.getElementById('total-nds').textContent = totalNds.toFixed(2);
+        }
     }
 
     function calculateRowSum(row) {
@@ -1097,7 +1120,7 @@ function updateFields(labels) {
         var fieldHtml = `
             <div class="form-group">
                 <label for="dop_id_${label.id}">${label.name}</label>
-                <input type="text" name="${label.code}" id="dop_id_${label.id}" class="form-control">
+                <input type="text" name="${label.code}" id="dop_id_${label.id}" class="form-control w-md-50">
             </div>
         `;
         $('#new_fields_container').append(fieldHtml);
